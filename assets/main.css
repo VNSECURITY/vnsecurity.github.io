@@ -334,7 +334,7 @@ Colunms
     padding-right:25px;
     margin-right:-1px;
     border-right:1px solid #ebebeb;
-    width:665px;
+    width:715px;
 }
 
 .mb-20 {
@@ -957,7 +957,7 @@ Widget-area-3
 ============================================================ */
 .sidebar {
     float:left;
-    width:300px;
+    width:250px;
     padding-left:25px;
     border-left:1px solid #ebebeb;
 }
