@@ -6,7 +6,7 @@ layout: default_sidebar
 
 ### Viết bài cho VNSecurity.net
 ***
-Phiên bản hiện tại của VNSecurity.net được xây dựng trên nền Jekyll, nội dung gốc được lưu trữ ở [https://github.com/VNSECURITY/vnsecurity.github.io]. Để viết bài, bạn cần một tài khoản github có quyền commit đến repository này.
+Phiên bản hiện tại của VNSecurity.net được xây dựng trên nền Jekyll, nội dung gốc được lưu trữ ở [https://github.com/VNSECURITY/vnsecurity.github.io](https://github.com/VNSECURITY/vnsecurity.github.io). Để viết bài, bạn cần một tài khoản github có quyền commit đến repository này.
 
 Để gửi bài mới lên VNSecurity.net, bạn cần tạo một *file* trong thư mục `_posts` với định dạng tên  `<năm-tháng-ngày>-tiêu-đề-bài-viết-không-dấu.md`. Ví dụ:
 
