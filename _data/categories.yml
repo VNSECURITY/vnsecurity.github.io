@@ -1,0 +1,14 @@
+- slug: news
+  name: News
+
+- slug: tutorials
+  name: Tutorials
+
+- slug: research
+  name: Research
+
+- slug: ctf - clgt crew
+  name: CTF - CLGT Crew
+
+- slug: misc
+  name: Misc
