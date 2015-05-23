@@ -3,7 +3,7 @@ title: '[CodeGate CTF 2015 - Quals] pirate_danbi'
 author: tinduong, k9, trichimtrich
 layout: post
 category: ctf - clgt crew
-excerpt: Reversing a binary that manipulate bz2 file.
+excerpt: Reversing a binary that manipulates bz2 file.
 thumbnail: /assets/2015/03/codegate-danbi-thumbnails.jpg
 tags:
   - ctf
