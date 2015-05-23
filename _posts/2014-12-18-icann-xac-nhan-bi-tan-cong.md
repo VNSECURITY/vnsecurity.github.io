@@ -3,8 +3,7 @@
 title: 'ICANN Xác Nhận Bị Tấn Công'
 author: jot
 layout: post
-categories:
-  - news
+category: news
 thumbnail: /assets/2014/12/hacked-icann.jpg
 tags:
   - news

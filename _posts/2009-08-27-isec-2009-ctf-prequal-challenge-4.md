@@ -14,7 +14,7 @@ twittercomments:
   - 'a:0:{}'
 tweetcount:
   - 0
-categories:
+category:
   - 'CTF - CLGT Crew'
 ---
 This was a funny challenge. Below are two pictures provided by the organizer. Just use a picture compare tool and look in to the girl&#8217;s boobs. There is nothing to say more.

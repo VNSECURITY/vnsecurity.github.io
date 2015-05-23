@@ -13,7 +13,7 @@ twittercomments:
   - 'a:0:{}'
 tweetcount:
   - 0
-categories:
+category:
   - 'CTF - CLGT Crew'
 ---
 Defcon 18 CTF qualification round will be started in the next few hours.  We&#8217;ll try our best to get into the final.

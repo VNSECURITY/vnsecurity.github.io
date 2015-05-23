@@ -13,7 +13,7 @@ twittercomments:
   - 'a:1:{i:10730529254;s:7:"retweet";}'
 tweetbackscheck:
   - 1408359013
-categories:
+category:
   - tutorials
 ---
 Rob Carter has posted a blog on how to [pwn a box via a pure CSRF bug][1] of a uTorrent plugin. When a user installs the uTorrent Web UI plugin, the plugin starts a locally running web server on your machine. Basically, his CSRF exploit force uTorrent to move completed downloads to an arbitrary directory on their system, download arbitrary torrents, and completely own their box. </p> 

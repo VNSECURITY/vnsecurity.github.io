@@ -13,7 +13,7 @@ twittercomments:
   - 'a:15:{i:10669477304;s:7:"retweet";i:10576939772;s:7:"retweet";i:10576509003;s:7:"retweet";i:10574391696;s:7:"retweet";i:10574255769;s:7:"retweet";i:10570427157;s:7:"retweet";i:10567867606;s:7:"retweet";i:10566679249;s:7:"retweet";i:10566402877;s:7:"retweet";i:10566331495;s:7:"retweet";i:10566131337;s:7:"retweet";i:10566057902;s:7:"retweet";i:10566052947;s:7:"retweet";i:10565532796;s:7:"retweet";i:10565472354;s:7:"retweet";}'
 tweetcount:
   - 15
-categories:
+category:
   - 'CTF - CLGT Crew'
 tags:
   - '2010'

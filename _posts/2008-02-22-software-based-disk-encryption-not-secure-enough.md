@@ -16,7 +16,7 @@ twittercomments:
   - 'a:0:{}'
 aktt_notify_twitter:
   - no
-categories:
+category:
   - news
 ---
 Contrary to conventional wisdom, &#8220;volatile&#8221; semiconductor memory does not entirely lose its contents when power is removed. Both static (SRAM) and dynamic (DRAM) memory retains some information on the data stored in it while power was still applied and they still hold values for a long intervals without power or refresh. This is a known [2] problem for a long long time. However, no one has ever tried (or published) any practical attack on this problem like what Princeton University researchers did.

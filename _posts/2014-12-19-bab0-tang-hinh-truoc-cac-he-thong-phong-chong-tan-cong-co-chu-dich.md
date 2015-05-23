@@ -2,8 +2,7 @@
 title: 'BAB0 &#8211; Tàng hình trước các hệ thống phòng chống tấn công có chủ đích'
 author: tienpp
 layout: post
-categories:
-  - news
+category: news
 excerpt: Chưa đầy một tháng trước. MRG Effitas và CrySyS Lab công bố một thông tin gây hoang mang các nhà sản xuất sản phẩm phát hiện tấn công có chủ đích (APT attack detection) như SourceFire (Cisco), Checkpoint, Damballa, Fidelis XPS, FireEye, Fortinet, LastLine, WildFire (Palo Alto), Deep Discovery (Trend Micro) và Websense. Hai ngày trước họ đã công bố các mẫu thử của mình.
 thumbnail: /assets/2014/12/Unico_Anello1.png
 tags:

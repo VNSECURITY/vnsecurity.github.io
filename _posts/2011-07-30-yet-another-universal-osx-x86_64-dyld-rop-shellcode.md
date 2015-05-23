@@ -15,7 +15,7 @@ tweetcount:
   - 0
 kopa_newsmixlight_total_view:
   - 2
-categories:
+category:
   - research
 tags:
   - '2011'

@@ -14,7 +14,7 @@ twittercomments:
   - 'a:0:{}'
 tweetcount:
   - 0
-categories:
+category:
   - tutorials
 ---
 Nothing much in this blog entry. If you&#8217;re lucky to land on this page via a Google search, this collision pair might help you.

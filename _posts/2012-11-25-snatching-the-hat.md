@@ -11,8 +11,7 @@ tweetbackscheck:
   - 1408358878
 kopa_newsmixlight_total_view:
   - 2
-categories:
-  - 'CTF - CLGT Crew'
+category: ctf - clgt crew
 tags:
   - CTF
   - snatching the h@t

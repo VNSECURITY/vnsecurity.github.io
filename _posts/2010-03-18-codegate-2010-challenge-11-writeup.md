@@ -13,7 +13,7 @@ twittercomments:
   - 'a:2:{i:10694573292;s:7:"retweet";i:10669504654;s:7:"retweet";}'
 tweetcount:
   - 2
-categories:
+category:
   - 'CTF - CLGT Crew'
 tags:
   - '2010'

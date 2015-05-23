@@ -13,7 +13,7 @@ twittercomments:
   - 'a:0:{}'
 tweetbackscheck:
   - 1408359008
-categories:
+category:
   - news
 ---
 Debian developer vào 05/2006 đã <a href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=363516" target="_blank">chỉnh sửa lại code của OpenSSL</a> sau khi sửa lỗi &#8220;uninitialized variable&#8221; do <a href="http://valgrind.org/" target="_blank">valgrind</a> cảnh báo. Tuy nhiên do không hiểu đây là sự cố tình sử dụng biến không được khởi tạo như một yếu tố &#8220;ngẫu nhiễn&#8221; của OpenSSL developer, Debian developer <a href="http://svn.debian.org/viewsvn/pkg-openssl/openssl/trunk/rand/md_rand.c?rev=141&view=diff&r1=141&r2=140&p1=openssl/trunk/rand/md_rand.c&p2=/openssl/trunk/rand/md_rand.c" target="_blank">đã loại bỏ một số đoạn mã trong hàm PRNG</a> khiến cho cho bộ sinh số ngẫu nhiên này chỉ được &#8220;seed&#8221; bởi process pid từ hệ thống. Điều này dẫn đến thư viện OpenSSL do Debian cung cấp này chỉ sinh ra 32,768 cặp khóa duy nhất từ PRNG, đồng nghĩa với việc độ an toàn của các khóa RSA, DSA, &#8230; chỉ còn là 15 bits.

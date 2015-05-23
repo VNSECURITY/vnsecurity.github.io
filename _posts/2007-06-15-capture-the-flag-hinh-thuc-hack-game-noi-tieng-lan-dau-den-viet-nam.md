@@ -15,7 +15,7 @@ shorturls:
   - 'a:4:{s:9:"permalink";s:102:"http://www.vnsecurity.net/2007/06/capture-the-flag-hinh-thuc-hack-game-noi-tieng-lan-dau-den-viet-nam/";s:7:"tinyurl";s:26:"http://tinyurl.com/yznshwz";s:4:"isgd";s:18:"http://is.gd/aOudW";s:5:"bitly";s:0:"";}'
 aktt_notify_twitter:
   - no
-categories:
+category:
   - 'CTF - CLGT Crew'
 ---
 Trong khuôn khổ hội thảo bảo mật [VNSECON &#8217;07][1] sẽ tổ chức tại TpHCM tháng 8 tới, hình thức hack game nổi tiếng [Capture the Flag][2] (CTF) sẽ lần đầu được tổ chức tại Việt Nam. VNSECON CTF lần này hy vọng sẽ là một sân chơi mở, cạnh tranh và hấp dẫn cho các nhóm bảo mật trong nước và nước ngoài so tài.

@@ -11,8 +11,7 @@ tweetbackscheck:
   - 1408358959
 kopa_newsmixlight_total_view:
   - 1
-categories:
-  - 'CTF - CLGT Crew'
+category: ctf - clgt crew
 tags:
   - CLGT
   - CTF

@@ -2,8 +2,7 @@
 title: '[31C3CTF 2014] crypto10-hwaes'
 author: crazyboy, jot, k9, pdah
 layout: post
-categories:
-  - 'CTF - CLGT Crew'
+category: ctf - clgt crew
 excerpt: 31C3CTF writeup for crypto10-hwaes
 thumbnail: /assets/2014/12/vnsec_logo.png
 tags:

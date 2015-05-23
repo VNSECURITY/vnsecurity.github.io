@@ -14,7 +14,7 @@ twittercomments:
   - 'a:0:{}'
 tweetcount:
   - 0
-categories:
+category:
   - misc
 ---
 So, it&#8217;s been half a year. It&#8217;s been half a year in turbulence.

@@ -14,7 +14,7 @@ twittercomments:
   - 'a:0:{}'
 tweetcount:
   - 0
-categories:
+category:
   - tutorials
 ---
 Ngồi mân mê cái laptop thấy cpu bị switch khỏi idle mode rất nhiều. Ngó nghiêng một lúc thấy nguyên nhân là tại xvnkb nhà ta.  usleep(10000) được gọi liên tục trong main.c.

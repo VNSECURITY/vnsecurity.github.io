@@ -15,7 +15,7 @@ twittercomments:
   - 'a:1:{i:10730136187;s:7:"retweet";}'
 aktt_notify_twitter:
   - no
-categories:
+category:
   - news
 ---
 Mở công ty, mua bán nhà, xin cho con đi học, làm đơn xin học bổng, v.v&#8230; đều cần đến bản sao CMND. Và thông thường các bản sao này nhất định phải có con dấu chứng thực của Ủy ban nhân dân phường.

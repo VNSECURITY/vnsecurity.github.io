@@ -14,7 +14,7 @@ twittercomments:
   - 'a:0:{}'
 tweetcount:
   - 0
-categories:
+category:
   - tutorials
 ---
 I just came back from the first day of OWASP AppSec Asia 2008 in Taipei. Beside two t-shirts, I got to be among the first privilege group to preview Robert Hansen&#8217;s presentation on Clickjacking. The show is scheduled for the second day, tomorrow, but I have to fly to Kuala Lumpur. How lucky am I!

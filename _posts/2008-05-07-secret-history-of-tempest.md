@@ -13,7 +13,7 @@ tweetcount:
   - 0
 twittercomments:
   - 'a:0:{}'
-categories:
+category:
   - news
 ---
 It was 1943, and an engineer with Bell Telephone was working on one of the U.S. government&#8217;s most sensitive and important pieces of wartime machinery, a Bell Telephone model 131-B2. It was a top secret encrypted teletype terminal used by the Army and Navy to transmit wartime communications that could defy German and Japanese cryptanalysis.

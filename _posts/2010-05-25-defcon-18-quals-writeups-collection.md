@@ -15,7 +15,7 @@ tweetcount:
   - 91
 kopa_newsmixlight_total_view:
   - 3
-categories:
+category:
   - 'CTF - CLGT Crew'
 tags:
   - CTF

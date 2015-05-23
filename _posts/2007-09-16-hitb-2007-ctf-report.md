@@ -13,7 +13,7 @@ shorturls:
   - 'a:4:{s:9:"permalink";s:55:"http://www.vnsecurity.net/2007/09/hitb-2007-ctf-report/";s:7:"tinyurl";s:26:"http://tinyurl.com/ya4h74x";s:4:"isgd";s:18:"http://is.gd/aOub5";s:5:"bitly";s:0:"";}'
 twittercomments:
   - 'a:1:{i:10730343033;s:7:"retweet";}'
-categories:
+category:
   - 'CTF - CLGT Crew'
 ---
 We decided to join [HITB 2007 CTF][1] in Kualar Lumpur just after the [VNSECON &#8217;07][2] in August. Our team, [Sao Vang][3] from vnSecurity, is the last (10th) team registered, and we had only 1 month to prepare for the competition. It&#8217;s unbelievable that we win the game!

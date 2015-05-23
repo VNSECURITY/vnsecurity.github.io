@@ -13,7 +13,7 @@ shorturls:
   - 'a:4:{s:9:"permalink";s:89:"http://www.vnsecurity.net/2009/12/what-may-happen-to-your-laptop-when-you-come-to-israel/";s:7:"tinyurl";s:26:"http://tinyurl.com/ycoz5a5";s:4:"isgd";s:18:"http://is.gd/aOufb";s:5:"bitly";s:0:"";}'
 tweetbackscheck:
   - 1408358986
-categories:
+category:
   - misc
 tags:
   - Israel

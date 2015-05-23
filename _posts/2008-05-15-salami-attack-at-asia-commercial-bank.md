@@ -13,7 +13,7 @@ twittercomments:
   - 'a:0:{}'
 tweetcount:
   - 0
-categories:
+category:
   - news
 ---
 Sáng nay khoảng 10:00 mình ra ngân hàng ACB ở đường Xuân Hồng, ngay phía sau khu triển lãm Tân Bình để đổi 100 đồng Mỹ ra tiền Việt.

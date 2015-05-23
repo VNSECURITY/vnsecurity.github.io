@@ -16,7 +16,7 @@ tweetcount:
   - 0
 kopa_newsmixlight_total_view:
   - 17
-categories:
+category:
   - 'CTF - CLGT Crew'
 ---
 The contest started at 20:00 GMT+7 on March 06 and ended at 22:00 GMT+7 on March 08 (sorry to the ladies, we ignored yall). There were about 500 registered teams for the preliminary round. I reckon more than half of them were by-products of hacking attempts at the registration site.

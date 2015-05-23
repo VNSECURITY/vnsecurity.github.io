@@ -2,8 +2,7 @@
 title: 'Tor &#8211; Xác định các exit relay độc hại'
 author: tienpp
 layout: post
-categories:
-  - tutorials
+category: tutorials
 thumbnail: /assets/2014/08/Tor_logo1.png
 tags:
   - exit relay

@@ -13,7 +13,7 @@ tweetcount:
   - 0
 twittercomments:
   - 'a:0:{}'
-categories:
+category:
   - news
 ---
 Jaan Yeh, a final year student at [Malaysia Multimedia University (MMU)][1] invited to me to its Melaka campus to conduct another training on software exploitation. I was ready and eager to take on this first overseas training engagement. But little did I know there was a big surprise awaiting.

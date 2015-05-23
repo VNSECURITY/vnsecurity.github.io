@@ -14,7 +14,7 @@ twittercomments:
   - 'a:0:{}'
 tweetcount:
   - 0
-categories:
+category:
   - tutorials
 ---
 At the moment, the package only sports two encoders: fnstenv and jmp/call encoders. Both are classic xor encoders. Hope you find it useful.

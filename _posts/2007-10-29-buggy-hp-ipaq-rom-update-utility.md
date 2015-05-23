@@ -10,7 +10,7 @@ shorturls:
   - 'a:4:{s:9:"permalink";s:68:"https://www.vnsecurity.net/2007/10/buggy-hp-ipaq-rom-update-utility/";s:7:"tinyurl";s:26:"http://tinyurl.com/y933ahx";s:4:"isgd";s:18:"http://is.gd/aOtkm";s:5:"bitly";s:20:"http://bit.ly/8efKrW";}'
 twittercomments:
   - 'a:0:{}'
-categories:
+category:
   - tutorials
 ---
 Last weekend I tried to re-flash a HP ipaq rw6828 using the latest <a href="http://h20000.www2.hp.com/bizsupport/TechSupport/SoftwareDescription.jsp?lang=en&cc=us&prodTypeId=215348&prodSeriesId=1839223&prodNameId=1839228&swEnvOID=2067&swLang=8&mode=2&taskId=135&swItem=ip-45505-1" target="_blank">HP iPAQ ROM Update 1.01.03</a> from HP website.

@@ -11,7 +11,7 @@ tweetcount:
   - 0
 twittercomments:
   - 'a:0:{}'
-categories:
+category:
   - news
 tags:
   - wordpress

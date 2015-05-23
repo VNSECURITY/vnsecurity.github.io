@@ -13,7 +13,7 @@ tweetbackscheck:
   - 1408359078
 tweetcount:
   - 0
-categories:
+category:
   - 'CTF - CLGT Crew'
 ---
 I&#8217;m washed, totally, so I&#8217;m just putting up a few words to say that team Sao Vang captured the flag in this year [HITB][1]. I&#8217;m sure skz0, the team&#8217;s leader, will post a [longer blog][2] entry detailing this experience. Congrats to the team, once again.

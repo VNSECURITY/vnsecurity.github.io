@@ -4,8 +4,7 @@ author: suto
 layout: post
 thumbnail: /assets/2015/02/ie.png
 excerpt: In late 2014, Microsoft patched a bug related to unitialized memory corruption that leads to code execution. Here's my attempt to reproduce the bug.
-categories:
-  - research
+category: research
 tags:
   - Reverse Engineering
   - bug

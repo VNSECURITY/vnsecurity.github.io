@@ -16,7 +16,7 @@ tweetcount:
   - 0
 aktt_notify_twitter:
   - no
-categories:
+category:
   - research
 tags:
   - mitm

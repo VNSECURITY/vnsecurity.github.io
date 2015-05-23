@@ -15,7 +15,7 @@ twittercomments:
   - 'a:1:{i:10729894580;s:7:"retweet";}'
 aktt_notify_twitter:
   - no
-categories:
+category:
   - news
 ---
 Theo báo Sài Gòn Giải Phóng ngày 31 tháng 03 năm 2008, lực lượng công an đã bắt được một vài nhóm tội phạm từ các quốc gia khác giả mạo chữ ký và thẻ tín dụng để mua hàng và đánh cắp tiền từ các ngân hàng Việt Nam.

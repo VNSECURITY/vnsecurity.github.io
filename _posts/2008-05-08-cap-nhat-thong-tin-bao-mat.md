@@ -15,7 +15,7 @@ tweetbackscheck:
   - 1408359011
 aktt_notify_twitter:
   - no
-categories:
+category:
   - news
 ---
 **Gentoo** vừa cập nhật [x11][1] (nhiều lỗi), [egroupware][2] (nhiều lỗi) và [wireshark][3] (denial of service). 

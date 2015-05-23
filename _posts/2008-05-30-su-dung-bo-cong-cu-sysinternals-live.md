@@ -16,7 +16,7 @@ tweetcount:
   - 0
 aktt_notify_twitter:
   - no
-categories:
+category:
   - tutorials
 ---
 Những nhà quản trị đã quá quen thuộc với bộ công cụ của SysInternals như Process Explorer, TcpView, Rootkit Revealer. Các công cụ này đã rất dễ được tải về và sử dụng, giờ đây lại càng dễ hơn nữa. Ví dụ như bạn có thể chạy ngay công cụ Process Explorer mới nhất bằng cách gõ dòng lệnh:

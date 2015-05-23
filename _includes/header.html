@@ -49,7 +49,7 @@
                 </li>
                 {% for category in site.menu_categories %}
                     <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
-                        <a href="{{ category | category_link | prepend: site.baseurl }}">{{ category }}</a>
+                        <a href="{{ category | prepend: '/category/' | prepend: site.baseurl }}">{{ category }}</a>
                     </li>
                     <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
                     |

@@ -16,7 +16,7 @@ twittercomments:
   - 'a:0:{}'
 tweetcount:
   - 0
-categories:
+category:
   - 'CTF - CLGT Crew'
 ---
 Last week or so I joined CLGT to take part in [HackJam 2009][1] by Sapheads. AFAIK this is the first CTF that Sapheads organizes, but they had done a very good job. To most people&#8217;s surprise, the contest attacted quite a lot of teams from around the world, and it had quickly become an international competition.

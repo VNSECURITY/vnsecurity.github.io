@@ -9,8 +9,7 @@ shorturls:
   - 'a:0:{}'
 tweetbackscheck:
   - 1408358962
-categories:
-  - 'CTF - CLGT Crew'
+category: ctf - clgt crew
 ---
 > The famous zombie researcher “Donn Beach” almost created an immunization  
 > against the dipsomanie virus. This severe disease leads to the inability to  

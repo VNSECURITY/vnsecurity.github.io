@@ -14,7 +14,7 @@ twittercomments:
   - 'a:1:{i:10715153393;s:7:"retweet";}'
 tweetcount:
   - 1
-categories:
+category:
   - 'CTF - CLGT Crew'
 ---
 ## Challenge 2

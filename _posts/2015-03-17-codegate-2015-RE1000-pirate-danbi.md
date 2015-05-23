@@ -1,9 +1,9 @@
 ---
-title: 'CodeGate General CTF 2015: pirate_danbi'
+title: '[CodeGate CTF 2015 - Quals] pirate_danbi'
 author: tinduong, k9, trichimtrich
 layout: post
-categories:
-  - ctf - clgt crew
+category: ctf - clgt crew
+excerpt: Reversing a binary that manipulate bz2 file.
 thumbnail: /assets/2015/03/codegate-danbi-thumbnails.jpg
 tags:
   - ctf
@@ -61,6 +61,7 @@ Depend on what func_code is, the corresponding function will be called. There ar
 ![](/assets/2015/03/codegate-danbi-2.png)
 
 In summary, what we need to notice about this binary are:
+
 * We can write our data into a bz2 file.
 * We can extract the bz2 if dw_writeable = 1.
 * If our processed data from authentication function is equal to "YO_DANBI_CREW_IN_THE_HOUSE.", dw_run_shell can be set to 1.
@@ -138,6 +139,7 @@ This approach is one of two ways to solve this challenge.
 ![](/assets/2015/03/codegate-danbi-5.png)
 
 We have key and output (YO_DANBI_CREW_IN_THE_HOUSE.), we need a correct input to send to authentication function. Just reverse the calculation and we get it, then send data to server in the following step:
+
 - Send command 1 with our input.
 - Send command 4 to set dw_run_shell to 1
 - Send command 2 with bz2 compressed data.

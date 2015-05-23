@@ -14,7 +14,7 @@ twittercomments:
   - 'a:0:{}'
 tweetcount:
   - 0
-categories:
+category:
   - 'CTF - CLGT Crew'
 ---
 [Challenge 8][1] (not accessible atm) is the only web hacking challenge in WOWHacker&#8217;s CTF. In hindsight it&#8217;s not very difficult, but in fact it took us almost 1 day to solve it.

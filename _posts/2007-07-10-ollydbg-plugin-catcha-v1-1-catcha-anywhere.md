@@ -10,7 +10,7 @@ shorturls:
   - 'a:4:{s:9:"permalink";s:77:"http://www.vnsecurity.net/2007/07/ollydbg-plugin-catcha-v1-1-catcha-anywhere/";s:7:"tinyurl";s:26:"http://tinyurl.com/ydnmnhn";s:4:"isgd";s:18:"http://is.gd/aOucH";s:5:"bitly";s:0:"";}'
 tweetbackscheck:
   - 1408359063
-categories:
+category:
   - tutorials
 ---
 <a title="OllyDbg plugin: Catcha! v1.1" class="generated" href="/vnsec/Members/internal/public/ollydbg-plugin-catcha/Catcha-1.1.rar">OllyDbg plugin: Catcha! v1.1</a> 

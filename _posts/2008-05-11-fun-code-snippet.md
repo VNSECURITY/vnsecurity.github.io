@@ -11,7 +11,7 @@ twittercomments:
   - 'a:0:{}'
 tweetbackscheck:
   - 1408359009
-categories:
+category:
   - tutorials
 ---
 This small snippet is copied from a much popular application.

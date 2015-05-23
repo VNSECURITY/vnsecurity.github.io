@@ -13,7 +13,7 @@ shorturls:
   - 'a:4:{s:5:"bitly";s:0:"";s:9:"permalink";s:68:"http://www.vnsecurity.net/2010/03/codegate-2010-challenge-6-writeup/";s:7:"tinyurl";s:26:"http://tinyurl.com/yd9hlug";s:4:"isgd";s:18:"http://is.gd/aPLeG";}'
 tweetbackscheck:
   - 1408358980
-categories:
+category:
   - 'CTF - CLGT Crew'
 tags:
   - '2010'

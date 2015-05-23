@@ -3,8 +3,7 @@ title: Lấy lời nhạc nhaccuatui.com
 author: tienpp
 layout: post
 thumbnail: /assets/2014/08/nhac_cua_tui.png
-categories:
-  - tutorials
+category: tutorials
 ---
 Nhaccuatui vừa nâng cấp trình chơi nhạc trên web của mình có thể hiển thị lời nhạc theo thời gian khá tốt. Bài viết này sẽ trình bày các bước để lấy lời nhạc đó và cung cấp một công cụ để thực hiện trong 1 cú enter <img src="http://vnsec-new.cloudapp.net/wp/wp-includes/images/smilies/icon_wink.gif" alt=";)" class="wp-smiley" /> (*).
 

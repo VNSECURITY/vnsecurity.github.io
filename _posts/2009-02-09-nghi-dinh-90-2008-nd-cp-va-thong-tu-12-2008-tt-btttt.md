@@ -16,7 +16,7 @@ tweetcount:
   - 0
 aktt_notify_twitter:
   - no
-categories:
+category:
   - news
 ---
 Có điều là, ngoài các vấn đề kỹ thuật cơ bản khác, bản thân trung tâm điều phối lại sử dụng những địa chỉ thư điện tử như thế này đây:

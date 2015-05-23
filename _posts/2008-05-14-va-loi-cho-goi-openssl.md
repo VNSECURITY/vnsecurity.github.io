@@ -15,7 +15,7 @@ tweetcount:
   - 0
 aktt_notify_twitter:
   - no
-categories:
+category:
   - news
 ---
 Các phiên bản có chứa lỗi:

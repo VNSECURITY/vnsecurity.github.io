@@ -15,7 +15,7 @@ twittercomments:
   - 'a:0:{}'
 aktt_notify_twitter:
   - no
-categories:
+category:
   - news
 ---
 </p> 

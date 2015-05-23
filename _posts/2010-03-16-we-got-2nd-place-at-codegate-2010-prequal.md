@@ -15,7 +15,7 @@ tweetcount:
   - 1
 kopa_newsmixlight_total_view:
   - 1
-categories:
+category:
   - 'CTF - CLGT Crew'
 tags:
   - '2010'

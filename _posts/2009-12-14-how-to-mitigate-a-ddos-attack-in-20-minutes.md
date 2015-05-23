@@ -13,7 +13,7 @@ tweetbackscheck:
   - 1408358987
 aktt_notify_twitter:
   - no
-categories:
+category:
   - research
 tags:
   - DDoS

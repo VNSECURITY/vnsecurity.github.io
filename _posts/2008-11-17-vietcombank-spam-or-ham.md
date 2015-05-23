@@ -14,7 +14,7 @@ twittercomments:
   - 'a:0:{}'
 tweetcount:
   - 0
-categories:
+category:
   - news
 ---
 Here&#8217;s the plain message. Of course I masked my email address.</p> 

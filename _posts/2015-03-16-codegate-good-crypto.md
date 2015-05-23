@@ -1,9 +1,9 @@
 ---
-title: 'CodeGate General CTF 2015: good-crypto'
+title: '[CodeGate CTF 2015 - Quals] good-crypto'
 author: vhnvn
 layout: post
-categories:
-  - ctf - clgt crew
+category: ctf - clgt crew
+excerpt: Cracking a WEP passphrase given its SHA1 prefix, charset and corresponding WEP key.
 thumbnail: /assets/2015/03/wep.png
 tags:
   - ctf

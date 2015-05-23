@@ -11,7 +11,7 @@ shorturls:
   - 'a:4:{s:9:"permalink";s:61:"http://www.vnsecurity.net/2009/12/hitb-2009-daemon6-write-up/";s:7:"tinyurl";s:26:"http://tinyurl.com/ycgsfll";s:4:"isgd";s:18:"http://is.gd/aOueG";s:5:"bitly";s:0:"";}'
 tweetbackscheck:
   - 1408358987
-categories:
+category:
   - 'CTF - CLGT Crew'
 tags:
   - '2009'

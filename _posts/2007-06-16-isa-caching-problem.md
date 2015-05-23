@@ -13,7 +13,7 @@ tweetbackscheck:
   - 1408359024
 shorturls:
   - 'a:4:{s:9:"permalink";s:54:"http://www.vnsecurity.net/2007/06/isa-caching-problem/";s:7:"tinyurl";s:26:"http://tinyurl.com/ydaqwbk";s:4:"isgd";s:18:"http://is.gd/aOudL";s:5:"bitly";s:0:"";}'
-categories:
+category:
   - tutorials
 ---
 Mấy hôm rồi vật lộn với cái vụ cache của ISA. Đề bài rất đơn giản: 2 tài khoản của 2 người ở trong cùng LAN, sử dụng chung ISA2004 làm proxy. Họ login và &#8230; nhìn thấy nội dung tài khoản của nhau. Làm sao giải quyết?

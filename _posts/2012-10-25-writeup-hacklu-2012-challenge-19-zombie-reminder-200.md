@@ -9,8 +9,7 @@ shorturls:
   - 'a:0:{}'
 tweetbackscheck:
   - 1408358963
-categories:
-  - 'CTF - CLGT Crew'
+category: ctf - clgt crew
 tags:
   - '2012'
   - CTF

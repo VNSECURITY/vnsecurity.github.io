@@ -15,7 +15,7 @@ tweetbackscheck:
   - 1408359081
 aktt_notify_twitter:
   - no
-categories:
+category:
   - tutorials
 ---
 Một điều ít người biết là thật ra các tài liệu này có thể được Intel gửi tới **miễn phí**. Bạn có thể vào địa chỉ  <http://www.intel.com/products/processor/manuals/> để đặt hàng họ gửi tới tận nhà. Chỉ cần email cho Intel và cung cấp số serial của tài liệu (SKU number) cùng địa chỉ của mình, rồi ngồi chờ bưu điện chuyển tới.

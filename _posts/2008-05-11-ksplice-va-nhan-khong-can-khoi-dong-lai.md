@@ -15,7 +15,7 @@ tweetbackscheck:
   - 1408359008
 aktt_notify_twitter:
   - no
-categories:
+category:
   - tutorials
 ---
 The kernel developers are generally quite good about responding to security problems. Once a vulnerability in the kernel has been found, a patch comes out in short order; system administrators can then apply the patch (or get a patched kernel from their distributor), reboot the system, and get on with life knowing that the vulnerability has been fixed. It is a system which works pretty well. 

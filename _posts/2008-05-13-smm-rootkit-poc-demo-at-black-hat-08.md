@@ -15,7 +15,7 @@ twittercomments:
   - 'a:0:{}'
 aktt_notify_twitter:
   - no
-categories:
+category:
   - news
 ---
 Với kiến trúc IA32/64, để thay đổi SMI handler (cho rootkit) có thể patch BIOS code hoặc thay đổi trực tiếp từ SMRAM nếu D_LCK bit không được set hoặc tận dụng lỗi của CPU/Chipset/BIOS cho phép truy cập vùng nhớ SMRAM. ITP (In-Target Probe) cũng có thể được dùng để thay đổi SMRAM hay debug SMI handler.  Theo thông tin được biết từ tác giả của SMM rookit sẽ trình bày tại [BlackHat 08][1] sắp tới thì họ tận dụng lỗi cũ được công bố năm 2006 khi BIOS không khóa vùng nhớ SMRAM. Duflot đã trình bày việc tận dụng lỗi này để phá lớp bảo vệ của *OpenBSD secure levels* tại CanSecWest 2006. BSDaemon cũng đã đề cập một phần về chủ đề này tại [VNSECON 07][2] và viết một bài nghiên cứu về việc này trên Phrack Magazine.

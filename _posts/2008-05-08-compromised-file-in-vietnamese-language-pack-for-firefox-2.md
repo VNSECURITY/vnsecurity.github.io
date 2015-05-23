@@ -13,7 +13,7 @@ tweetcount:
   - 0
 tweetbackscheck:
   - 1408359012
-categories:
+category:
   - news
 ---
 This code is the result of a virus infection, but does not contain the virus itself.  This usually results in the user seeing unwanted ads, but may be used for more malicious actions.

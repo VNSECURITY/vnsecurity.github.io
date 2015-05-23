@@ -13,7 +13,7 @@ twittercomments:
   - 'a:0:{}'
 tweetcount:
   - 0
-categories:
+category:
   - research
 tags:
   - '2010'

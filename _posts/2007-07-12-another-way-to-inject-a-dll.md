@@ -13,7 +13,7 @@ shorturls:
   - 'a:4:{s:9:"permalink";s:62:"http://www.vnsecurity.net/2007/07/another-way-to-inject-a-dll/";s:7:"tinyurl";s:26:"http://tinyurl.com/y8zlc5g";s:4:"isgd";s:18:"http://is.gd/aOucv";s:5:"bitly";s:0:"";}'
 tweetbackscheck:
   - 1408359062
-categories:
+category:
   - tutorials
 ---
 Read this first: <a class="generated" href="archive/2007/07/10/ollydbg-plugin-catcha-v1-1-catcha-anywhere">OllyDbg plugin: Catcha! v1.1 &#8211; Catcha anywhere</a> 

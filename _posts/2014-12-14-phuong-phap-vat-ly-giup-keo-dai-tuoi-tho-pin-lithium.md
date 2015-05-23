@@ -3,8 +3,7 @@
 title: 'Phương pháp vật lý giúp kéo dài tuổi thọ pin pithium'
 author: knight9
 layout: post
-categories:
-  - misc
+category: misc
 thumbnail: /assets/2014/12/li-battery.jpg
 tags:
   - lithium

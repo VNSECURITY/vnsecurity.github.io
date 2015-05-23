@@ -2,8 +2,7 @@
 title: 'VNSEC Security Course 0x101 - RE|EX'
 author: suto
 layout: post
-categories:
-  - news
+category: news
 thumbnail: /assets/2014/12/reverse_engineer.png
 excerpt: Một số vấn đề cơ bản và chuyên sâu về hacking và security sẽ được thành viên nhóm VNSecurity trình bày trong thời gian tới
 tags:

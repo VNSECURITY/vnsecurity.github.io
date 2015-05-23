@@ -1,9 +1,8 @@
 ---
-title: 'Plaid CTF 2015: radhos'
+title: '[Plaid CTF 2015] radhos'
 author: vhnvn
 layout: post
-categories:
-  - ctf - clgt crew
+category: ctf - clgt crew
 thumbnail: /assets/2015/04/ppp-web.png
 tags:
   - ctf
@@ -11,6 +10,7 @@ tags:
   - programming
   - web
   - crypto
+excerpt: Hash collisions attack on a web application.
 ---
 
 **Category:** Web
@@ -20,7 +20,7 @@ tags:
 **Description:**
 
 > A web scale key value store, for your enjoyment!
-
+>
 > Should be working
 > Running at 52.6.62.188 port 9009
 

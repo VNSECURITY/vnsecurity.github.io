@@ -13,7 +13,7 @@ tweetbackscheck:
   - 1408359081
 shorturls:
   - 'a:4:{s:9:"permalink";s:76:"http://www.vnsecurity.net/2007/05/interesting-arithmetic-assembly-sequences/";s:7:"tinyurl";s:26:"http://tinyurl.com/ydfxd97";s:4:"isgd";s:18:"http://is.gd/aOuec";s:5:"bitly";s:0:"";}'
-categories:
+category:
   - research
 ---
 All examples below use signed integers.

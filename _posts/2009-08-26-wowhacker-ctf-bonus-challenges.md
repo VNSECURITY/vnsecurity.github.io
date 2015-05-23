@@ -16,7 +16,7 @@ tweetcount:
   - 0
 kopa_newsmixlight_total_view:
   - 1
-categories:
+category:
   - 'CTF - CLGT Crew'
 ---
 ## **Challenge 15**

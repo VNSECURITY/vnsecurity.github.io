@@ -13,7 +13,7 @@ shorturls:
   - 'a:4:{s:9:"permalink";s:76:"https://www.vnsecurity.net/2008/02/software-expoitation-training-from-lamer/";s:7:"tinyurl";s:26:"http://tinyurl.com/ybjatar";s:4:"isgd";s:18:"http://is.gd/aOtjO";s:5:"bitly";s:20:"http://bit.ly/6VoJFG";}'
 tweetbackscheck:
   - 1408359068
-categories:
+category:
   - news
 ---
 The course lasted 2 days (Feb 16th and 17th, 2008), and, in my opinion, was very interesting. That&#8217;s the motivation for me to write these from a learner&#8217;s point of view.

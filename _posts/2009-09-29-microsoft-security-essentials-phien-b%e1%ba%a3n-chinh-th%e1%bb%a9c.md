@@ -18,7 +18,7 @@ aktt_notify_twitter:
   - no
 kopa_newsmixlight_total_view:
   - 1
-categories:
+category:
   - news
 ---
 Cái mà mình thật sự quan tâm không phải về chất lượng sản phẩm diệt virus này (nó tốt, ok, <a class="reference" href="http://www.computerworld.com/s/article/9134753/Antivirus_testing_outfit_Microsoft_Security_Essentials_makes_the_grade">http://www.computerworld.com/s/article/9134753/Antivirus_testing_outfit_Microsoft_Security_Essentials_makes_the_grade</a>) mà là:

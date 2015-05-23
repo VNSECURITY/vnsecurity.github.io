@@ -14,7 +14,7 @@ twittercomments:
   - 'a:0:{}'
 tweetcount:
   - 0
-categories:
+category:
   - 'CTF - CLGT Crew'
 ---
 Solution for Challenge 3 is bruteforce. The trick is to check every characters of the plaintext to figure out which nibbles it affect in encoded string. The rule is each nibble of encoded string is only affected by one char of plaintext and the character at higher position get higher priority if there&#8217;s a collision.

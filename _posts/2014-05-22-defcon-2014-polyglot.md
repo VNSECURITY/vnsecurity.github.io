@@ -11,9 +11,7 @@ tweetbackscheck:
   - 1408358898
 kopa_newsmixlight_total_view:
   - 1
-categories:
-  - 'CTF - CLGT Crew'
-  - Uncategorized
+category: ctf - clgt crew
 ---
 Challenge was getting 0&#215;1000 bytes from socket, and executing it following these rules (all shellcodes and codes are at the end of this writeup):
 
