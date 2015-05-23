@@ -1,0 +1,96 @@
+<div class="widget widget_text" id="text-2">
+    <h4 class="widget-title clearfix">
+        <span class="title-text">Social Networks</span>
+    </h4>
+    <div class="textwidget">
+        <iframe src="//www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2Fvnsec&amp;width&amp;height=62&amp;colorscheme=light&amp;show_faces=false&amp;header=true&amp;stream=false&amp;show_border=true&amp;appId=1666336543590523" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:62px;" allowTransparency="true"></iframe>
+    </div>
+    <div class="textwidget">
+        <a href="https://twitter.com/vnsec" class="twitter-follow-button" data-show-count="true" data-lang="en">Follow @vnsec</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+        <script src="http://widgets.twimg.com/j/2/widget.js"></script>
+        <script>
+        new TWTR.Widget({
+          version: 2,
+          type: 'list',
+          rpp: 20,
+          interval: 15000,
+          title: 'VNSEC Live Tweets',
+          subject: '',
+          width: 'auto',
+          height: 300,
+          theme: {
+            shell: {
+              background: '#8fc0e6',
+              color: '#ffffff'
+            },
+            tweets: {
+              background: '#ffffff',
+              color: '#444444',
+              links: '#222bd4'
+            }
+          },
+          features: {
+            scrollbar: true,
+            loop: false,
+            live: true,
+            hashtags: true,
+            timestamp: true,
+            avatars: true,
+            behavior: 'all'
+          }
+        }).render().setList('vnsec', 'clgt').start();
+        </script>
+    </div>
+    <div class="widget widget_text">
+        <h4 class="widget-title clearfix">
+            <span class="title-text">About Us</span>
+        </h4>
+        <div class="textwidget">
+            <ul style="list-style-type: circle;">
+                <li>
+                    <a href="{{site.baseurl}}/about-us-vnsecurity.html">VNSecurity</a>
+                </li>
+                <li>
+                    <a href="{{site.baseurl}}/about-us-clgt.html">CLGT CTF Crew</a>
+                </li>
+                <li>
+                    <a href="{{site.baseurl}}/how-to-join.html">How to join</a>
+                </li>
+                <li>
+                    <a href="{{site.baseurl}}/contact.html">Contact us</a>
+                </li>
+            </ul>
+        </div>    
+    </div>
+    <div class="widget widget_text">
+        <h4 class="widget-title clearfix">
+            <span class="title-text">Links</span>
+        </h4>
+        <div class="textwidget">
+            <ul style="list-style-type: circle;">
+                <li>
+                    <a href="https://github.com/longld/peda">PEDA</a>
+                </li>
+                <li>
+                    <a href="http://www.capstone-engine.org/">Capstone</a>
+                </li>
+                <li>
+                    <a href="http://vnhacker.blogspot.com">Thái Dương's Blog</a>
+                </li>
+                <li>
+                    <a href="http://techualization.blogspot.com/">Nam Nguyễn's Blog</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="tag_cloud" class="widget widget_tag_cloud">
+        <h4 class="widget-title clearfix">
+            <span class="title-text">Tag Cloud</span>
+        </h4>
+        <div class="textwidget tagcloud">
+            {% tag_cloud %}
+        </div>
+    </div>
+</div>

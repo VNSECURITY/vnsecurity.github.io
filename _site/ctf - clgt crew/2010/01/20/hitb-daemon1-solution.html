@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>HITB Daemon1 Solution</title>
+  <meta name="description" content="Here is my next solution for HITB CTF 2009 Daemon1. Similar to [daemon 6][1], the flag is the content of errorcode.txt file located in the same directory wit...">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/ctf%20-%20clgt%20crew/2010/01/20/hitb-daemon1-solution.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">HITB Daemon1 Solution</h4>
+    <p class="post-meta">Jan 20, 2010 • suto</p>
+  </header>
+
+  <article class="post-content">
+    <p>Here is my next solution for HITB CTF 2009 Daemon1. Similar to <a href="http://www.vnsecurity.net/2009/12/hitb-2009-daemon6-write-up/">daemon 6</a>, the flag is the content of errorcode.txt file located in the same directory with daemon’s binary.</p>
+
+<pre class="brush: bash; gutter: false; title: ; notranslate" title="">home suto # netstat -tulpan
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:4444            0.0.0.0:*               LISTEN   6174/daemon1
+</pre>
+
+<p>So you can see it listens on port 4444. Next I tried to find where the daemon processes my input.</p>
+
+<pre class="brush: python; highlight: [13,24]; title: ; notranslate" title="">.text:080494F1                 push    eax
+.text:080494F2                 call    _recv
+.text:080494F7                 add     esp, 10h
+.text:080494FA                 cmp     eax, 0
+.text:080494FD                 jle     loc_80495D2
+.text:08049503                 push    esi
+.text:08049504                 push    eax
+.text:08049505                 lea     esi, [ebp-538h]
+.text:0804950B                 push    esi
+.text:0804950C                 mov     ecx, [ebp-548h]
+.text:08049512                 push    ecx
+.text:08049513                 call    sub_804A2B0
+.text:08049518                 mov     eax, offset aIcvykbmukcrwdp ; &quot;iCvYkBMuKcrwDPkAqmCFgOKVeV34&quot;
+.text:0804951D                 mov     ecx, 1Ch
+.text:08049522                 cld
+.text:08049523                 mov     esi, [ebp-560h]
+.text:08049529                 mov     edi, eax
+.text:0804952B                 repe cmpsb
+.text:0804952D                 setnbe  dl
+.text:08049530                 setb    al
+.text:08049533                 add     esp, 10h
+.text:08049536                 cmp     dl, al
+.text:08049538                 jnz     loc_80495FF
+.text:0804953E                 call    sub_8048F10
+.text:08049543                 push    0
+.text:08049545                 sub     esp, 8
+.text:08049548                 push    offset s
+.text:0804954D                 call    _strlen
+.text:08049552                 add     esp, 0Ch
+.text:08049555                 push    eax
+.text:08049556                 push    offset s
+.text:0804955B
+.text:0804955B loc_804955B:                            ; CODE XREF: .text:08049608j
+.text:0804955B                 mov     edx, [ebp-548h]
+.text:08049561                 push    edx
+.text:08049562                 call    _send
+
+</pre>
+
+<p>And here is what sub_8048F10 does:</p>
+
+<pre class="brush: python; title: ; notranslate" title="">lea     edi, [ebp+var_40]
+mov     esi, offset unk_80553D2
+mov     ecx, edx
+rep movsd
+mov     ax, ds:word_80553EA
+mov     [edi], ax
+push    (offset aSocketError+0Bh) ; modes
+push    offset filename ; &quot;/home/d1/errorcode.txt&quot;
+call    _fopen
+&lt;snip&gt;
+</pre>
+
+<p>The code compares “<strong>iCvYkBMuKcrwDPkAqmCFgOKVeV34</strong>” with the input string. If it’s matched, the encrypted content of errorcode.txt will be returned.</p>
+
+<pre class="brush: bash; gutter: false; title: ; notranslate" title="">home suto #nc localhost 4444
+
+iCvYkBMuKcrwDPkAqmCFgOKVeV34
+
+ddddddddddPfddddfdssqpfdddddddddhfh
+</pre>
+
+<p>“ddddddddddPfddddfdssqpfdddddddddhfh” is the return data. It’s the encrypted content of errorcode.txt (which is “1″ in this case).</p>
+
+<p>After few hours trying to reverse the binary, I got stuck with the encoding algorithm so I tried to analysis the output data instead.</p>
+
+<p>Input: 1<br />
+Ouput: ddddddddddPfddddfdssqpfdddddddddhfh</p>
+
+<p>Input: 2<br />
+Output: ddddddddddPfdddddfdssqpfhfh</p>
+
+<p>Input: 3<br />
+Output: ddddddddddPfdddddfdssqpfdhfh</p>
+
+<p>Input: 4<br />
+Output: ddddddddddPfdddddfdssqpfddhfh</p>
+
+<p>==&gt;Output string begins with ddddddddddPfdddddfdssqpf and ends with hfh, number 1 is the special case.</p>
+
+<p>9<br />
+ddddddddddPfdddddfdssqpfdddddddhfh</p>
+
+<p>Next, we test with 2 numbers:</p>
+
+<p>24<br />
+<span style="color: #ff0000">ddddddddddPfdddddfdssqpfhddhfh</span></p>
+
+<p>3 numbers:</p>
+
+<p>247<br />
+<span style="color: #ff0000">ddddddddddPfdddddfdssqpfhdd</span><span style="color: #00FF00">hddd</span>hfh</p>
+
+<p>We can see that the string with red color is the same as the output for 24, and the green part is addition part for 7, so I guess h is character to begin a new number, let’s see with 6 numbers:</p>
+
+<p>247398<br />
+ddddddddddPfdddddfdssqpf<strong>h</strong>dd<strong>h</strong>ddd<strong>h</strong>qqqq<strong>h</strong>dddddd<strong>h</strong>qhfh</p>
+
+<p>Now the algorithm is more clear :), the length of input number is the number of ‘h’ in the encoded data + 1 (we don’t count the last ‘hfh’). But how about q and d?</p>
+
+<p>From 247398:<br />
+ddddddddddPfdddddfdssqpf<span style="color: #ff0000">hdd</span><span style="color: #00ff00">hddd</span><span style="color: #ff0000">hqqqq</span><span style="color: #00ff00">hdddddd</span><span style="color: #ff0000">hq</span>hfh<br />
+4 is hdd<br />
+7 is hddd<br />
+3 is hqqqq<br />
+9 is hdddddd<br />
+8 is hq</p>
+
+<p>Yeah! when the next number is increased, it uses a d for +1 (7 = 4 + 3 = hddd).<br />
+q is used for decrease (-1).</p>
+
+<p>35896742<br />
+ddddddddddPfdddddfdssqp<span style="text-decoration: underline"> <span style="color: #ff0000"><strong>fd[<span style="color: #333300">3</span>]</strong></span></span><span style="color: #ff0000"><strong> </strong></span> <strong><span style="color: #ff0000">hdd</span></strong>[5] <span style="color: #ff0000"><strong>hddd</strong></span>[8] <strong><span style="color: #ff0000">hd[<span style="color: #333300">9</span>]</span></strong> <strong><span style="color: #ff0000">hqqq[<span style="color: #333300">6</span>]</span></strong> <strong><span style="color: #ff0000">hd[<span style="color: #333300">7</span>]</span></strong> <strong><span style="color: #ff0000">hqqq[<span style="color: #333300">4</span>]</span><span style="color: #ff0000"> hqq[<span style="color: #333300">2</span>]</span></strong>hfh</p>
+
+<p>Why 3? You answer yourself !</p>
+
+<p>Now we come back to special cases for number 1 and 0</p>
+
+<p>358967421<br />
+ddddddddddPfdddddfd<span style="color: #ff0000"><strong>d</strong><strong>ddfds</strong></span>ssqpfdhddhdddhdhqqqhdhqqqhqq<span style="color: #ff0000"><strong>h</strong><strong>fddddddddd</strong></span>hfh</p>
+
+<p>Here is output for 35896742<br />
+ddddddddddPfdddddfdssqpfdhddhdddhdhqqqhdhqqqhqqhfh</p>
+
+<p>The different parts are marked with Red color.</p>
+
+<p>Put 1 in the middle:<br />
+3589617421<br />
+ddddddddddPfdddddfd<span style="color: #ff0000"><strong>d</strong><strong>ddfds</strong></span>ssqpfdhddhdddhdhqqq<strong><span style="color: #ff0000">hfddddddddd</span><span style="color: #00ff00">hsd</span></strong>hqqqhqq<strong><span style="color: #ff0000">hf</span></strong>hfh</p>
+
+<p>358967421<br />
+ddddddddddPfdddddfd<span style="color: #ff0000"><strong>dddfds</strong></span>ssqpfdhddhdddhdhqqqhdhqqqhqq<strong><span style="color: #ff0000">hfddddddddd</span></strong>hfh</p>
+
+<p>35896742</p>
+
+<p>ddddddddddPfdddddfdssqpfdhddhdddhdhqqqhdhqqqhqqhfh</p>
+
+<p>So the output will be fdddddddddh for number 1. If 1 is in the middle, it will be dddfds.<br />
+And another notes is hsd , one “d” character because it is calculated from the number before “1″ – 6- and increases it to -7-.</p>
+
+<p>Another test:</p>
+
+<p>4668981445134<br />
+ddddddddddPfdddddf<span style="color: #ff0000"><strong>d</strong><strong>dddfds</strong></span>ssqpfdd<span style="color: #ff0000">(<strong>4)</strong></span>hdd<strong><span style="color: #ff0000">(6)</span></strong>h<strong><span style="color: #ff0000">(6)</span></strong>hdd<strong><span style="color: #ff0000">(8)</span></strong>hd<span style="color: #ff0000"><strong>(9)</strong></span>hq<strong><span style="color: #ff0000">(8)</span></strong>hfddddddddd<strong><span style="color: #ff0000">(1)</span></strong>hsqqqq<strong><span style="color: #ff0000">(4)</span></strong>h<span style="color: #ff0000">(4)</span></p>
+
+<p>hd<span style="color: #ff0000"><strong>(5) </strong></span>hf<strong><span style="color: #ff0000">(1</span></strong>)hs qq<strong><span style="color: #ff0000">(3)</span></strong> hd<strong><span style="color:#ff0000">(4)</span></strong> hffh</p>
+
+<p>Now replace the number 1 with 0 from previous input:</p>
+
+<p>ddddddddddPfdddddfd<span style="color: #ff0000"><strong>dddfds</strong></span>ssqpfdd<span style="color: #0000ff"><strong>(4)</strong></span>hdd<strong><span style="color: #0000ff">(6)</span></strong>h<strong><span style="color: #0000ff">(6)</span></strong>hdd<span style="color: #0000ff"><strong>(8)</strong></span>hd<strong><span style="color: #0000ff">(9)</span></strong>hq<strong><span style="color: #0000ff">(8)</span><span style="color: #ff0000">hfdddddddd</span><span style="color: #0000ff">(0)</span></strong>hsqqqq<strong><span style="color: #0000ff">(4)</span></strong>h<strong><span style="color: #0000ff">(4)</span></strong>hd<span style="color: #0000ff"><strong>(5)</strong></span></p>
+
+<p>hf<span style="color: #0000ff"><strong>(0)</strong></span>hsqq<strong><span style="color: #0000ff">(3) </span></strong>hd<span style="color: #0000ff"><strong>(4)</strong></span>hffh</p>
+
+<p>We see 0 is quite similar to 1 with one ‘d’ less.</p>
+
+<p>Now it’s just a simple task to decode the return content of errorcode.txt (flag) from the daemon.</p>
+
+<p>And it’s all about daemon1 in HITB CTF 2009!</p>
+
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/ctf%20-%20clgt%20crew/2010/01/20/hitb-daemon1-solution.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

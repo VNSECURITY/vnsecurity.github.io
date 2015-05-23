@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+   
+   	<title>RealJenius.com - Tag: android</title>
+   
+   <link>http://realjenius.com</link>
+   <description>I'm a software developer in the game industry, and have been (for better or worse) coding on the Java platform for the last decade. I also do all my own stunts.</description>
+   <language>en-us</language>
+   <managingEditor>R.J. Lorimer</managingEditor>
+   <atom:link href="rss" rel="self" type="application/rss+xml" />
+   
+	<item>
+  <title>Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</title>
+  <link>http://realjenius.com/headlines/2014/05/06/btalk-part-1.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2014-05-06T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/headlines/2014/05/06/btalk-part-1.html</guid>
+  <description><![CDATA[
+     <p><strong>Lưu ý: các phân tích trong bài viết này được dựa trên phiên bản Btalk 1.0.6 tải về từ PlayStore. Các vấn đề được nêu trong bài viết này BKAV đã được gửi email thông báo từ trước.</strong></p>
+
+<p style="text-align: right">
+  <strong>(pdah &#8211; cb_ &#8211; k9)<br /> </strong>
+</p>
+
+<h2 id="c-ch-ng-k-v-kch-hot">Cơ chế đăng ký và kích hoạt</h2>
+
+<p>Quá trình xác thực trên điện thoại của Btalk  gồm 3 bước chính:</p>
+
+<ol>
+  <li>Đăng ký tài khoản với Btalk: 
+    <ul>
+      <li>Người dùng gửi thông tin về số điện thoại đang sử dụng cho máy chủ Btalk.</li>
+      <li>Btalk gửi tin nhắn kèm mã số xác thực đến số điện thoại người dùng.</li>
+    </ul>
+  </li>
+  <li>Xác nhận (kích hoạt) tài khoản: 
+    <ul>
+      <li>Mã số xác thực được nhập và gửi lại Btalk</li>
+      <li>Btalk xác nhận đúng mã xác thực và gửi lại mật khẩu khởi tạo riêng cho mỗi phiên đăng ký.</li>
+    </ul>
+  </li>
+  <li>Đăng ký với hệ thống nhắn tin OpenSIPS 
+    <ul>
+      <li>Mật khẩu kèm thông tin số điện thoại được gửi lại hệ thống OpenSIPS của Btalk</li>
+      <li>Btalk xác nhận đã nhận được thông tin</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="bc-1-8211-ng-k-ti-khon-vi-btalk">Bước 1 – Đăng ký tài khoản với Btalk:</h3>
+
+<p>Sau khi người dùng nhập số điện thoại, một HTTP GET Request được gửi từ ứng dụng Btalk đến API <a href="https://bmail.vn/service/preauth">https://bmail.vn/service/preauth</a> với các tham số sau:</p>
+
+<pre style="text-align: left"><code>domain       = bmail.vn
+from         = bphone
+reqType      = bphoneRegister
+txtDomain    = bmail.vn
+useServerSms = true
+txtUser      = &lt;số điện thoại kèm mã quốc gia&gt;@bmail.vn
+timestamp    = &lt;timestamp&gt;
+preauth      = &lt;hash&gt;
+</code></pre>
+
+<p>Tham số <code>preauth</code> được sử dụng để “ký” các thông tin được thiết bị gửi đến máy chủ Btalk. Mục đích chính là để xác nhận thông tin được gửi từ một nguồn hợp lệ. Điều này được thể hiện qua việc API gửi về <code>isTrustedDomain=false</code> nếu chúng ta gửi giá trị ngẫu nhiên cho <code>preauth</code>.</p>
+
+<p>Giá trị của <code>preauth</code> được xác định như sau:</p>
+
+<pre><code>preauth = HMAC_SHA1(key, domain + ’|’ + timestamp + ‘|’ + txtUser)
+</code></pre>
+
+<p>Nếu thông tin được ký đúng, API trả về một HTTP Response rỗng đồng thời hệ thống gửi một tin nhắn chứa mã số xác thực (gồm 4 ký số) đến số di động của người dùng. Nội dung của tin nhắn có dạng:</p>
+
+<pre><code>Your Btalk code is XXXX.
+</code></pre>
+
+<h3 id="bc-2-8211-xc-nhn-ti-khon">Bước 2 – Xác nhận tài khoản</h3>
+
+<p>Sau khi có mã số xác thực, ứng dụng Btalk tiếp tục gửi một HTTP GET Request đến <a href="https://bmail.vn/service/preauth">https://bmail.vn/service/preauth</a> với danh sách các tham số:</p>
+
+<pre><code>txtDomain   = bmail.vn
+from        = bphone
+reqType     = bphoneRegister
+op          = verifyCode
+txtDomain   = bmail.vn
+txtUser     = &lt;số điện thoại kèm mã quốc gia&gt;@bmail.vn
+timestamp   = &lt;timestamp&gt;
+verifyCode  = &lt;code&gt;
+preauth     = &lt;hash&gt;
+</code></pre>
+
+<p>Với preauth được xác định bằng:</p>
+
+<pre><code>preauth = HMAC_SHA1(key, timestamp + ’|’ + txtUser + ‘|’ + verifyCode)
+</code></pre>
+
+<p>Nếu Btalk gửi đúng mã xác nhận, API sẽ gửi về mật khẩu (gồm 8 ký tự). Trên lý thuyết, với số điện thoại và mật khẩu này, chúng ta có thể gửi và nhận tin nhắn thông qua máy chủ của Btalk. Tuy nhiên chúng ta không thể làm điều đó nếu chưa thực hiện bước tiếp theo.</p>
+
+<h3 id="bc-3-8211-ng-k-vi-h-thng-nhn-tin-opensips">Bước 3 – Đăng ký với hệ thống nhắn tin OpenSIPS</h3>
+
+<p>Ứng dụng Btalk gửi một HTTP POST Request đến dịch vụ OpenSIPS tại <a href="https://btalk.bkav.com:8443/OpenSipsServices/rest/sip/register">https://btalk.bkav.com:8443/OpenSipsServices/rest/sip/register</a></p>
+
+<p>Với tham số:</p>
+
+<pre><code>username  = &lt;số điện thoại kèm mã quốc gia&gt;
+password  = &lt;mật khẩu&gt;
+timestamp = &lt;timestamp&gt;
+preauth   = &lt;hash&gt;
+</code></pre>
+
+<p>Trong đó</p>
+
+<pre><code>preauth = HMAC_SHA1(key, timestamp + ’|’ + password + ‘|’ + username + ‘@bmail.vn’)
+</code></pre>
+
+<p>Sau bước này ứng dụng Btalk đã có thể đăng nhập vào hệ thống XMPP của Btalk đồng thời gửi, nhận tin nhắn.</p>
+
+<h2 id="cc-vn-">Các vấn đề</h2>
+
+<h3 id="l-key-kha-ca-hm-bm-m-ha">Lộ key (khóa) của hàm băm mã hóa</h3>
+
+<p>Như chúng tôi mô tả ở trên, Btalk sử dụng HMAC-SHA1 để ký các HTTP requests gửi đi từ ứng dụng trên điện thoại. Về cơ bản HMAC-SHA1 giúp người sử dụng kiểm tra tính đồng nhất của dữ liệu, đồng thời chứng thực phía gửi dữ liệu thông qua tính bí mật của khóa key. Tuy nhiên giá trị của key được nhúng trong ứng dụng Btalk và chúng ta có thể tìm thấy nó dễ dàng:</p>
+
+<pre><code>Configuration.REGISTER_KEY = "41ab3e484f918ff0d378058e50eb0f79e93d19383ca1053830a878a83bcce3fc";
+</code></pre>
+
+<p>Điều này dẫn đến việc bất kỳ ai cũng có thể giả mạo ứng dụng Btalk để gửi HTTP requests đến máy chủ.</p>
+
+<h3 id="spam-tin-nhn-xc-thc-n-s-di-ng-khc">Spam tin nhắn xác thực đến số di động khác</h3>
+
+<p>Một hệ quả của vấn đề trên là chúng ta có thể spam số máy di động khác bằng cách liên tục giả lập bước một của cơ chế xác thực.</p>
+
+<h3 id="ly-cp-thng-tin-ng-nhp-thng-qua-vt-cn-m-xc-thc">Lấy cắp thông tin đăng nhập thông qua vét cạn mã xác thực</h3>
+
+<p>Ở bước một và hai, mã xác thực chỉ có 4 ký số và không bị vô hiệu trong khoản thời gian nhất định, chúng ta có thể liên tục lặp lại bước hai với tối đa 10.000 khả năng khác nhau của mã xác thực cho đến khi nào nhận được mật khẩu.</p>
+
+<p>Thời gian ước tính để thử chọn hết tất cả các khả năng (10.000 trường hợp) là khoảng 1 giờ đồng hồ. Giả sử nhà phát triển lựa chọn phương án vô hiệu hóa mã xác thực trong 5 phút, chúng ta sẽ có cơ hội thử chọn khoảng 830 trường hợp, đồng nghĩa với khoảng 8.3% cơ hội thành công. Đây vẫn là một con số không nhỏ.</p>
+
+<h3 id="ssl-vn-khng-an-ton">SSL vẫn không an toàn</h3>
+
+<p>Mặc dù Btalk sử dụng SSL cho tất cả các bước xác thực người dùng, nhưng nhà phát triển cho phép ứng dụng chấp nhận tất cả các certificate mà nó nhận được bằng cách:</p>
+
+<ul>
+  <li>Định nghĩa lại lớp BkavSSLSocketFactory thay cho lớp SSLSocketFactory mặc định và bỏ hết tất cả các bước chứng thực certificate.</li>
+  <li>Bỏ qua việc kiểm tra hostname của certificate: 
+      KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+      keyStore.load(null, null);
+      BkavSSLSocketFactory socketFactory = new BkavSSLSocketFactory(keyStore);
+      (()SSLSocketFactory)socketFactory).setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);</li>
+</ul>
+
+<p>Điều này cho phép hacker có thể thực hiện tấn công MITM và “nhìn lén” tất cả dữ liệu của người dùng.</p>
+
+<h2 id="mt-vi-iu-th-v-khc">Một vài điều thú vị khác</h2>
+
+<h3 id="gi-lp-gi-v-nhn-tin-nhn-t-sau-khi-c-c-mt-khu">Giả lập gửi và nhận tin nhắn từ sau khi có được mật khẩu</h3>
+
+<h4 id="trn-in-thoi--root-hoc-emulator">1. Trên điện thoại (đã root) hoặc emulator:</h4>
+
+<p>Sau khi cài Btalk, điều chỉnh thông tin đăng nhập của ứng dụng tại <strong>/data/data/bkav.android.btalk/shared_prefs/bkav.android.btalk_preferences.xml</strong> với số điện thoại và mật khẩu lấy được.</p>
+
+<pre><code>...
+
+&lt;string name="bkav_pref_sipx_password"&gt;YYYYYYYY&lt;/string&gt;
+&lt;string name="bkav_pref_sipx_username"&gt;84XXXXXXXXXXX&lt;/string&gt;
+
+...
+</code></pre>
+
+<h4 id="thng-qua-vit-m">2. Thông qua viết mã</h4>
+
+<p>Đoạn mã đơn giản sau giả lập việc gửi và nhận tin nhắn qua Btalk:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">import xmpp
+import time
+
+username = '84xxxxxxxx'
+passwd   = 'yyyyyyy'
+to       = '84zzzzzzzzz@bmail.vn'
+msg      = 'Hello from a script'
+
+def message_callback(client, stanza):
+    sender       = stanza.getFrom()
+    message_type = stanza.getType()
+    message      = stanza.getBody()
+
+print "Received '%s' from '%s'" % (message, sender)
+
+client = xmpp.Client('bmail.vn', debug=[])
+client.connect(server=('chat.bkav.com',5222))
+client.auth(username, passwd, 'bmail.vn')
+client.RegisterHandler("message", message_callback)
+
+client.sendInitPresence()
+message = xmpp.Message(to, msg)
+message.setAttr('type', 'chat')
+print "Sending message ..."
+client.send(message)
+
+print "Waiting for message ..."
+while client.isConnected():
+    client.send(xmpp.Presence())
+    client.Process()
+    time.sleep(1)
+</pre>
+
+<h3 id="ci-g-y-">Cái gì đây ?</h3>
+
+<p>Chúng tôi phát hiện một vài đoạn mã thú vị trong ứng dụng Btalk:</p>
+
+<p><img class="alignnone" src="https://dl.dropbox.com/s/svfdurmp8gw0i5x/Screen%20Shot%202014-05-06%20at%2010.00.47%20pm-1.png" alt="" width="521" height="136" /></p>
+
+<p>Cho dù BKAV đã thay đổi tên đăng nhập và/hoặc mật khẩu của dịch vụ liên quan ở phía máy chủ, việc để lọt những dòng mã như thế này lên Play Store cho thấy nhà phát triển chưa làm tốt khâu kiểm định mã nguồn trước khi xuất xưởng.</p>
+
+<p>(còn tiếp)</p>
+
+  ]]></description>
+</item>
+
+</channel>
+</rss>

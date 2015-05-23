@@ -1,0 +1,19 @@
+# Site settings
+title: VNSecurity
+email: members@vnsecurity.net
+description: > # this means to ignore newlines until "baseurl:"
+  Founded in 1998, VnSecurity is the pioneer and leading security research
+  group in Vietnam.
+baseurl: "" # the subpath of your site, e.g. /blog/
+url: "http://vnsecurity.github.io" # the base hostname & protocol for your site
+twitter_username: jekyllrb
+github_username:  jekyll
+
+# Build settings
+markdown: kramdown
+paginate: 10
+menu_categories: [news, tutorials, research, ctf - clgt crew, misc]
+portal_categories: [news, tutorials, research, ctf - clgt crew, misc]
+highlighter: rouge
+comments :
+  facebook_app_id: '671572696275219'

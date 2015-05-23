@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>DEFCON 18 Quals: writeups collection</title>
+  <meta name="description" content="DEFCON 18 Quals is over and here are the writeups collection from teams, come back for latest updates.">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/ctf%20-%20clgt%20crew/2010/05/25/defcon-18-quals-writeups-collection.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">DEFCON 18 Quals: writeups collection</h4>
+    <p class="post-meta">May 25, 2010 • longld</p>
+  </header>
+
+  <article class="post-content">
+    <p>DEFCON 18 Quals is over and here are the writeups collection from teams, come back for latest updates.</p>
+
+<p><strong><em>(please inform me if you have write up for c500, pm500)</em></strong></p>
+
+<h2 id="pursuits-trivial">PURSUITS TRIVIAL</h2>
+
+<blockquote>
+  <h3 id="pt100-spiderman-movie-quote">PT100: spiderman movie quote</h3>
+
+  <ul>
+    <li><a href="http://n.pentest.jp/?p=691">http://n.pentest.jp/?p=691</a> (Japanese)</li>
+    <li><a href="http://squidzrus.schleppingsquid.net/DC18-Qual-Walks/Defcon_CTF_Quals_2010_Writeups-PursuitsTrivial-100.html">http://squidzrus.schleppingsquid.net/DC18-Qual-Walks/Defcon_CTF_Quals_2010_Writeups-PursuitsTrivial-100.html</a></li>
+  </ul>
+
+  <h3 id="pt200-vim-shell">PT200: VIM shell</h3>
+
+  <ul>
+    <li><a href="http://bernardodamele.blogspot.com/2010/05/defcon-18-ctf-quals-writeup-pursuit.html">http://bernardodamele.blogspot.com/2010/05/defcon-18-ctf-quals-writeup-pursuit.html</a></li>
+    <li><a href="http://squidzrus.schleppingsquid.net/DC18-Qual-Walks/Defcon_CTF_Quals_2010_Writeups-PursuitsTrivial-200.html">http://squidzrus.schleppingsquid.net/DC18-Qual-Walks/Defcon_CTF_Quals_2010_Writeups-PursuitsTrivial-200.html</a></li>
+    <li><a href="http://blog.stalkr.net/2010/05/defcon-18-ctf-quals-writeup-trivial-200.html">http://blog.stalkr.net/2010/05/defcon-18-ctf-quals-writeup-trivial-200.html</a></li>
+  </ul>
+
+  <h3 id="pt300-social-networking">PT300: social networking</h3>
+
+  <ul>
+    <li><a href="http://squidzrus.schleppingsquid.net/DC18-Qual-Walks/Defcon_CTF_Quals_2010_Writeups-PursuitsTrivial-300.html">http://squidzrus.schleppingsquid.net/DC18-Qual-Walks/Defcon_CTF_Quals_2010_Writeups-PursuitsTrivial-300.html</a></li>
+  </ul>
+
+  <h3 id="pt400-java-game">PT400: java game</h3>
+
+  <ul>
+    <li><a href="http://cvk.posterous.com/defcon-18-quals-pt400-walkthrough">http://cvk.posterous.com/defcon-18-quals-pt400-walkthrough</a></li>
+    <li><a href="http://www.nth-dimension.org.uk/blog.php?id=85">http://www.nth-dimension.org.uk/blog.php?id=85</a></li>
+    <li><a href="http://www.ddtek.biz/t400.tgz">Defcon CTF Pursuits Trivial 400 server source and images</a></li>
+    <li><a href="/watch/stVE1RQE1IR15bRllaUlxdXlRS/pwning_trivia_400_at_defcon_18_quals">pwning trivia 400 at defcon 18 quals</a> (video)</li>
+  </ul>
+
+  <h3 id="pt500-audio-remix">PT500: audio remix</h3>
+
+  <ul>
+    <li><a href="http://scott.wolchok.org/t500.html">http://scott.wolchok.org/t500.html</a></li>
+  </ul>
+</blockquote>
+
+<h2 id="crypto-badness">CRYPTO BADNESS</h2>
+
+<blockquote>
+  <h3 id="c100-alphabet-cipher-dvorak-keyboard">C100: alphabet cipher (Dvorak keyboard)</h3>
+
+  <ul>
+    <li><a href="http://www.nth-dimension.org.uk/blog.php?id=83">http://www.nth-dimension.org.uk/blog.php?id=83</a></li>
+    <li><a href="http://forensic-proof.com/85">http://forensic-proof.com/85</a> (Korean)</li>
+    <li><a href="http://squidzrus.schleppingsquid.net/DC18-Qual-Walks/Defcon_CTF_Quals_2010_Writeups-CryptoBadass-100.html">http://squidzrus.schleppingsquid.net/DC18-Qual-Walks/Defcon_CTF_Quals_2010_Writeups-CryptoBadass-100.html</a></li>
+    <li><a href="http://n.pentest.jp/?p=728">http://n.pentest.jp/?p=728</a></li>
+  </ul>
+
+  <h3 id="c200-enigma-cipher">C200: Enigma cipher</h3>
+
+  <ul>
+    <li><a href="http://forensic-proof.com/84">http://forensic-proof.com/84</a> (Korean)</li>
+  </ul>
+
+  <h3 id="c300">C300:</h3>
+
+  <ul>
+    <li><a href="http://n.pentest.jp/?p=713">http://n.pentest.jp/?p=713</a> (Japanese)</li>
+    <li><a href="http://forensic-proof.com/86">http://forensic-proof.com/86</a> (Korean)</li>
+  </ul>
+
+  <h3 id="c400-rsa-768-bits-crack">C400: RSA 768 bits crack</h3>
+
+  <ul>
+    <li><a href="http://www.segmentationfault.fr/ctf/resume-dc18-ctf-quals/">http://www.segmentationfault.fr/ctf/resume-dc18-ctf-quals/</a> (French)</li>
+    <li><a style="color: #2a5db0" href="http://barok.foi.hr/~tkisason/" target="_blank">http://barok.foi.hr/~tkisason/</a></li>
+  </ul>
+
+  <h3 id="c500">C500:</h3>
+
+  <ul>
+    <li>n/a</li>
+  </ul>
+</blockquote>
+
+<h2 id="packet-madness">PACKET MADNESS</h2>
+
+<blockquote>
+  <h3 id="pm100-yenc-madness-too-hard-for-100pts">PM100: yEnc madness (too hard for 100pts)</h3>
+
+  <ul>
+    <li><a href="http://ddtek.biz/mkyyank.pl">http://ddtek.biz/mkyyank.pl </a> (script written by ddtek’s m3rc to generate the PM100 challenge)</li>
+    <li><a href="http://stalkr.net/files/defcon/2010/quals/packet100/writeup.txt">http://stalkr.net/files/defcon/2010/quals/packet100/writeup.txt</a></li>
+  </ul>
+
+  <h3 id="pm200-ebcdic-shell">PM200: EBCDIC shell</h3>
+
+  <ul>
+    <li><a href="http://scott.wolchok.org/ctf2010/pkt200.html">http://scott.wolchok.org/ctf2010/pkt200.html</a></li>
+    <li><a href="http://bernardodamele.blogspot.com/2010/05/defcon-18-ctf-quals-writeup-packet.html">http://bernardodamele.blogspot.com/2010/05/defcon-18-ctf-quals-writeup-packet.html</a></li>
+    <li><a href="http://squidzrus.schleppingsquid.net/DC18-Qual-Walks/Defcon_CTF_Quals_2010_Writeups-Packet%20Madness-200.html">http://squidzrus.schleppingsquid.net/DC18-Qual-Walks/Defcon_CTF_Quals_2010_Writeups-Packet%20Madness-200.html</a></li>
+    <li><a href="http://www.segmentationfault.fr/ctf/resume-dc18-ctf-quals/">http://www.segmentationfault.fr/ctf/resume-dc18-ctf-quals/</a> (French)</li>
+    <li><a href="http://blog.stalkr.net/2010/05/defcon-18-ctf-quals-writeup-packet-200.html">http://blog.stalkr.net/2010/05/defcon-18-ctf-quals-writeup-packet-200.html</a></li>
+  </ul>
+
+  <h3 id="pm300">PM300:</h3>
+
+  <ul>
+    <li><a href="http://nibbles.tuxfamily.org/?p=1389">http://nibbles.tuxfamily.org/?p=1389</a> (French)</li>
+  </ul>
+
+  <h3 id="pm400">PM400:</h3>
+
+  <ul>
+    <li><a href="http://lollersk8ers.fatihkilic.de/2010/05/defcon-18-ctf-writeup-packet-madness.html">http://lollersk8ers.fatihkilic.de/2010/05/defcon-18-ctf-writeup-packet-madness.html</a></li>
+  </ul>
+
+  <h3 id="pm500">PM500:</h3>
+
+  <ul>
+    <li>n/a</li>
+  </ul>
+</blockquote>
+
+<h2 id="binary-l33tness">BINARY L33TNESS</h2>
+
+<blockquote>
+  <h3 id="b100-linux-x86-crackme">B100: Linux x86 crackme</h3>
+
+  <ul>
+    <li><a href="http://ezbeat.tistory.com/234">http://ezbeat.tistory.com/234</a> (Korean)</li>
+    <li><a href="http://ddoogg.nayana.com/test/hahah/b100.txt">http://ddoogg.nayana.com/test/hahah/b100.txt</a></li>
+    <li><a href="http://n.pentest.jp/?p=719">http://n.pentest.jp/?p=719</a></li>
+  </ul>
+
+  <h3 id="b200-haiku-os-crackme">B200: Haiku OS crackme</h3>
+
+  <ul>
+    <li><a rel="nofollow" href="http://solution-36.blogspot.com/2010/05/defcon-quals-binary-200-writeup.html">http://solution-36.blogspot.com/2010/05/defcon-quals-binary-200-writeup.html</a></li>
+    <li><a href="http://n.pentest.jp/?p=734">http://n.pentest.jp/?p=734</a></li>
+    <li><a href="http://smokedchicken.org/2010/05/dc18-bin200-bin300.html" target="_blank">http://smokedchicken.org/2010/05/dc18-bin200-bin300.html</a> (Russian)</li>
+  </ul>
+
+  <h3 id="b300-linux-x64-crackme">B300: Linux x64 crackme</h3>
+
+  <ul>
+    <li><a href="http://scott.wolchok.org/ctf2010/b300.html">http://scott.wolchok.org/ctf2010/b300.html</a> (team n0tl33t)</li>
+    <li><a href="/watch/stVE1RQE1IR15bRllVWV9QVl9T/pwning_binary_300_at_defcon_18_quals">pwning binary 300 at defcon 18 quals</a> (video)</li>
+    <li><a href="http://smokedchicken.org/2010/05/dc18-bin200-bin300.html" target="_blank">http://smokedchicken.org/2010/05/dc18-bin200-bin300.html</a> (Russian)</li>
+  </ul>
+
+  <h3 id="b400-linux-x86-binary-with-embedded-lightweight-java-virtual-machine-base-on-j2mecldc-reference-code-from-sun">B400: Linux x86 binary with embedded lightweight Java Virtual Machine (base on j2me_cldc reference code from Sun)</h3>
+
+  <ul>
+    <li><a href="http://blog.zynamics.com/2010/06/02/defcon-ctf-bin400-writeup/">http://blog.zynamics.com/2010/06/02/defcon-ctf-bin400-writeup/</a></li>
+    <li><a href="http://blog.oxff.net/2010/6/16/Defcon_CTF_%2318_Prequals%3A_bin400.html">http://blog.oxff.net/2010/6/16/Defcon_CTF_%2318_Prequals%3A_bin400.html</a></li>
+  </ul>
+
+  <h3 id="b500-solaris-sparc-9-x64-find-the-des-key">B500: Solaris SPARC 9 x64 (find the DES key)</h3>
+
+  <ul>
+    <li><a href="http://lollersk8ers.fatihkilic.de/2010/05/defcon-18-ctf-writeup-binary-l33tness.html">http://lollersk8ers.fatihkilic.de/2010/05/defcon-18-ctf-writeup-binary-l33tness.html</a> (so smart!)</li>
+    <li><a href="http://smokedchicken.org/2010/05/dc18-bin500.html">http://smokedchicken.org/2010/05/dc18-bin500.html</a> (Russian)</li>
+  </ul>
+</blockquote>
+
+<h2 id="pwtent-pwnables">PWTENT PWNABLES</h2>
+
+<blockquote>
+  <h3 id="pp100-freebsd-bof-exploit-with-stack-cookie-based-on-time">PP100: FreeBSD BOF exploit with stack cookie based on time</h3>
+  <p>(wasted of time due to wrong server timezone!)</p>
+
+  <ul>
+    <li><a href="http://209.250.241.67/defcon/pp100.html">http://209.250.241.67/defcon/pp100.html</a></li>
+    <li><a href="http://coma.0x3f.net/ctf/defcon-quals-pp100-writeup/">http://coma.0x3f.net/ctf/defcon-quals-pp100-writeup/</a></li>
+  </ul>
+
+  <h3 id="pp200-python-shell">PP200: python shell</h3>
+
+  <ul>
+    <li><a href="http://scott.wolchok.org/ctf2010/pp200.html">http://scott.wolchok.org/ctf2010/pp200.html</a></li>
+    <li><a href="/watch/stVE1RQE1IR15bRllUX1xdUV5d/pwning_pwnable_200_at_defcon_18_quals">pwning pwnable 200 at defcon 18 quals</a> (video)</li>
+    <li><a href="http://bernardodamele.blogspot.com/2010/05/defcon-18-ctf-quals-writeup-pwtent.html">http://bernardodamele.blogspot.com/2010/05/defcon-18-ctf-quals-writeup-pwtent.html</a></li>
+    <li><a href="http://www.rajatswarup.com/blog/2010/05/25/pwtent-pwnable-200-writeup-ctf-quals-2010/">http://www.rajatswarup.com/blog/2010/05/25/pwtent-pwnable-200-writeup-ctf-quals-2010/</a></li>
+  </ul>
+
+  <h3 id="pp300-freebsd-exploit-8211-heap-overflow">PP300: FreeBSD exploit – heap overflow</h3>
+
+  <ul>
+    <li><a href="http://securityblackswan.blogspot.com/2010/05/lets-solve-this-challenge.html">http://securityblackswan.blogspot.com/2010/05/lets-solve-this-challenge.html</a></li>
+    <li><a href="http://www.vxhell.org/~teach/defcon18/pwnables/pp300-writeup.txt">http://www.vxhell.org/~teach/defcon18/pwnables/pp300-writeup.txt</a></li>
+  </ul>
+
+  <h3 id="pp400-mach-o-ppc-binary-exploit-err--it8217s-the-same-binary-as-last-year-pp400-challenge12">PP400: Mach-O PPC binary exploit (err .. it’s the same binary as last year <a href="http://shallweplayaga.me/pwnable/#">pp400 challenge</a>)</h3>
+
+  <ul>
+    <li><a href="http://shallweplayaga.me/pwnable/#">Write up for pp400 by VedaGodz last year</a> (they pulled out during the quals)</li>
+    <li><a href="http://adamrosenfield.com/blog/2010/05/26/ill-take-pwtent-pwnables-for-400-please-alex/" target="_blank">http://adamrosenfield.com/blog/2010/05/26/ill-take-pwtent-pwnables-for-400-please-alex/</a></li>
+  </ul>
+
+  <h3 id="pp500-freebsd-exploit-recover-from-a-packet-dump">PP500: FreeBSD exploit recover from a packet dump</h3>
+  <p>(err .. binary &amp; key were leaked from PP200 shell to some teams)</p>
+
+  <ul>
+    <li><a href="http://sploitlab.wordpress.com/2010/05/26/pwtent-pwnables-500-solution/">http://sploitlab.wordpress.com/2010/05/26/pwtent-pwnables-500-solution/</a> (unsolved)</li>
+    <li><a href="http://beist.org/esd2">http://beist.org/esd2</a> (this is the binary lolz team taken from pwn200. after ddtek aware of this problem, they modified the code a bit)</li>
+    <li><a href="http://www.vnsecurity.net/2010/05/defcon-18-quals-pwtent-pwnables-500-exploit/">http://www.vnsecurity.net/2010/05/defcon-18-quals-pwtent-pwnables-500-exploit/</a> (exploit for esd2)</li>
+    <li><a href="http://www.vnsecurity.net/2010/05/defcon-18-quals-pwtent-pwnables-500-write-up/">http://www.vnsecurity.net/2010/05/defcon-18-quals-pwtent-pwnables-500-write-up/</a></li>
+  </ul>
+</blockquote>
+
+<h2 id="forensics">FORENSICS</h2>
+
+<blockquote>
+  <h3 id="f100-hidden-key-in-ntfs-filesystem">F100: hidden key in NTFS filesystem</h3>
+
+  <ul>
+    <li><a href="http://scott.wolchok.org/ctf2010/f100.html">http://scott.wolchok.org/ctf2010/f100.html</a></li>
+    <li><a href="http://forensic-proof.com/87">http://forensic-proof.com/87</a></li>
+    <li><a href="http://squidzrus.schleppingsquid.net/DC18-Qual-Walks/Defcon_CTF_Quals_2010_Writeups-Forensics-100.html">http://squidzrus.schleppingsquid.net/DC18-Qual-Walks/Defcon_CTF_Quals_2010_Writeups-Forensics-100.html</a></li>
+    <li><a href="http://n.pentest.jp/?p=739">http://n.pentest.jp/?p=739</a></li>
+    <li><a href="http://blog.stalkr.net/2010/05/defcon-18-ctf-quals-writeup-forensics.html">http://blog.stalkr.net/2010/05/defcon-18-ctf-quals-writeup-forensics.html</a></li>
+  </ul>
+
+  <h3 id="f200-png-images-analysis">F200: PNG images analysis</h3>
+
+  <ul>
+    <li><span style="font-family: Consolas, Monaco, 'Courier New', Courier, monospace;line-height: 18px;font-size: 12px">convert * -layers merge IMG_merged.png (one line solution)</span></li>
+    <li><a href="http://www.nth-dimension.org.uk/blog.php?id=84">http://www.nth-dimension.org.uk/blog.php?id=84</a></li>
+    <li><a href="http://squidzrus.schleppingsquid.net/DC18-Qual-Walks/Defcon_CTF_Quals_2010_Writeups-Forensics-200.html">http://squidzrus.schleppingsquid.net/DC18-Qual-Walks/Defcon_CTF_Quals_2010_Writeups-Forensics-200.html</a></li>
+    <li><a href="http://www.bryceboe.com/2010/05/25/defcon-18-quals-forensics-200-write-up/">http://www.bryceboe.com/2010/05/25/defcon-18-quals-forensics-200-write-up/</a></li>
+  </ul>
+
+  <h3 id="f300">F300:</h3>
+
+  <ul>
+    <li><a rel="nofollow" href="http://forensic-proof.com/89">http://forensic-proof.com/89</a> (Korean) – unsolved</li>
+    <li><a href="http://vserv3234.swisslink.ch/f300_writeup.txt">http://vserv3234.swisslink.ch/f300_writeup.txt</a> (team Routards)</li>
+  </ul>
+
+  <h3 id="f400-live-os-image">F400: Live OS image</h3>
+
+  <ul>
+    <li><a href="http://scott.wolchok.org/ctf2010/f400.html">http://scott.wolchok.org/ctf2010/f400.html</a></li>
+    <li><a href="http://forensic-proof.com/92">http://forensic-proof.com/92</a> (Korean)</li>
+  </ul>
+
+  <h3 id="f500raid-image-carving">F500:RAID image carving</h3>
+
+  <ul>
+    <li><a href="http://scott.wolchok.org/ctf2010/f500.html">http://scott.wolchok.org/ctf2010/f500.html</a> (team n0tl33t)</li>
+    <li><a href="http://forensic-proof.com/93" target="_blank">http://forensic-proof.com/93</a> (Korean)</li>
+  </ul>
+</blockquote>
+
+<p><strong>Misc Links</strong></p>
+
+<ul>
+  <li><a href="http://work.hackerschool.org/DOWNLOAD/DefconCTF/2010/" target="_blank">Defcon CTF Quals 2010 binaries</a></li>
+</ul>
+
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/ctf%20-%20clgt%20crew/2010/05/25/defcon-18-quals-writeups-collection.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>OllyDbg plugin: Catcha! v1.0</title>
+  <meta name="description" content="|  Sometimes you don't know how to start a program correctly  from OllyDgb. Catcha! plugin will help you to attach to your  program automatically as soon as ...">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/tutorials/2007/07/06/ollydbg-plugin-catcha-v1-0.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">OllyDbg plugin: Catcha! v1.0</h4>
+    <p class="post-meta">Jul 6, 2007 • mikado</p>
+  </header>
+
+  <article class="post-content">
+    <p><a title="OllyDbg plugin: Catcha! v1.0" class="generated" href="/vnsec/Members/internal/public/ollydbg-plugin-catcha/Catcha-1.0.rar">OllyDbg plugin: Catcha! v1.0</a></p>
+
+<pre class="brush: plain; gutter: false; title: ; notranslate" title="">Catcha! v1.0
+Coded by mikado @ vnsecurity, 4vn
+Website: http://www.vnsecurity.net - http://www.4vn.org
+Email: mikado[at]4vn[dot]org
+
+[ About ]
+Sometimes you don't know how to start a program correctly
+from OllyDgb. Catcha! plugin will help you to attach to your
+program automatically as soon as possible each time your
+program runs (outside OllyDbg).
+
+It works like Olly De-Attach Helper plugin:
+
+http://www.openrce.org/downloads/details/185/Olly%20De-Attach%20Helper
+
+Catcha! has more advantages than Olly De-Attach Helper.
+It helps reversers not to miss many opcodes before attaching
+target program.
+
+Check it out! Have fun and feel free to contact me.
+
+[ Instructions ]
+- Copy Catcha!.dll and Catcha!.sys to OllyDbg plugin directory.
+- First, select target program by chosing menu:
+  Plugins -&gt; Catcha! -&gt; Select Catcha! target.
+- Run target program outside OllyDbg.
+  It will be attached in OllyDbg automatically as soon as possible.
+- Press F9 to continue running program or,
+  right click on Disassembler window and chose Thread -&gt; Main
+  on Popup menu to switch to program's main thread and continue
+  your debug session.
+
+[ History ]
+2007.07.06:
+- Version 1.0 released.
+
+[ Known bugs ]
+1. Target program can only be attached automatically one time.
+   You have to restart OllyDbg in order for Catcha! to work correctly.
+2. Only tested on Windows XP SP2. The kernel driver was built
+   on WinDDK with Windows XP Build Environment.
+
+[ TODO ]
+- Fix bug (1).
+- Implement de-attach function without closing target program.
+
+mikado.
+</pre>
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/tutorials/2007/07/06/ollydbg-plugin-catcha-v1-0.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

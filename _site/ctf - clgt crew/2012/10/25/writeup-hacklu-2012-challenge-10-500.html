@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>[writeup] Hacklu 2012 &#8211; Challenge #10 (500)</title>
+  <meta name="description" content="  10 &#8211; zlotpyGambling time. Play against the Internet Zlot Machine at ctf.fluxfingers.net tcp/2053 This challenge has two stages.  1) Medium: Investiga...">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/ctf%20-%20clgt%20crew/2012/10/25/writeup-hacklu-2012-challenge-10-500.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">[writeup] Hacklu 2012 &#8211; Challenge #10 (500)</h4>
+    <p class="post-meta">Oct 25, 2012 • pdah</p>
+  </header>
+
+  <article class="post-content">
+    <blockquote>
+  <p>10 – zlotpy<br />
+Gambling time. Play against the Internet Zlot Machine at ctf.fluxfingers.net tcp/2053 This challenge has two stages.</p>
+
+  <p>1) Medium: Investigate the contents of a saved game.</p>
+
+  <p>2) Hard: Get 8 (EIGHT) bonus points. Good luck! Hint: We have some sourcecode for you! https://ctf.fluxfingers.net/challenges/zlot.py</p>
+</blockquote>
+
+<p>At the first sight, we thought this challenge was about Padding Oracle, but it turned out that Bit Flipping attack should be enough to solve.<br />
+First step is to send ‘S’ and get back the ciphertext representing current game state</p>
+
+<blockquote>
+  <p>Welcome to the Internet ZlotMachine. Enter ‘T’ for the Tutorial.<br />
+Your current balance is 5 credits and 1 bonus<br />
+S<br />
+Your games has been saved! Please write down the following save game code.<br />
+WVIagr4eWOGCHi/CSQg1oKEgZneHnJJIm5LJjJeacngsTG1hm9jfygT6ZpBrsFihNKoef165OP2pb+tacn+9FlV+CfKjelFHS4MykxpJcYk=<br />
+This game may later be loaded with L</p>
+</blockquote>
+
+<p>If we send this cipher back to the server, it will return <strong>“Your current balance is 5 credits and 1 bonus”</strong></p>
+
+<p>The code below will loop throuth each byte of the cipher text, increase the value by one and ask the server to load that newly created gamestate.</p>
+
+<pre class="brush: python; title: ; notranslate" title="">s = socket(AF_INET, SOCK_STREAM)
+s.connect(("ctf.fluxfingers.net",2053))
+s.recv(1024)&lt;/code&gt;
+
+responses = set()
+
+def send_request(data):
+    try:
+        s.send("L"+data+"n")
+    except:
+        s = socket(AF_INET, SOCK_STREAM)
+        s.connect(("ctf.fluxfingers.net",2053))
+        s.recv(1024)
+        s.send("L"+data+"n")&lt;/code&gt;
+
+    r = s.recv(1024)
+
+    if r not in responses:
+        responses.add(r)
+        print r
+
+orig_cipher = base64.b64decode("mzIbwjPTw6hMVcp5DsRZGJykuaWXYaukFOEvUT5xVFLfjqQahbCTNsjXYYUawNEc+XFBV689Y/LPD8YYqKy+Z4DqS1uh9yva1ICjyphYbC8=")
+fake_cipher = orig_cipher
+l = len(orig_cipher)
+for i in range(l):
+    print "Try with character #%d"%i
+    fake_cipher = set_byte(orig_cipher, i, chr((ord(fake_cipher[i])+1)%256) )
+    send_request(base64.b64encode(fake_cipher))
+</pre>
+
+<p>The response will look like this:</p>
+
+<blockquote>
+  <p>Try with character #9<br />
+Try with character #10<br />
+Restored state.<br />
+Your current balance is 5 credits and 0 bonus</p>
+
+  <p>Try with character #11<br />
+Error loading game: Expecting , delimiter: line 1 column 11 (char 11)</p>
+</blockquote>
+
+<p>Looking at the result, we notice that changing value of byte #10 will cause the bonus value changed.<br />
+Now we simply brute the value of this byte until getting the flag:</p>
+
+<pre class="brush: python; title: ; notranslate" title="">orig_cipher = base64.b64decode("mzIbwjPTw6hMVcp5DsRZGJykuaWXYaukFOEvUT5xVFLfjqQahbCTNsjXYYUawNEc+XFBV689Y/LPD8YYqKy+Z4DqS1uh9yva1ICjyphYbC8=")
+fake_cipher = orig_cipher
+l = len(orig_cipher)
+for i in range(256):
+    index = 10
+    fake_cipher = set_byte(fake_cipher, index, chr((ord(fake_cipher[index])+i)%256) )
+    send_request(base64.b64encode(fake_cipher))
+</pre>
+
+<p>We will see the flag after a few minutes:</p>
+
+<blockquote>
+  <p>Restored state.<br />
+Your current balance is 5 credits and 5 bonus</p>
+
+  <p>Restored state.<br />
+Your current balance is 5 credits and 8 bonus<br />
+Nice one. Here’s your flag: 9eef8f17d07c4f11febcac1052469ab9</p>
+</blockquote>
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/ctf%20-%20clgt%20crew/2012/10/25/writeup-hacklu-2012-challenge-10-500.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

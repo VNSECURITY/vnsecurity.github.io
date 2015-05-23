@@ -1,0 +1,75 @@
+<header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    {% for post in site.categories.headlines limit:3 %}
+                    <dd>
+                        <a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+                    </dd>
+                    {% endfor %}
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="{{site.baseurl}}/">
+                <img width="217" height="70" alt="VNSecurity Logo" src="{{ "/assets/logo.png" | prepend: site.baseurl }}">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="{{ '/' | prepend: site.baseurl }}">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                {% for category in site.menu_categories %}
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="{{ category | category_link | prepend: site.baseurl }}">{{ category }}</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                {% endfor %}
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="{{ "/papers.html" | prepend: site.baseurl }}">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="{{ "/tools.html" | prepend: site.baseurl }}">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        {{ category_links }}
+    </div>
+    <!--header-bottom-->
+</header>

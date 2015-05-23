@@ -1,0 +1,14 @@
+ <article class="entry-item entry-item-first row-fluid">
+    <div class="entry-thumb span2">
+        <a href="{{ post.url | prepend: site.baseurl }}">
+            <img alt="{{ post.title }}" src="{% if post.thumbnail %} {{ post.thumbnail | prepend: site.baseurl }} {% else %}http://placehold.it/100x100/f0f0f0/ccc{% endif %}"/>
+        </a>
+    </div>
+    <div class="entry-content span10">
+        <header>
+            <h4 class="entry-title"><a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a></h4>
+            <span class="entry-date">{{ post.date | date: "%d/%m/%Y" }},</span>&nbsp;<span class="entry-author">by {{ post.author }}</span>
+        </header>
+        <p> {% if post.excerpt %}{{ post.excerpt }}{% else %}{{ post.content | strip_html | truncatewords: 33 }}{% endif %} </p>
+    </div>
+</article>

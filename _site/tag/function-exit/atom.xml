@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+   
+   	<title>RealJenius.com - Tag: function exit</title>
+   
+   <link>http://realjenius.com</link>
+   <description>I'm a software developer in the game industry, and have been (for better or worse) coding on the Java platform for the last decade. I also do all my own stunts.</description>
+   <language>en-us</language>
+   <managingEditor>R.J. Lorimer</managingEditor>
+   <atom:link href="rss" rel="self" type="application/rss+xml" />
+   
+	<item>
+  <title>Stack Guard &amp; Format String Blocker in Python</title>
+  <link>http://realjenius.com/research/2010/12/23/stack-guard-format-string-blocker-in-python.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2010-12-23T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/research/2010/12/23/stack-guard-format-string-blocker-in-python.html</guid>
+  <description><![CDATA[
+     <p>[Download the tool][1]</p>
+
+<p>`<br />
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%<br />
+Stack Guard &amp; Format String Blocker in Python<br />
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%&lt;/p&gt;</p>
+<p>  :author:     Nam T. Nguyen<br />
+  :copyright:  2010, public domain</p>
+<p>(Shamefully admitted that this tool was used in the Capture the Flag game at HITB Kuala Lumpur 2010, and it failed)</p>
+<p>The Big Picture<br />
+===============</p>
+<p>Basically, we are running the application under a debugger. When an interesting event occurs, we process it accordingly.</p>
+<p>Stack Guard<br />
+-----------</p>
+<p>The interesting events are function entry and function exit. When we enter into a function, the value at top of stack is XOR'd with a random value. When we exit from a function, the value at TOS is again XOR'd with that same random value.</p>
+<p>Format String<br />
+-------------</p>
+<p>The interesting events are those ``printf`` family functions. When the function is entered, we just have to check if its format string argument contains ``%n`` or ``%hn``. For some functions (e.g. ``printf```), this argument is at TOS + 4 (leave one for saved EBP), for some others (e.g. ``fprintf``) it is at TOS + 8, yet for some (e.g. ``snprintf``) it is at TOS + 12.</p>
+<p>The Problems<br />
+============</p>
+<p>Breakpoints<br />
+-----------</p>
+<p>The main issue is with multi-process (fork'd code) applications. Basically, when they fork, the soft-breakpoints (0xCC) are retained but the handler does not attach to the new process. Therefore, when a breakpoint hits, the newly forked process simply dies.</p>
+<p>To work around this issue, the ``MultiprocessDebugger`` class is written to remember breakpoints in both original and forked processes. It also kills new image (via ``exec``) to protect against successful exploitation that launches ``/bin/sh``, for example.</p>
+<p>Function entries/exits<br />
+----------------------</p>
+<p>Basically, to find all function entries, and exits, we have to walk the code. A recursive iterator (flattened with a simple queue) is used to visit all functions from a starting location (usually ``main`` function). When a ``CALL`` instruction is reached, its destination is deemed a function entry. When a ``RET`` instruction is reached, this current location is deemed an exit of the the current function. This does not work with indirect calls (``CALL EAX``, for e.g.) because we do not know its destination.</p>
+<p>Samples<br />
+=======</p>
+<p>Please peruse ``target.py`` for a sample usage.<br />
+`
+
+ [1]: http://force.vnsecurity.net/download/lamer/guard.zip
+</p>
+
+  ]]></description>
+</item>
+
+</channel>
+</rss>

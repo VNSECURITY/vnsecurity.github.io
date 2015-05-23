@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+   
+   	<title>RealJenius.com - Tag: file forensic</title>
+   
+   <link>http://realjenius.com</link>
+   <description>I'm a software developer in the game industry, and have been (for better or worse) coding on the Java platform for the last decade. I also do all my own stunts.</description>
+   <language>en-us</language>
+   <managingEditor>R.J. Lorimer</managingEditor>
+   <atom:link href="rss" rel="self" type="application/rss+xml" />
+   
+	<item>
+  <title>Codegate 2010 Challenge 12 writeup</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2010/03/18/codegate-2010-challenge-12-writeup.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2010-03-18T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2010/03/18/codegate-2010-challenge-12-writeup.html</guid>
+  <description><![CDATA[
+     <h2 id="Summary" style="font-family: Georgia, 'Bitstream Vera Serif', 'New York', Palatino, serif;font-weight: normal;letter-spacing: -0.018em;font-size: 20px;clear: none;color: #366d9c;border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ffdb4c;margin: 0px">
+  Summary<a title="Link to this section" href="#Summary"></a>
+</h2>
+
+<ul>
+  <li>Problem: Finding the key in one raw-data-file – forensic challenge</li>
+  <li>Techniques: Using foremost to extract data</li>
+  <li>Solution: Just extract data and it’s done</li>
+</ul>
+
+<h2 id="Analysis" style="font-family: Georgia, 'Bitstream Vera Serif', 'New York', Palatino, serif;font-weight: normal;letter-spacing: -0.018em;font-size: 20px;clear: none;color: #366d9c;border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ffdb4c;margin: 0px">
+  Analysis<a title="Link to this section" href="#Analysis"></a>
+</h2>
+
+<p>After downloading the file, let’s skim over.</p>
+
+<p style="text-indent: 0.5em">
+  $ file 514985D4E9D80D8BF227859C679BFB32 514985D4E9D80D8BF227859C679BFB32: CDF V2 Document, Little Endian, Os: Windows, Version 6.1, Code page: 949, Title: Chzcxva Pneivat Znqr Rnfl, Author: Flfnqzva, Template: Normal.dotm, Last Saved By: FRETR INHQRANL, Revision Number: 12, Name of Creating Application: Microsoft Office Word, Total Editing Time: 21:00, Create Time/Date: Mon Feb 22 12:48:00 2010, Last Saved Time/Date: Thu Mar 4 13:54:00 2010, Number of Pages: 7, Number of Words: 1381, Number of Characters: 7876, Security: 0
+</p>
+
+<p style="text-indent: 0.5em">
+  $ ls -l 514985D4E9D80D8BF227859C679BFB32
+</p>
+
+<p style="text-indent: 0.5em">
+  -rw-r&#8211;r&#8211; 1 hieuln hieuln 867328 2010-03-13 21:18 514985D4E9D80D8BF227859C679BFB32
+</p>
+
+<p style="text-indent: 0.5em">
+  Of course, it&#8217;s not CDF document. So, the general step is using foremost to extract inside-data.
+</p>
+
+<p style="text-indent: 0.5em">
+  $ foremost -c /etc/foremost.conf -v -o out 14985D4E9D80D8BF227859C679BFB32
+</p>
+
+<p style="text-indent: 0.5em">
+  It got a lot of stuffs. Let&#8217;s browsing images file first. I noticed there&#8217;s a small image named &#8220;00000041.tif&#8221; looks like a captcha. Try with that phrase and it is the right key &#8220;E5R69267&#8243;.
+</p>
+
+<p style="text-indent: 0.5em">
+  Sad, really upset. That&#8217;s such a bad challenge with 300 points. And I can&#8217;t imagine that CLGT is the 3rd team submit this flag, it&#8217;s the end of first day.
+</p>
+
+<h2 id="References" style="font-family: Georgia, 'Bitstream Vera Serif', 'New York', Palatino, serif;font-weight: normal;letter-spacing: -0.018em;font-size: 20px;clear: none;color: #366d9c;border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ffdb4c;margin: 0px">
+  References<a title="Link to this section" href="#References"></a>
+</h2>
+
+<ul>
+  <li>Tools: <a href="http://foremost.sourceforge.net/"><span> </span>http://foremost.sourceforge.net/</a></li>
+  <li>Keywords: files recovery, forensic</li>
+</ul>
+
+
+  ]]></description>
+</item>
+
+</channel>
+</rss>

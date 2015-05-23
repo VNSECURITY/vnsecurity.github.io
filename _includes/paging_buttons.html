@@ -1,0 +1,22 @@
+
+<div id="paging">
+{% if paginator.next_page %}
+	<a href="{{paging_root}}page{{paginator.next_page}}" class="btn btn-default pull-left">&larr; Cũ hơn</a>
+{% else %}
+	<a href="#" class="btn btn-default pull-left" disabled="disabled">&larr; Cũ hơn</a>
+{% endif %}
+
+{% if paginator.previous_page %}
+	{% if paginator.previous_page == 1 %}
+		<a href="{{paging_root}}" class="btn btn-default pull-right">Mới hơn  &rarr;</a>
+	{% else %}
+		<a href="{{paging_root}}page{{paginator.previous_page}}" class="btn btn-default pull-right">Mới hơn &rarr;</a>
+	{% endif %}
+{% else %}
+		<a href="#" class="btn btn-default pull-right" disabled="disabled">Mới hơn &rarr;</a>
+	</li>
+{% endif %}
+</div>
+<div class="clearfix page-bottom"></div>
+{% assign type = nil %}
+{% assign paging_root = nil %}

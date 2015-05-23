@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+   
+   	<title>RealJenius.com - Tag: CSAW</title>
+   
+   <link>http://realjenius.com</link>
+   <description>I'm a software developer in the game industry, and have been (for better or worse) coding on the Java platform for the last decade. I also do all my own stunts.</description>
+   <language>en-us</language>
+   <managingEditor>R.J. Lorimer</managingEditor>
+   <atom:link href="rss" rel="self" type="application/rss+xml" />
+   
+	<item>
+  <title>CSAW CTF 2012</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2012/10/01/csaw-2012-ctf.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2012-10-01T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2012/10/01/csaw-2012-ctf.html</guid>
+  <description><![CDATA[
+     <p>CLGT has just finished CSAW CTF 2012. Solved all challenges and finished 5th. Congrats to CLGT’s junior undergrad members who have done amazing jobs by solving most of the challenges.</p>
+
+<p style="text-align: center">
+  <a href="/wp/storage/uploads/2012/10/csaw2012-scoreboard.png"><img class="aligncenter size-full wp-image-1425" title="csaw2012 scoreboard" src="/wp/storage/uploads/2012/10/csaw2012-scoreboard.png" alt="csaw2012 scoreboard" width="462" height="350" /></a>
+</p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>#7th at CSAW CTF</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2011/09/26/7th-at-csaw-ctf.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2011-09-26T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2011/09/26/7th-at-csaw-ctf.html</guid>
+  <description><![CDATA[
+     <p>There are quite a number of CTF games this month. After <a href="http://www.vnsecurity.net/2011/09/4th-at-hack-lu-ctf/">#hacklu</a> last week, some of us have played <a href="https://csawctf.poly.edu/scoreboard.php" target="_blank">CSAW CTF Quals</a> over the weekend. We finished at 7th (solved all the challenges except the 200 points Recon Judge challenge of <a href="http://trailofbits.com/" target="_blank">Dino Dai Zovi</a>).</p>
+
+<p>Congratz to the top 6 teams who solved all the challenges. See you guys at <a href="http://ctf.itsec.rwth-aachen.de/" target="_blank">rwthCTF</a> next week.</p>
+
+<p style="text-align: center">
+  <a href="https://csawctf.poly.edu/scoreboard.php"><img class="aligncenter size-full wp-image-1211" title="csawctf_ranking" src="/wp/storage/uploads/2011/09/csawctf_ranking.png" alt="csawctf_ranking" width="480" height="211" /></a>
+</p>
+
+<p style="text-align: center">
+  <em><span style="color: #888888">P/S: &#8216;Undergraduate&#8217; category was a mistake :P)</span></em>
+</p>
+
+
+  ]]></description>
+</item>
+
+</channel>
+</rss>

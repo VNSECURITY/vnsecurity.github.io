@@ -1,0 +1,11 @@
+Prerequisite:
+
+    $ gem install jekyll
+
+Generating site:
+
+    $ jekyll build
+
+Testing site:
+   
+    $ jekyll serve

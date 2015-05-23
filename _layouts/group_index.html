@@ -1,0 +1,29 @@
+---
+layout: default_sidebar
+---
+
+<div class="widget kopa-entry-list-widget clearfix">
+{% if page.grouptype == 'tag' %}
+<div class="page-header">
+	<h4>Tag: '{{page.tag}}'</h4>
+</div>
+{% elsif page.grouptype == 'category' %}
+<h4 class="widget-title clearfix">
+    <span class="title-text">Articles in category '{{page.category | capitalize}}'</span>
+</h4>
+{% endif %}
+
+{% for post in paginator.posts %}
+	{% include post_row.html %}
+{% endfor %}
+
+</div>
+
+{% if page.grouptype == 'tag' %}
+	{% capture paging_root %}/tag/{{page.tag}}/{% endcapture %}
+{% elsif page.grouptype == 'category' %}
+	{% capture paging_root %}{{ page.category | category_link }}{% endcapture %}
+{% else %}
+	{% capture paging_root %}/{% endcapture %}
+{% endif %}
+{% include paging_buttons.html %}

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>Buggy HP iPAQ ROM Update Utility</title>
+  <meta name="description" content="Last weekend I tried to re-flash a HP ipaq rw6828 using the latest HP iPAQ ROM Update 1.01.03 from HP website.">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/tutorials/2007/10/29/buggy-hp-ipaq-rom-update-utility.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">Buggy HP iPAQ ROM Update Utility</h4>
+    <p class="post-meta">Oct 29, 2007 • rd</p>
+  </header>
+
+  <article class="post-content">
+    <p>Last weekend I tried to re-flash a HP ipaq rw6828 using the latest <a href="http://h20000.www2.hp.com/bizsupport/TechSupport/SoftwareDescription.jsp?lang=en&amp;cc=us&amp;prodTypeId=215348&amp;prodSeriesId=1839223&amp;prodNameId=1839228&amp;swEnvOID=2067&amp;swLang=8&amp;mode=2&amp;taskId=135&amp;swItem=ip-45505-1" target="_blank">HP iPAQ ROM Update 1.01.03</a> from HP website.</p>
+
+<p>After about 20 minutes, the ROM flash process crashed at 90% and the phone became dead and was not able to power on any longer (tried different suggested methods to get it boot into the bootloader mode but all failed).</p>
+
+<p>I did a quick <a href="http://www.google.com/search?q=ipaq+6828+rom+upgrade+fail+90%25" target="_blank">google</a> on “ipaq 6828 ROM update fail 90%” keywords. Quite a lot of people got the same problem. Some were lucky enough to be able to re-flash the phone again as the phone still can boot into bootloader mode. But many other people had to send the phone to HP Service Center to replace the main board.</p>
+
+<p>So I decided to take a look at the HP iPAQ ROM Update Utility binary (<a href="/vnsec/Members/rd/Files/misc/hpRUU.rar" title="hpRUU.rar">hpRUU.exe – v3.3.2 build 831</a>) to find out the reason.</p>
+
+<p><img style="margin-left: auto;margin-right: auto;border: 0px initial initial" title="hpRUU" src="http://www.vnsecurity.net/wp/storage/uploads/2007/10/hpRUU.jpg" alt="hpRUU" width="600" height="337" /></p>
+
+<p>It didn’t take long to find out that the “90%” problem is caused by a lame buggy code of the HP iPAQ ROM Update Utility itself.</p>
+
+<p><a href="http://www.vnsecurity.net/wp/storage/uploads/2007/10/hpRUU-bug01.jpg"><img class="aligncenter size-full wp-image-362" title="hpRUU-bug01" src="http://www.vnsecurity.net/wp/storage/uploads/2007/10/hpRUU-bug01.jpg" alt="hpRUU-bug01" width="600" height="500" /></a></p>
+
+<p>The buggy code is inside the sub_409DA0() (I renamed it to Client_StartFlash()). Below is the reverse C code snippet of ROM update function (not exactly as the asm code)</p>
+
+<pre class="brush: cpp; gutter: true; highlight: [110,111,112,200,201,202]; title: ; notranslate" title="">void sub_409520(int c)
+{
+    DebugLog("odmLib/Client_StartFlash -- Flashing would start here");
+    hEvent = CreateEventA(0, 0, 0, 0);
+    dword_425B04 = CreateThread(0, 0, &amp;sub_409DA0, 0, 0, 0);
+    SetEvent(hEvent);
+
+    DebugLog("odmLib/Client_StartFlash: pReturnCode-&gt;dwError = %d", 65520);
+}
+
+#define FLASH_ERROR(fmt, ...)   
+{                               
+  DebugLog(fmt, ...);           
+  IsErrorFlag = 1;              
+  pReturnCode_dwError = 401;    
+  return;                       
+}
+
+void Client_StartFlash()      //sub_00409DA0()
+{
+    //WORD SelectFile[2];
+
+    WaitForSingleObject(hEvent, INFINITE);
+    DebugLog("DownloadFile: SelectFile = 0x%x TotalFileSize = 0x%x..rn",
+        SelectFile, TotalFileSize);
+
+    if (DeviceInBLMode == -1) {
+        DebugLog("DownloadFile: DeviceInBLMode has a wrong value!");
+        IsErrorFlag = 1;
+        pReturnCode_dwError = 602;
+        return;
+    }
+
+    if (SelectFile[0] &amp; 8) {
+        DebugLog("DownloadFile: COM_OS ..rn");
+        wsprintfA(StatusBuffer, "Updating the ROM Image ...");
+        byte_425884 = (DeviceInBLMode != 0) + 17;
+        memset(_tFilename, 0, 0x64);
+        pReturnCode_dwExtraInfo = 3;
+        dHeaderLen = 0;
+        sub_40A580(3, _tFilename, (int) &amp;dHeaderLen);
+        DebugLog("DownloadFile: tFilename = %s dHeaderLen = %drn",
+            &amp;_tFilename, dHeaderLen);
+
+        _hFile = CreateFileA(_tFilename, GENERIC_READ | GENERIC_WRITE, 0, 0,
+            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+
+        if (_hFile == INVALID_HANDLE_VALUE) {
+            FLASH_ERROR("Jcs-CreateFile %s fail .. ", _tFilename);
+        }
+
+        HeaderBuffer = malloc(dHeaderLen);
+        HeaderBuffer = malloc(dHeaderLen);
+        ReadFile(_hFile, HeaderBuffer, dHeaderLen, &amp;NumberOfBytesRead, 0);
+
+        dFileLen = GetFileSize(_hFile, 0);
+        dDataLen = dFileLen - dHeaderLen;
+        DataBuffer = calloc(dFileLen - dHeaderLen, 1);
+        ReadFile(_hFile, DataBuffer, dDataLen, &amp;NumberOfBytesRead, 0);
+        free(HeaderBuffer);
+
+        ROMDecode(dDataLen, DataBuffer);
+
+        if (memcmp(DataBuffer, 'R000ffn', 7)) {
+            IsErrorFlag = 1;
+            pReturnCode_dwError = 401;
+            DebugLog("Jcs-Warning: The Image is invalid ... ");
+            wsprintfA(StatusBuffer, "Warning: The Image is invalid ...");
+            return;
+        }
+
+        if (!bDownLoadThrUSB(DataBuffer, dDataLen, dword_425B20,
+            SelectFile)) {
+            IsErrorFlag = 1;
+            pReturnCode_dwError = 503;
+            return;
+        }
+        free(DataBuffer);
+        CloseHandle(_hFile);
+    }
+
+    if (SelectFile[0] &amp; 4) {
+        DebugLog("DownloadFile: COM_BL ..rn");
+        wsprintfA(StatusBuffer, "Updating the Bootloader ...");
+        dHeaderLen = 0;
+        memset(_tFilename, 0, 0x64);
+        pReturnCode_dwExtraInfo = 2;
+        byte_425884 = 2;
+        sub_40A580(2, _tFilename, (int) &amp;dHeaderLen);
+        DebugLog("DownloadFile: tFilename = %s dHeaderLen = %drn", _tFilename, dHeaderLen);
+        _hFile = CreateFileA(_tFilename, GENERIC_READ | GENERIC_WRITE, 0, 0,
+            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+
+        if (_hFile == INVALID_HANDLE_VALUE) {
+            FLASH_ERROR("Jcs-CreateFile %s fail .. ", _tFilename);
+        }
+        HeaderBuffer = malloc(dHeaderLen);
+        ReadFile(_hFile, HeaderBuffer, dHeaderLen, &amp;NumberOfBytesRead, 0);
+        dFileLen = GetFileSize(_hFile, 0);
+        dDataLen = dFileLen - dHeaderLen;
+        DataBuffer = calloc(dFileLen - dHeaderLen, 1);
+
+        ReadFile(_hFile, DataBuffer, dDataLen, &amp;NumberOfBytesRead, 0);
+        free(HeaderBuffer);
+        ReadFile(_hFile, DataBuffer, dDataLen, &amp;NumberOfBytesRead, 0);
+        free(HeaderBuffer);
+
+        ROMDecode(dDataLen, DataBuffer);
+
+        FILE = fopen("c:\ipaq\downloadEboot.txt", "wb");
+        fwrite(DataBuffer, 1, dDataLen, FILE);
+        fclose(FILE);
+
+        if (!bDownLoadThrUSB(DataBuffer, dDataLen, dword_425B20,
+            SelectFile)) {
+            IsErrorFlag = 1;
+            pReturnCode_dwError = 503;
+            return;
+        }
+        free(DataBuffer);
+        CloseHandle(_hFile);
+    }
+    if (!bDownLoadThrUSB(&amp;unk_4253F0, 0x80, 0, SelectFile)) {
+        IsErrorFlag = 1;
+        pReturnCode_dwError = 401;
+        DebugLog("Jcs-Download version infomation to device fail ..");
+        return;
+    }
+
+    dTmp = SelectFile[1];
+    if (SelectFile[0] &amp; 0x20) {
+        DebugLog("DownloadFile: COM_FS ..rn");
+        dTmp = SelectFile[1];
+    }
+
+    if (dTmp &amp; 0x80 &amp;&amp; dTmp &amp; 0x20) {
+        DebugLog("DownloadFile: COM_WANOS + COM_WANBL ..rn");
+        wsprintfA(StatusBuffer, "Updating the Radio Stack ...");
+        dHeaderLen = 0;
+        memset(_tFilename, 0, 0x64);
+        pReturnCode_dwExtraInfo = 15;
+        byte_425884 = 4;
+        sub_40A580(13, _tFilename, (int) &amp;dHeaderLen);
+        DebugLog("DownloadFile: tFilename = %s dHeaderLen = %drn",
+            _tFilename, dHeaderLen);
+
+        _hFile = CreateFileA(_tFilename, GENERIC_READ | GENERIC_WRITE, 0, 0,
+            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+
+        if (_hFile == INVALID_HANDLE_VALUE) {
+            FLASH_ERROR("Jcs-CreateFile %s fail .. ", _tFilename);
+        }
+
+        HeaderBuffer = malloc(dHeaderLen);
+        ReadFile(_hFile, HeaderBuffer, dHeaderLen, &amp;NumberOfBytesRead, 0);
+        dFileLen = GetFileSize(_hFile, 0);
+        dDataLen = dFileLen - dHeaderLen;
+        dFileLen = GetFileSize(_hFile, 0);
+        dDataLen = dFileLen - dHeaderLen;
+
+        DataBuffer = calloc(dDataLen, 1);
+        dword_425B1C = DataBuffer;
+        ReadFile(_hFile, DataBuffer, dDataLen, &amp;NumberOfBytesRead, 0);
+        free(HeaderBuffer);
+        CloseHandle(_hFile);
+
+        memset(_tFilename, 0, 0x64)
+            sub_40A580(15, _tFilename, (int) &amp;dHeaderLen)
+            DebugLog ("DownloadFile: tFilename = %s dHeaderLen = %drn",
+            &amp;_tFilename, dHeaderLen)
+
+            _hFile = CreateFileA(_tFilename, GENERIC_READ | GENERIC_WRITE, 0, 0,
+            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+
+        if (_hFile == INVALID_HANDLE_VALUE) {
+            FLASH_ERROR("Jcs-CreateFile %s fail .. ", _tFilename);
+        }
+
+        HeaderBuffer = malloc(dHeaderLen);
+        ReadFile(_hFile, HeaderBuffer, dHeaderLen, &amp;NumberOfBytesRead, 0);
+        dDataLen = GetFileSize(_hFile, 0) - dHeaderLen;
+        dword_425B84 = dDataLen;
+
+        DataBuffer = calloc(dDataLen, 1);
+        dword_425B10 = DataBuffer;
+        ReadFile(_hFile, DataBuffer, dDataLen, &amp;NumberOfBytesRead, 0);
+
+        free(HeaderBuffer);
+        CloseHandle(_hFile);
+
+        DataBuffer = calloc(dDataLen + nNumberOfBytesToRead + 88, 1);
+        szBuffer = _msize(DataBuffer);
+        memset(DataBuffer, -1, szBuffer);
+
+        if (sub_40A5E0()) {
+            if (sub_40A770()) {
+                if (sub_40A8F0()) {
+                    ROMDecode(Count, DataBuffer);
+                    if (DataBuffer) {
+                        FILE = fopen ("c:\ipaq\downloadMot.txt", "wb");
+                        fwrite(DataBuffer, 1, Count, FILE);
+                        fclose(FILE);
+                        if (bDownLoadThrUSB(DataBuffer, Count, dword_425B20, SelectFile)) {
+                            if (sub_40B270()) {
+                                free(DataBuffer);
+                                free(dword_425B10);
+                                free(dword_425B1C);
+                                dword_425F58 = 1;
+                            } else {
+                                IsErrorFlag = 1;
+                            } else {
+                                IsErrorFlag = 1;
+                                pReturnCode_dwError = 401;
+                                DebugLog ("Jcs-bGetMOTBurnStatus fail ..");
+                            }
+                        } else {
+                            IsErrorFlag = 1;
+                            pReturnCode_dwError = 401;
+                            DebugLog ("Jcs-Download Mot fail ..");
+                        }
+                    } else {
+                        IsErrorFlag = 1;
+                        pReturnCode_dwError = 401;
+                        DebugLog ("Jcs-(pMOTBuf==NULL) fail ..");
+                    }
+                } else {
+                    IsErrorFlag = 1;
+                    pReturnCode_dwError = 401;
+                    DebugLog("Jcs-PrepareMOTData fail ..");
+                }
+            } else {
+                IsErrorFlag = 1;
+                pReturnCode_dwError = 401;
+                DebugLog("Jcs-PrepareMOTAgent fail ..");
+            }
+        } else {
+            IsErrorFlag = 1;
+            pReturnCode_dwError = 401;
+            DebugLog("Jcs-PrepareMOTPara fail ..");
+        }
+    } else {
+        dword_425F58 = 1;
+    }
+}
+</pre>
+
+<p>The codes at line 110-&gt;112 and 200-&gt;202 inside Client_StartFlash() function try to write the ‘decrypted’ EBOOT and MOT ROMs data to hard-coded file locations at c:ipaqdownloadMot.txt and c:ipaqdownloadEboot.txt. It doesn’t check whether the fopen() return a successful FILE pointer or not before writing the content.</p>
+
+<p>So, If you install the ROM upgrade program in a different location (in my case, i installed it in d:tmpipaq) instead of default location (c:ipaq), the update program will get crashed at 90%. This stupid error had killed many ipaq and many people had to spend their time and money for the service &amp; mainboard replacement since the update had been released by HP for almost a year. The HP developer who wrote this code should go back to college to learn how to code properly.</p>
+
+<p>After knowing the problem, I sent the ipaq to HP Service Center a day after and got the mainboard replaced. After few hours of waiting, complaining and giving live proof of the bug to HP technical guy, I did not need to pay for mainboard replacement cost :). The technical guy was a nice guy. He even brought me inside HP technical service center for re-flashing few ipaqs to reproduce the problem. However, the experience with the girl at HP Customer Service Center was kind of bad though.</p>
+
+<p>**<br />
+**</p>
+
+<p><strong>Links:</strong></p>
+
+<ol>
+  <li><a href="http://h20000.www2.hp.com/bizsupport/TechSupport/SoftwareDescription.jsp?lang=en&amp;cc=us&amp;prodTypeId=215348&amp;prodSeriesId=1839223&amp;prodNameId=1839228&amp;swEnvOID=2067&amp;swLang=8&amp;mode=2&amp;taskId=135&amp;swItem=ip-45505-1" target="_blank">HP iPAQ ROM Update 1.01.03</a></li>
+  <li><a href="/vnsec/Members/rd/Files/misc/hpRUU.rar" title="hpRUU.rar">hpRUU.exe – v3.3.2 Build 831</a></li>
+</ol>
+
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/tutorials/2007/10/29/buggy-hp-ipaq-rom-update-utility.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

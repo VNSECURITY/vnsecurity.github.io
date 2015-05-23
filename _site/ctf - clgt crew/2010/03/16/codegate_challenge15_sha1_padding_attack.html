@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>CodeGate 2010 Challenge 15 &#8211; SHA1 padding attack</title>
+  <meta name="description" content="Summary">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/ctf%20-%20clgt%20crew/2010/03/16/codegate_challenge15_sha1_padding_attack.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">CodeGate 2010 Challenge 15 &#8211; SHA1 padding attack</h4>
+    <p class="post-meta">Mar 16, 2010 • rd</p>
+  </header>
+
+  <article class="post-content">
+    <h2 id="summary">Summary</h2>
+
+<p>This is a web based crypto challenge vulnerable to padding/length extension attack in its sha1 based authentication scheme.</p>
+
+<h2 id="analysis">Analysis</h2>
+
+<p>Challenge URL: <a href="http://ctf1.codegate.org/03c1e338b6445c0f127319f5cb69920a/web1.php" target="_blank">http://ctf1.codegate.org/03c1e338b6445c0f127319f5cb69920a/web1.php</a></p>
+
+<p>This page will ask for submitting a username for the first time. Once a username is submited ( ‘aaaa’ for example), the script will set a cookie as the following:</p>
+
+<blockquote>
+  <table>
+    <tbody>
+      <tr>
+        <td>web1_auth = YWFhYXwx**</td>
+        <td>**8f5c14cc7c1cd461f35b190af57927d1c377997e</td>
+      </tr>
+    </tbody>
+  </table>
+</blockquote>
+
+<table>
+  <tbody>
+    <tr>
+      <td>The first part <strong>YWFhYXwx</strong> is the base64 encoded string of *‘aaaa</td>
+      <td>1′* (username</td>
+      <td>role). The second part <strong>8f5c14cc7c1cd461f35b190af57927d1c377997e</strong> is the <em>sha1(unknown_secretkey + username + role)</em>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>In the next visit, the web1.php script will check for the cookie and return the following message</p>
+
+<blockquote>
+  <p>“Welcome back, aaaa! You are not the administrator.”</p>
+</blockquote>
+
+<p>We can guest that 1 is the role value for normal user and 0 for administrator.</p>
+
+<h2 id="solution">Solution</h2>
+
+<table>
+  <tbody>
+    <tr>
+      <td>If we try to modify to first part of the web1_auth cookie to something like base64_encode(‘aaaa</td>
+      <td>0′), the script will return an error message saying that the data has been tampered due to the wrong signature.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>As we know that popular hash functions including sha1 are vulnerable to length extension (or padding) attacks. This can be used to break naive authentication schemes based on hash functions.</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>I will not write the detail on how to do sha1 length extension attack, you can read papers in the References section below for more information. Basically, with padding attack, we can append arbitrary data to the cookie and generate a valid signature for it without knowing the secret key. In this challenge, we want to have ‘</td>
+      <td>0′ (administrator role) at the end of the first part of the cookie.</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>$ python sha-padding.py<br />
+usage: sha-padding.py <keylen> &lt;original\_message&gt; &lt;original\_signature&gt; &lt;text\_to\_append&gt;</keylen></p>
+
+  <p>$ python sha-padding.py 25 ‘aaaa|1′ 8f5c14cc7c1cd461f35b190af57927d1c377997e ‘|0′<br />
+new msg: ‘aaaa|1x80x00x00x00x00x00x00x00x00x00x00x00x00x00x00x00<br />
+x00x00x00x00x00x00x00x00x00x00x00x00x00x00x00x00xf8|0′<br />
+base64: YWFhYXwxgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4fDA=<br />
+new sig: 70f8bf57aa6d7faaa70ef17e763ef2578cb8d839</p>
+</blockquote>
+
+<p>And here is what we got with the web1_auth cookie using <strong>YWFhYXwxgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4fDA=</strong> and signature <strong>70f8bf57aa6d7faaa70ef17e763ef2578cb8d839</strong></p>
+
+<blockquote>
+  <p>Welcome back, aaaa! Congratulations! You did it! Here is your flag: CryptoNinjaCertified!!!!!</p>
+</blockquote>
+
+<h2 id="source-codes">Source Codes</h2>
+
+<ul>
+  <li><a href="http://force.vnsecurity.net/download/rd/shaext.py">http://force.vnsecurity.net/download/rd/shaext.py</a></li>
+  <li><a href="http://force.vnsecurity.net/download/rd/sha-padding.py">http://force.vnsecurity.net/download/rd/sha-padding.py</a></li>
+  <li><a href="http://force.vnsecurity.net/download/rd/sha.py">http://force.vnsecurity.net/download/rd/sha.py</a> (this one  taken from pypy lib)</li>
+</ul>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="http://en.wikipedia.org/wiki/Cryptographic_hash_function">http://en.wikipedia.org/wiki/Cryptographic_hash_function</a></li>
+  <li><a href="http://netifera.com/research/flickr_api_signature_forgery.pdf">Flickr’s API Signature Forgery Vulnerability</a></li>
+  <li>G. Tsudik, “Message authentication with one-way hash functions,” Proceedings of Info-com 92.</li>
+</ul>
+
+<p>Keywords: sha1, padding, length extension attack, codegate 2010</p>
+
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/ctf%20-%20clgt%20crew/2010/03/16/codegate_challenge15_sha1_padding_attack.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

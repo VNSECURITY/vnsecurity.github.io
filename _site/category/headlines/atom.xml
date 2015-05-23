@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+   
+    <title>RealJenius.com - Category: headlines</title>
+   
+   <link>http://realjenius.com</link>
+   <description>I'm a software developer in the game industry, and have been (for better or worse) coding on the Java platform for the last decade. I also do all my own stunts.</description>
+   <language>en-us</language>
+   <managingEditor>R.J. Lorimer</managingEditor>
+   <atom:link href="rss" rel="self" type="application/rss+xml" />
+   
+	<item>
+  <title>Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</title>
+  <link>http://realjenius.com/headlines/2014/05/06/btalk-part-1.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2014-05-06T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/headlines/2014/05/06/btalk-part-1.html</guid>
+  <description><![CDATA[
+     <p><strong>Lưu ý: các phân tích trong bài viết này được dựa trên phiên bản Btalk 1.0.6 tải về từ PlayStore. Các vấn đề được nêu trong bài viết này BKAV đã được gửi email thông báo từ trước.</strong></p>
+
+<p style="text-align: right">
+  <strong>(pdah &#8211; cb_ &#8211; k9)<br /> </strong>
+</p>
+
+<h2 id="c-ch-ng-k-v-kch-hot">Cơ chế đăng ký và kích hoạt</h2>
+
+<p>Quá trình xác thực trên điện thoại của Btalk  gồm 3 bước chính:</p>
+
+<ol>
+  <li>Đăng ký tài khoản với Btalk: 
+    <ul>
+      <li>Người dùng gửi thông tin về số điện thoại đang sử dụng cho máy chủ Btalk.</li>
+      <li>Btalk gửi tin nhắn kèm mã số xác thực đến số điện thoại người dùng.</li>
+    </ul>
+  </li>
+  <li>Xác nhận (kích hoạt) tài khoản: 
+    <ul>
+      <li>Mã số xác thực được nhập và gửi lại Btalk</li>
+      <li>Btalk xác nhận đúng mã xác thực và gửi lại mật khẩu khởi tạo riêng cho mỗi phiên đăng ký.</li>
+    </ul>
+  </li>
+  <li>Đăng ký với hệ thống nhắn tin OpenSIPS 
+    <ul>
+      <li>Mật khẩu kèm thông tin số điện thoại được gửi lại hệ thống OpenSIPS của Btalk</li>
+      <li>Btalk xác nhận đã nhận được thông tin</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="bc-1-8211-ng-k-ti-khon-vi-btalk">Bước 1 – Đăng ký tài khoản với Btalk:</h3>
+
+<p>Sau khi người dùng nhập số điện thoại, một HTTP GET Request được gửi từ ứng dụng Btalk đến API <a href="https://bmail.vn/service/preauth">https://bmail.vn/service/preauth</a> với các tham số sau:</p>
+
+<pre style="text-align: left"><code>domain       = bmail.vn
+from         = bphone
+reqType      = bphoneRegister
+txtDomain    = bmail.vn
+useServerSms = true
+txtUser      = &lt;số điện thoại kèm mã quốc gia&gt;@bmail.vn
+timestamp    = &lt;timestamp&gt;
+preauth      = &lt;hash&gt;
+</code></pre>
+
+<p>Tham số <code>preauth</code> được sử dụng để “ký” các thông tin được thiết bị gửi đến máy chủ Btalk. Mục đích chính là để xác nhận thông tin được gửi từ một nguồn hợp lệ. Điều này được thể hiện qua việc API gửi về <code>isTrustedDomain=false</code> nếu chúng ta gửi giá trị ngẫu nhiên cho <code>preauth</code>.</p>
+
+<p>Giá trị của <code>preauth</code> được xác định như sau:</p>
+
+<pre><code>preauth = HMAC_SHA1(key, domain + ’|’ + timestamp + ‘|’ + txtUser)
+</code></pre>
+
+<p>Nếu thông tin được ký đúng, API trả về một HTTP Response rỗng đồng thời hệ thống gửi một tin nhắn chứa mã số xác thực (gồm 4 ký số) đến số di động của người dùng. Nội dung của tin nhắn có dạng:</p>
+
+<pre><code>Your Btalk code is XXXX.
+</code></pre>
+
+<h3 id="bc-2-8211-xc-nhn-ti-khon">Bước 2 – Xác nhận tài khoản</h3>
+
+<p>Sau khi có mã số xác thực, ứng dụng Btalk tiếp tục gửi một HTTP GET Request đến <a href="https://bmail.vn/service/preauth">https://bmail.vn/service/preauth</a> với danh sách các tham số:</p>
+
+<pre><code>txtDomain   = bmail.vn
+from        = bphone
+reqType     = bphoneRegister
+op          = verifyCode
+txtDomain   = bmail.vn
+txtUser     = &lt;số điện thoại kèm mã quốc gia&gt;@bmail.vn
+timestamp   = &lt;timestamp&gt;
+verifyCode  = &lt;code&gt;
+preauth     = &lt;hash&gt;
+</code></pre>
+
+<p>Với preauth được xác định bằng:</p>
+
+<pre><code>preauth = HMAC_SHA1(key, timestamp + ’|’ + txtUser + ‘|’ + verifyCode)
+</code></pre>
+
+<p>Nếu Btalk gửi đúng mã xác nhận, API sẽ gửi về mật khẩu (gồm 8 ký tự). Trên lý thuyết, với số điện thoại và mật khẩu này, chúng ta có thể gửi và nhận tin nhắn thông qua máy chủ của Btalk. Tuy nhiên chúng ta không thể làm điều đó nếu chưa thực hiện bước tiếp theo.</p>
+
+<h3 id="bc-3-8211-ng-k-vi-h-thng-nhn-tin-opensips">Bước 3 – Đăng ký với hệ thống nhắn tin OpenSIPS</h3>
+
+<p>Ứng dụng Btalk gửi một HTTP POST Request đến dịch vụ OpenSIPS tại <a href="https://btalk.bkav.com:8443/OpenSipsServices/rest/sip/register">https://btalk.bkav.com:8443/OpenSipsServices/rest/sip/register</a></p>
+
+<p>Với tham số:</p>
+
+<pre><code>username  = &lt;số điện thoại kèm mã quốc gia&gt;
+password  = &lt;mật khẩu&gt;
+timestamp = &lt;timestamp&gt;
+preauth   = &lt;hash&gt;
+</code></pre>
+
+<p>Trong đó</p>
+
+<pre><code>preauth = HMAC_SHA1(key, timestamp + ’|’ + password + ‘|’ + username + ‘@bmail.vn’)
+</code></pre>
+
+<p>Sau bước này ứng dụng Btalk đã có thể đăng nhập vào hệ thống XMPP của Btalk đồng thời gửi, nhận tin nhắn.</p>
+
+<h2 id="cc-vn-">Các vấn đề</h2>
+
+<h3 id="l-key-kha-ca-hm-bm-m-ha">Lộ key (khóa) của hàm băm mã hóa</h3>
+
+<p>Như chúng tôi mô tả ở trên, Btalk sử dụng HMAC-SHA1 để ký các HTTP requests gửi đi từ ứng dụng trên điện thoại. Về cơ bản HMAC-SHA1 giúp người sử dụng kiểm tra tính đồng nhất của dữ liệu, đồng thời chứng thực phía gửi dữ liệu thông qua tính bí mật của khóa key. Tuy nhiên giá trị của key được nhúng trong ứng dụng Btalk và chúng ta có thể tìm thấy nó dễ dàng:</p>
+
+<pre><code>Configuration.REGISTER_KEY = "41ab3e484f918ff0d378058e50eb0f79e93d19383ca1053830a878a83bcce3fc";
+</code></pre>
+
+<p>Điều này dẫn đến việc bất kỳ ai cũng có thể giả mạo ứng dụng Btalk để gửi HTTP requests đến máy chủ.</p>
+
+<h3 id="spam-tin-nhn-xc-thc-n-s-di-ng-khc">Spam tin nhắn xác thực đến số di động khác</h3>
+
+<p>Một hệ quả của vấn đề trên là chúng ta có thể spam số máy di động khác bằng cách liên tục giả lập bước một của cơ chế xác thực.</p>
+
+<h3 id="ly-cp-thng-tin-ng-nhp-thng-qua-vt-cn-m-xc-thc">Lấy cắp thông tin đăng nhập thông qua vét cạn mã xác thực</h3>
+
+<p>Ở bước một và hai, mã xác thực chỉ có 4 ký số và không bị vô hiệu trong khoản thời gian nhất định, chúng ta có thể liên tục lặp lại bước hai với tối đa 10.000 khả năng khác nhau của mã xác thực cho đến khi nào nhận được mật khẩu.</p>
+
+<p>Thời gian ước tính để thử chọn hết tất cả các khả năng (10.000 trường hợp) là khoảng 1 giờ đồng hồ. Giả sử nhà phát triển lựa chọn phương án vô hiệu hóa mã xác thực trong 5 phút, chúng ta sẽ có cơ hội thử chọn khoảng 830 trường hợp, đồng nghĩa với khoảng 8.3% cơ hội thành công. Đây vẫn là một con số không nhỏ.</p>
+
+<h3 id="ssl-vn-khng-an-ton">SSL vẫn không an toàn</h3>
+
+<p>Mặc dù Btalk sử dụng SSL cho tất cả các bước xác thực người dùng, nhưng nhà phát triển cho phép ứng dụng chấp nhận tất cả các certificate mà nó nhận được bằng cách:</p>
+
+<ul>
+  <li>Định nghĩa lại lớp BkavSSLSocketFactory thay cho lớp SSLSocketFactory mặc định và bỏ hết tất cả các bước chứng thực certificate.</li>
+  <li>Bỏ qua việc kiểm tra hostname của certificate: 
+      KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+      keyStore.load(null, null);
+      BkavSSLSocketFactory socketFactory = new BkavSSLSocketFactory(keyStore);
+      (()SSLSocketFactory)socketFactory).setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);</li>
+</ul>
+
+<p>Điều này cho phép hacker có thể thực hiện tấn công MITM và “nhìn lén” tất cả dữ liệu của người dùng.</p>
+
+<h2 id="mt-vi-iu-th-v-khc">Một vài điều thú vị khác</h2>
+
+<h3 id="gi-lp-gi-v-nhn-tin-nhn-t-sau-khi-c-c-mt-khu">Giả lập gửi và nhận tin nhắn từ sau khi có được mật khẩu</h3>
+
+<h4 id="trn-in-thoi--root-hoc-emulator">1. Trên điện thoại (đã root) hoặc emulator:</h4>
+
+<p>Sau khi cài Btalk, điều chỉnh thông tin đăng nhập của ứng dụng tại <strong>/data/data/bkav.android.btalk/shared_prefs/bkav.android.btalk_preferences.xml</strong> với số điện thoại và mật khẩu lấy được.</p>
+
+<pre><code>...
+
+&lt;string name="bkav_pref_sipx_password"&gt;YYYYYYYY&lt;/string&gt;
+&lt;string name="bkav_pref_sipx_username"&gt;84XXXXXXXXXXX&lt;/string&gt;
+
+...
+</code></pre>
+
+<h4 id="thng-qua-vit-m">2. Thông qua viết mã</h4>
+
+<p>Đoạn mã đơn giản sau giả lập việc gửi và nhận tin nhắn qua Btalk:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">import xmpp
+import time
+
+username = '84xxxxxxxx'
+passwd   = 'yyyyyyy'
+to       = '84zzzzzzzzz@bmail.vn'
+msg      = 'Hello from a script'
+
+def message_callback(client, stanza):
+    sender       = stanza.getFrom()
+    message_type = stanza.getType()
+    message      = stanza.getBody()
+
+print "Received '%s' from '%s'" % (message, sender)
+
+client = xmpp.Client('bmail.vn', debug=[])
+client.connect(server=('chat.bkav.com',5222))
+client.auth(username, passwd, 'bmail.vn')
+client.RegisterHandler("message", message_callback)
+
+client.sendInitPresence()
+message = xmpp.Message(to, msg)
+message.setAttr('type', 'chat')
+print "Sending message ..."
+client.send(message)
+
+print "Waiting for message ..."
+while client.isConnected():
+    client.send(xmpp.Presence())
+    client.Process()
+    time.sleep(1)
+</pre>
+
+<h3 id="ci-g-y-">Cái gì đây ?</h3>
+
+<p>Chúng tôi phát hiện một vài đoạn mã thú vị trong ứng dụng Btalk:</p>
+
+<p><img class="alignnone" src="https://dl.dropbox.com/s/svfdurmp8gw0i5x/Screen%20Shot%202014-05-06%20at%2010.00.47%20pm-1.png" alt="" width="521" height="136" /></p>
+
+<p>Cho dù BKAV đã thay đổi tên đăng nhập và/hoặc mật khẩu của dịch vụ liên quan ở phía máy chủ, việc để lọt những dòng mã như thế này lên Play Store cho thấy nhà phát triển chưa làm tốt khâu kiểm định mã nguồn trước khi xuất xưởng.</p>
+
+<p>(còn tiếp)</p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Học viện SANS đến Việt Nam 03/2012</title>
+  <link>http://realjenius.com/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2011-12-20T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html</guid>
+  <description><![CDATA[
+     <p style="text-align: justify">
+  Những ai làm về lĩnh vực an toàn thông tin chắc đều biết đến <a href="http://www.sans.org" target="_blank">học viện SANS</a> như là một học viện hàng đầu thế giới về đào tạo an toàn thông tin. Học viện SANS, được thành lập từ năm 1989, đã đào tạo hơn 165,000 chuyên gia an toàn thông tin khắp nơi trên thế giới trong đó có những nhà quản lý an toàn thông tin cao cấp, chuyên gia đánh giá an ninh hay các quản trị viên hệ thống cho các tập đoàn hàng đầu thế giới hay các cơ quan an ninh chính phủ. Học viện SANS còn có một hệ thống tài liệu nghiên cứu khổng lồ về an toàn thông tin và điều hành trung tâm cảnh báo an ninh Internet.
+</p>
+
+<p style="text-align: justify">
+  <img class="aligncenter" src="http://force.vnsecurity.net/sans-vn.png" alt="" width="479" height="209" />
+</p>
+
+<p style="text-align: justify">
+  Các chứng chỉ an toàn thông tin của học viện SANS được công nhận trên toàn thế giới và luôn được đánh giá là chứng chỉ hàng đầu về an toàn thông tin. Thông thường các khóa học của học viện SANS hàng năm diễn ra ở Mỹ, Châu Âu và một vài nước Châu Á. Việc học và thi chứng chỉ của SANS nói riêng hay các chứng chỉ quốc tế khác thường mất khá nhiều thời gian và tốn kém tại Việt nam. Như một bước khởi đầu cho việc đào tạo an toàn thông tin ở Việt nam, học viện SANS lần đầu tiên mở một khóa học <a href="https://www.sans.org/security-training/network-penetration-testing-ethical-hacking-937-mid" target="_blank">SANS 560</a> về Kiểm Định An Toàn Thông Tin Mạng (“Network Penetration Testing and Ethical Hacking”) vào đầu năm 2012 tại thành phố Hồ Chí Minh.
+</p>
+
+<p>Học viên sẽ được tổ chức thi chứng chỉ <a href="http://www.giac.org/certification/penetration-tester-gpen" target="_blank">GIAC Penetration Tester</a> (GIAC GPEN) tại chỗ. Đây là chứng chỉ uy tín nhất hiện nay dành cho chuyên gia an toàn thông tin trong việc kiểm định an toàn thông tin mạng.</p>
+
+<blockquote>
+  <address>
+  Thời gian: Tháng 03, 2012<br /> Địa điểm: The Fleminton Tower<br /> 182 Lê Đại Hành, Quận 11<br /> Thành phố Hồ Chí Minh, Việt nam
+</address>
+</blockquote>
+
+<p>Để đăng kí khóa học, xin vui lòng truy cập vào <a href="http://www.sans.org/mentor/details.php?nid=27046">http://www.sans.org/mentor/details.php?nid=27046</a>. SANS hiện có chương trình giảm giá cho các công ty, tổ chức về an toàn thông tin tại Việt nam cũng như các công ty đăng ký từ 02 học viên trở lên. Để có được mã giảm giá, xin vui lòng email thanh _AT_ vnsecurity.net  trước khi đăng ký.</p>
+
+<p>Thông tin chi tiết hơn về khóa học có thể xem ở <a href="http://force.vnsecurity.net/download/SANS-560-VN.pdf" target="_self">đây</a>.</p>
+
+<p>**Thông tin tham khảo:<br />
+**</p>
+
+<ol>
+  <li><a href="http://force.vnsecurity.net/download/SANS-560-VN.pdf" target="_blank">http://force.vnsecurity.net/download/SANS-560-VN.pdf</a></li>
+  <li><a href="https://www.sans.org/security-training/network-penetration-testing-ethical-hacking-937-mid" target="_blank">https://www.sans.org/security-training/network-penetration-testing-ethical-hacking-937-mid</a></li>
+  <li><a href="http://www.giac.org/certification/penetration-tester-gpen" target="_blank">http://www.giac.org/certification/penetration-tester-gpen</a></li>
+  <li><a href="http://www.sans.org/mentor/details.php?nid=27046" target="_blank">http://www.sans.org/mentor/details.php?nid=27046</a></li>
+</ol>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Hội thảo Tết 2012</title>
+  <link>http://realjenius.com/headlines/2011/12/16/hoi-thao-tet-2012.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2011-12-16T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/headlines/2011/12/16/hoi-thao-tet-2012.html</guid>
+  <description><![CDATA[
+     <p>Tết Nhâm Thìn 2012 năm nay, VNSECURITY phối hợp cùng HVA tổ chức một hội thảo mini, nơi diễn giả trong và ngoài nước trình bày và trao đổi về những kinh nghiệm thiết thực trong việc đảm bảo an toàn cho sản phẩm cũng như hệ thống thông tin của doanh nghiệp cũng như những nghiên cứu và phát triển mới nhất trong lĩnh vực an toàn thông tin ở Việt Nam và thế giới.</p>
+
+<p>Vui lòng đăng ký tham gia và gửi bài tham luận ở <a href="http://tetcon.org" target="_blank">http://tetcon.org</a>.</p>
+
+<blockquote>
+  <p><span style="font-weight: bold">Ngày quan trọng</span></p>
+
+  <ul>
+    <li>Hạn chót gửi đề tài: 31/12/2011.</li>
+    <li>Ngày công bố chương trình: 3/1/2012.</li>
+    <li>Ngày hội thảo: 13/1/2012.</li>
+  </ul>
+
+  <p>** Quyền lợi diễn giả **</p>
+
+  <p>Nếu được chọn làm diễn giả, bạn sẽ được:</p>
+
+  <ul>
+    <li>Mời dự họp mặt tất niên của HVA.</li>
+    <li>Mời dự hợp mặt tất niên của VNSECURITY – CLGT.</li>
+    <li>Nếu bạn không ở Sài Gòn, có thể chúng tôi sẽ đài thọ vé máy bay khứ hồi và khách sạn.</li>
+  </ul>
+</blockquote>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Hội thảo bảo mật quốc tế SyScan 2010 đến Tp.HCM</title>
+  <link>http://realjenius.com/headlines/2010/05/27/hoi-thao-bao-mat-quoc-te-syscan-2010-den-tp-hcm.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2010-05-27T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/headlines/2010/05/27/hoi-thao-bao-mat-quoc-te-syscan-2010-den-tp-hcm.html</guid>
+  <description><![CDATA[
+     <p><a href="http://www.syscan.org/" target="_blank">SyScan</a> (Symposium on Security for Asia Network) là một trong các hội thảo bảo mật chuyên đề uy tín ở châu Á. Khác với các hội thảo bảo mật khác, SyScan không nói về sản phẩm hay giải pháp thương mại, mà là nơi các chuyên gia bảo mật hàng đầu trên thế giới đến để chia sẻ các nghiên cứu, phát hiện và kinh nghiệm của họ với giới bảo mật trong khu vực. Các diễn giả ở SyScan là những chuyên gia thuộc nhóm giỏi nhất, nổi bật nhất trong lĩnh vực họ nghiên cứu, sẽ đến và chia sẻ trong một hội thảo diễn ra trong hai ngày.</p>
+
+<div style="width: 460px" class="wp-caption aligncenter">
+  <a href="http://www.syscan.org/hcm/registration.php" target="_blank"><img class=" " title="Tham gia Syscan HCM để có cơ hội trúng thưởng máy tính bảng Apple iPad" src="/wp/storage/uploads/2010/05/announce_ipad.jpg" alt="Tham dự Syscan HCM để có cơ hội trúng thưởng máy tính bảng Apple iPad" width="450" /></a><p class="wp-caption-text">
+    Tham dự Syscan 2010 HCM để có cơ hội trúng thưởng máy tính bảng Apple iPad
+  </p>
+</div>
+
+<p>Đây là lần đầu tiên hội thảo SyScan được tổ chức ở Việt Nam với sự phối hợp đồng tổ chức giữa Syscan, công ty IET và nhóm <a href="http://www.vnsecurity.net/" target="_self">VNSECURITY</a> – nhóm nghiên cứu bảo mật hàng đầu hiện nay ở VN và cũng là nhà tổ chức hội thảo bảo mật quốc tế <a href="http://conf.vnsecurity.net" target="_blank">VNSECON</a> năm 2007. Hội thảo <a href="http://www.syscan.org/hcm/index.php">SyScan 2010 HCM</a> sẽ diễn ra từ ngày 23 đến 24 tháng 9 năm 2010 tại khách sạn Sheraton, 88 Đồng Khởi – Q.1 – Tp.HCM. Trọng tâm của hội thảo năm nay sẽ nhắm vào các chủ đề bảo mật nóng bỏng hiện nay trên thế giới như: Bảo mật hệ điều hành, Ảo hoá và Điện toán đám mây, Bảo mật trình duyệt, Bảo mật thiết bị di động, hệ thống nhúng, Web 2.0, Mạng viễn thông, Mạng máy tính, Chính sách an ninh, Chiến tranh điện tử, … Các đề tài này sẽ được xét duyệt bởi một hội đồng kỹ thuật gồm các chuyên gia bảo mật hàng đầu:</p>
+
+<ul type="DISC">
+  <li>
+    Thomas Lim &#8211; Sáng lập SyScan, CEO công ty bảo mật COSEINC
+  </li>
+  <li>
+    Dave Aitel &#8211; Sáng lập viên và là CEO của công ty bảo mật ImmunitySec
+  </li>
+  <li>
+    Marc Maiffret &#8211; Đồng sáng lập và là Chief Hacking Officer của công ty bảo mật eEye
+  </li>
+  <li>
+    Matthew &#8220;Shok&#8221; Conover &#8211; Công ty bảo mật Symantec
+  </li>
+  <li>
+    Thanh Nguyen &#8211; Security Center of Excellence, Intel / Sáng lập viên VNSECURITY
+  </li>
+</ul>
+
+<p>Các báo cáo sẽ được các diễn giả trình bày bằng tiếng Anh. Tuy nhiên các tài liệu và bản thuyết trình sẽ được chiếu song ngữ tiếng Anh và tiếng Việt. Song song với buổi hội thảo, sẽ diễn ra các khoá huấn luyện ngắn hạn do các chuyên gia tên tuổi đứng lớp với các chủ đề khá chuyên biệt như Khai thác lỗi hổng bảo mật trên Windows, Bảo mật ứng dụng Web, Xây dựng mạng Wifi an toàn, …</p>
+
+<blockquote>
+  <p style="padding-left: 30px">
+  <strong>Mời tham gia gửi báo cáo</strong><br /> Ban tổ chức mong sẽ nhận được các báo cáo từ các chuyên gia an ninh mạng và bảo mật trong nước để trình bày tại hội thảo Syscan 2010 HCM. Chi tiết về CFP xin xem tại <a href="http://www.syscan.org/hcm/callforpapers.php" target="_blank">http://www.syscan.org/hcm/callforpapers.php </a>
+</p>
+</blockquote>
+
+<p>Do tổ chức ở VN, ban tổ chức đã cân nhắc mức chi phí phù hợp cho đa số các đối tượng quan tâm đến bảo mật có thể tham gia. BTC hiện đang cho <a href="http://www.syscan.org/hcm/registration.php" target="_blank">đăng ký tham dự sớm</a> với chi phí tham dự hội thảo chỉ là 50 USD (20 USD đối với sinh viên) / người từ nay đến hết tháng 5. Chi phí đăng ký tham dự trong tháng 6 sẽ là 100 USD / người và đến ngày hội thảo là 300 USD / người. Đây là giá rất rẻ cho hội thảo quốc tế về an ninh mạng và bảo mật có quy mô và chất lượng cao (giá trung bình ở các hội thảo khác trong đó có <a href="http://www.syscan.org/Sg/registration.html">Syscan 2010 Singapore</a> là khoảng 500-1500 USD/người). Ngoài ra, mỗi người tham dự sẽ có cơ hội bốc thăm trúng thưởng máy tính bảng iPad của hãng Apple. Để đăng ký, bạn hãy gửi thông tin cho ban tổ chức qua trang web sau <a href="http://www.syscan.org/hcm/registration.php" target="_blank">http://www.syscan.org/hcm/registration.php</a>. Đại diện BTC ở VN sẽ liên hệ bạn để xác nhận và thống nhất về phương thức thanh toán. Nếu bạn có thắc mắc hay câu hỏi, xin vui lòng liên hệ qua địa chỉ email <strong>conf @ vnsecurity chấm net</strong>.</p>
+
+<blockquote>
+  <p style="padding-left: 30px">
+  <strong>Vietnam Hacking Festival</strong>
+</p>
+
+  <p style="padding-left: 30px">
+  Song song với khuôn khổ hội thảo quốc tế SyScan 2010 diễn ra trong hai ngày 23 &#8211; 24-9-2010, nhóm VNSECURITY cũng sẽ tổ chức vòng chung kết &#8220;Vietnam Hacking Festival&#8221;, một cuộc thi CTF với sự tham gia của các đội trong và ngoài nước. Vòng loại của cuộc thi sẽ diễn ra vào đầu tháng 8-2010. Thông tin cụ thể sẽ được thông báo trên trang chủ VNSecurity.net.
+</p>
+</blockquote>
+
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Powered by the buggy WordPress!</title>
+  <link>http://realjenius.com/headlines/2009/11/28/powered-by-the-buggy-wordpress.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2009-11-28T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/headlines/2009/11/28/powered-by-the-buggy-wordpress.html</guid>
+  <description><![CDATA[
+     <p>As you may notice that vnsecurity.net server has been taken offline since the beginning of last week for the server upgrade. Our new server has a much better HW specs compare to the old one.</p>
+
+<p>We’ve also replaced the great Plone/ZODB/Python with the buggy WordPress/Mysql/PHP for our website. I myself really like the Zope Workflow and Zope Object Database with the great fine-grained access control but many members doesn’t like Plone and it’s a bit slow especially on a few years old HW with only 1GB RAM (there were 03 Plone’s instances running for vnsec, vnsecon and vithon.org websites which used all of the 1GB memory).</p>
+
+<p>I don’t trust PHP &amp; PHP Apps. WordPress/PHP, with a massive number of security bugs in the past, makes me feel unsafe :). Secunia has a good list of <a title="WordPress 2.x Vulnerabilities" href="http://secunia.com/advisories/product/6745/" target="_blank">WordPress 2.x vulnerabilities</a> and 07 bugs are still unpatched.</p>
+
+<p>But on the other side, WP has some really nice plugins and themes which save my time. It’s like replacing the great &amp; responsible old lady babysitter to a new sexy but “dangerous” young college girl. I hope that some additional protection layers and access restriction to the backend would help to save my a$$ from WP’s bugs.</p>
+
+<p>Cheers!</p>
+
+<p><img class="aligncenter size-full wp-image-25" title="Babysitter___comic_by_TwinTwosGirl" src="http://www.vnsecurity.net/wp/storage/uploads/2009/11/Babysitter___comic_by_TwinTwosGirl.png" alt="Babysitter___comic_by_TwinTwosGirl" width="540" height="911" /></p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Microsoft Security Essentials phiên bản chính thức</title>
+  <link>http://realjenius.com/headlines/2009/09/29/microsoft-security-essentials-phien-b%25e1%25ba%25a3n-chinh-th%25e1%25bb%25a9c.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2009-09-29T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/headlines/2009/09/29/microsoft-security-essentials-phien-b%25e1%25ba%25a3n-chinh-th%25e1%25bb%25a9c.html</guid>
+  <description><![CDATA[
+     <p>Cái mà mình thật sự quan tâm không phải về chất lượng sản phẩm diệt virus này (nó tốt, ok, <a class="reference" href="http://www.computerworld.com/s/article/9134753/Antivirus_testing_outfit_Microsoft_Security_Essentials_makes_the_grade">http://www.computerworld.com/s/article/9134753/Antivirus_testing_outfit_Microsoft_Security_Essentials_makes_the_grade</a>) mà là:</p>
+
+<ol class="arabic simple">
+  <li>
+    Còn ai muốn bỏ 290.000đ để mua một sản phẩm diệt virus ba xạo kia không?
+  </li>
+  <li>
+    Còn đất sống cho các sản phẩm diệt virus cho Windows nữa không?
+  </li>
+</ol>
+
+<p>Khi đọc tin này có lẽ bạn đã có thể download thử MSE tại <a class="reference" href="http://www.microsoft.com/Security_essentials/">http://www.microsoft.com/Security_essentials/</a>.</p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Nghị định 90/2008/NĐ-CP và Thông tư 12/2008/TT-BTTTT</title>
+  <link>http://realjenius.com/headlines/2009/02/09/nghi-dinh-90-2008-nd-cp-va-thong-tu-12-2008-tt-btttt.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2009-02-09T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/headlines/2009/02/09/nghi-dinh-90-2008-nd-cp-va-thong-tu-12-2008-tt-btttt.html</guid>
+  <description><![CDATA[
+     <p>Có điều là, ngoài các vấn đề kỹ thuật cơ bản khác, bản thân trung tâm điều phối lại sử dụng những địa chỉ thư điện tử như thế này đây:</p>
+
+<p><a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#111;&#102;&#102;&#105;&#099;&#101;&#064;&#118;&#110;&#099;&#101;&#114;&#116;&#046;&#118;&#110;">&#111;&#102;&#102;&#105;&#099;&#101;&#064;&#118;&#110;&#099;&#101;&#114;&#116;&#046;&#118;&#110;</a></p>
+
+<p><a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#099;&#097;&#110;&#104;&#098;&#097;&#111;&#116;&#104;&#117;&#114;&#097;&#099;&#064;&#118;&#110;&#099;&#101;&#114;&#116;&#046;&#118;&#110;">&#099;&#097;&#110;&#104;&#098;&#097;&#111;&#116;&#104;&#117;&#114;&#097;&#099;&#064;&#118;&#110;&#099;&#101;&#114;&#116;&#046;&#118;&#110;</a></p>
+
+<p><a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#099;&#097;&#110;&#104;&#098;&#097;&#111;&#116;&#104;&#117;&#114;&#097;&#099;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;">&#099;&#097;&#110;&#104;&#098;&#097;&#111;&#116;&#104;&#117;&#114;&#097;&#099;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;</a></p>
+
+<p><a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#099;&#097;&#110;&#104;&#098;&#097;&#111;&#116;&#104;&#117;&#114;&#097;&#099;&#064;&#121;&#097;&#104;&#111;&#111;&#046;&#099;&#111;&#109;&#046;&#118;&#110;">&#099;&#097;&#110;&#104;&#098;&#097;&#111;&#116;&#104;&#117;&#114;&#097;&#099;&#064;&#121;&#097;&#104;&#111;&#111;&#046;&#099;&#111;&#109;&#046;&#118;&#110;</a></p>
+
+<p>Thứ nhất, trang web của trung tâm của Bộ TTTT có địa chỉ <a href="http://antispam.vncert.gov.vn/">http://antispam.vncert.gov.vn</a> mà lẽ nào không tạo được một vài địa chỉ thư cùng domain, hoặc ít nhất là @vncert.gov.vn?</p>
+
+<p>Thứ hai, domain vncert.vn không thể hiện được tính quản lý của Nhà nước. Domain này hoàn toàn như một domain thương mại thông thường.</p>
+
+<p>Thứ ba, và tệ hại nhất, là sự sử dụng những dịch vụ miễn phí như gmail.com và yahoo.com.vn để thu nhận các thông tin nhạy cảm. Điều này sẽ tạo điều kiện cho những kẻ giả danh tạo ra các tài khoản tương tự canhbaothurac như canhbaospam, canhbaovncert, v.v…</p>
+
+<p>Lẽ nào trung tâm điều phối chống thư rác lại tiếp tay cho những kẻ rải thư rác?</p>
+
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Vietcombank: Spam or Ham</title>
+  <link>http://realjenius.com/headlines/2008/11/17/vietcombank-spam-or-ham.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2008-11-17T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/headlines/2008/11/17/vietcombank-spam-or-ham.html</guid>
+  <description><![CDATA[
+     <p>Here’s the plain message. Of course I masked my email address.&lt;/p&gt; </p>
+
+<pre class="brush: plain; gutter: false; title: ; notranslate" title="">from: Vietcombank &lt;ibanking@vietcombank.com.vn&gt;
+to: **************@*****
+date: Thu, Nov 13, 2008 at 4:38 PM
+subject: Thông báo thay đổi giao diện VCB-iB@nking
+mailed-by: vietcombank.com.vn
+
+Vietcombank trân trọng kính chào Quý khách hàng!
+
+Với mục tiêu mang đến khách hàng những tiện ích và sự thân thiện trong sử dụng
+dịch vụ Ngân hàng trực tuyến – VCB-iB@nking, kể từ ngày 15/11/2008, Vietcombank
+sẽ đưa vào sử dụng giao diện VCB-iB@nking mới cùng với một số tính năng bổ sung.
+Quý khách vui lòng xem Hướng dẫn sử dụng dịch vụ &lt;a href="http://www.vietcombank.com.vn/EBanking/IBanking/"&gt;tại đây &lt;/a&gt; để biết thêm chi tiết.
+
+Vietcombank rất mong nhận được ý kiến đóng góp của Quý khách hàng để dịch vụ
+VCB-iB@nking ngày càng được hoàn thiện.
+Cảm ơn Quý khách hàng đã quan tâm và sử dụng dịch vụ của Vietcombank!
+</pre>
+<p>&lt;/p&gt; </p>
+
+<p>And here’s the obligatory source code. And again, my email address is masked off. &lt;/p&gt; </p>
+
+<pre class="brush: plain; gutter: false; title: ; notranslate" title="">Delivered-To: **************@*****
+Received: by 10.142.48.6 with SMTP id v6cs81057wfv;
+        Thu, 13 Nov 2008 02:25:03 -0800 (PST)
+Received: by 10.110.50.19 with SMTP id x19mr12266688tix.53.1226571902167;
+        Thu, 13 Nov 2008 02:25:02 -0800 (PST)
+Return-Path: &lt;ibanking@vietcombank.com.vn&gt;
+Received: from exchange.vietcombank.com.vn (exchange.vietcombank.com.vn [210.245.5.227])
+        by mx.google.com with ESMTP id 2si377017tif.0.2008.11.13.02.25.00;
+        Thu, 13 Nov 2008 02:25:02 -0800 (PST)
+Received-SPF: pass (google.com: best guess record for domain of ibanking@vietcombank.com.vn
+designates 210.245.5.227 as permitted sender) client-ip=210.245.5.227;
+Authentication-Results: mx.google.com; spf=pass (google.com: best guess record for domain of
+ibanking@vietcombank.com.vn designates 210.245.5.227 as permitted sender)
+smtp.mail=ibanking@vietcombank.com.vn
+Received: from ho.vcb.com ([10.1.2.15]) by exchange.vietcombank.com.vn with Microsoft
+SMTPSVC(6.0.3790.1830);
+	 Thu, 13 Nov 2008 16:43:32 +0700
+Received: from HO-DBWEB01 ([10.1.1.97]) by ho.vcb.com with Microsoft SMTPSVC(6.0.3790.1830);
+	 Thu, 13 Nov 2008 16:38:54 +0700
+MIME-Version: 1.0
+From: Vietcombank &lt;ibanking@vietcombank.com.vn&gt;
+To: **************@*****
+Date: 13 Nov 2008 16:38:55 +0700
+Subject: =?utf-8?B?VGjDtG5nIGLDoW8gdGhheSDEkeG7lWkgZ2lhbyBkaeG7h24gVkNCLWlCQG5raW5n?=
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
+Return-Path: ibanking@vietcombank.com.vn
+Message-ID: &lt;EXFESVR01WP5RvITt7Q000079c2@ho.vcb.com&gt;
+X-OriginalArrivalTime: 13 Nov 2008 09:38:54.0970 (UTC) FILETIME=[A5114DA0:01C94573]
+
+PGh0bWw+DQo8aGVhZD4NCjxtZXRhIGh0dHAtZXF1aXY9IkNvbnRlbnQtVHlwZSIgY29udGVu
+dD0idGV4dC9odG1sOyBjaGFyc2V0PXV0Zi04IiAvPg0KPC9oZWFkPg0KPGJvZHk+DQo8cD5W
+aWV0Y29tYmFuayB0csOibiB0cuG7jW5nIGvDrW5oIGNow6BvIFF1w70ga2jDoWNoIGjDoG5n
+ITwvcD4NCjxwPlbhu5tpIG3hu6VjIHRpw6p1IG1hbmcgxJHhur9uIGtow6FjaCBow6BuZyBu
+aOG7r25nIHRp4buHbiDDrWNoIHbDoCBz4buxIHRow6JuIHRoaeG7h24gdHJvbmcgc+G7rSBk
+4bulbmcgZOG7i2NoIHbhu6UgTmfDom4gaMOgbmcgdHLhu7FjIHR1eeG6v24g4oCTIFZDQi1p
+QkBua2luZywgPGk+a+G7gyB04burIG5nw6B5IDE1LzExLzIwMDg8L2k+LCBWaWV0Y29tYmFu
+ayBz4bq9IMSRxrBhIHbDoG8gc+G7rSBk4bulbmcgZ2lhbyBkaeG7h24gVkNCLWlCQG5raW5n
+IG3hu5tpIGPDuW5nIHbhu5tpIG3hu5l0IHPhu5EgdMOtbmggbsSDbmcgYuG7lSBzdW5nLiBR
+dcO9IGtow6FjaCB2dWkgbMOybmcgeGVtIEjGsOG7m25nIGThuqtuIHPhu60gZOG7pW5nIGTh
+u4tjaCB24bulIDxhIGhyZWY9Imh0dHA6Ly93d3cudmlldGNvbWJhbmsuY29tLnZuL0VCYW5r
+aW5nL0lCYW5raW5nLyI+dOG6oWkgxJHDonk8L2E+IMSR4buDIGJp4bq/dCB0aMOqbSBjaGkg
+dGnhur90LjwvcD4NCjxwPlZpZXRjb21iYW5rIHLhuqV0IG1vbmcgbmjhuq1uIMSRxrDhu6Nj
+IMO9IGtp4bq/biDEkcOzbmcgZ8OzcCBj4bunYSBRdcO9IGtow6FjaCBow6BuZyDEkeG7gyBk
+4buLY2ggduG7pSBWQ0ItaUJAbmtpbmcgbmfDoHkgY8OgbmcgxJHGsOG7o2MgaG/DoG4gdGhp
+4buHbi48L3A+DQo8cD5D4bqjbSDGoW4gUXXDvSBraMOhY2ggaMOgbmcgxJHDoyBxdWFuIHTD
+om0gdsOgIHPhu60gZOG7pW5nIGThu4tjaCB24bulIGPhu6dhIFZpZXRjb21iYW5rITwvcD4N
+CjwvYm9keT4NCjwvaHRtbD4NCg==
+</pre>
+<p>&lt;/p&gt; </p>
+
+<p>Okay, so, is it a spam? It pretty much fits common criteria. First of all, it doesn’t know my name. Why did I provide VCB with my full name for? Addressing emails to clients by their names is the best differentiation of genuine and fake emails. Didn’t they know that? Secondly, it has a link to an iBanking facility that doesn’t even start with “https”! </p>
+
+<p>Well, the fact is, it is not a spam message. And that saddened me. Come on, you can do better than this, VCB. Please give me some hope. You are better than <a href="archive/2008/05/15/salami-attack-at-acb">ACB</a>, aren’t you?</p>
+
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Salami attack at Asia Commercial Bank</title>
+  <link>http://realjenius.com/headlines/2008/05/15/salami-attack-at-asia-commercial-bank.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2008-05-15T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/headlines/2008/05/15/salami-attack-at-asia-commercial-bank.html</guid>
+  <description><![CDATA[
+     <p>Sáng nay khoảng 10:00 mình ra ngân hàng ACB ở đường Xuân Hồng, ngay phía sau khu triển lãm Tân Bình để đổi 100 đồng Mỹ ra tiền Việt.</p>
+
+<p>Theo tỉ giá của ngày hôm nay thì mình sẽ nhận được 1,616,300. Trong giấy chi cũng ghi rõ con số này.</p>
+
+<p>Thế nhưng nhân viên ở quầy chỉ đưa mình 1,616,000. Tức là thiếu 300 đồng.</p>
+
+<p>Mình hỏi lại nhân viên đó rằng tại sao lại làm tròn xuống thế này và nhận được câu trả lời là cho dù mình có 499 đồng thì cũng vẫn làm tròn xuống như vậy.</p>
+
+<p>Trước hết, ở những ngân hàng khác mình thường lui tới thì không bao giờ có chuyện làm tròn số như thế này. 1 cent là 1 cent. 100 đồng là 100 đồng. Họ sẽ đưa đủ. Mặc dù mình chưa thấy trường hợp nào họ đưa “dư” nhưng thiếu thì chắc chắn là không.</p>
+
+<p>Thứ hai, không biết là chính sách <strong>làm tròn xuống gây thiệt hại cho khách hàng</strong> như thế này là của chính nhân viên quầy tự ý vì mục đích riêng, hay là của toàn ngân hàng.</p>
+
+<p>Đây rõ ràng là một ví dụ điển hình và thực tế về “bòn rút” (salami attack) trong lĩnh vực an toàn thông tin. Salami attack là những sự việc nhỏ nhặt nhưng xảy ra trên một quy mô lớn ví dụ như hàng trăm ngàn tài khoản trong ngân hàng bị bòn rút 100 đồng thì kết quả sẽ là một thiệt hại cỡ vài trăm triệu đồng. Đối với từng chủ tài khoản, sự hao hụt 100 đồng này không dễ phát hiện ra cho nên salami attack thường ít khi bị phát hiện.</p>
+
+<p>Dù sao đi nữa thì ACB cũng đã mất đi một khách hàng (cho dù là nhỏ) cho tới khi mình nghe được tin tức khác. Bởi vì đã không làm tròn lên thì chớ có chuyện làm tròn xuống. Câu nói khách hàng là thượng đế ở đâu rồi?</p>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Vá lỗi cho gói openssl</title>
+  <link>http://realjenius.com/headlines/2008/05/14/va-loi-cho-goi-openssl.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2008-05-14T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/headlines/2008/05/14/va-loi-cho-goi-openssl.html</guid>
+  <description><![CDATA[
+     <p>Các phiên bản có chứa lỗi:</p>
+
+<ul>
+  <li>Ubuntu 7.04 (Feisty)  </li>
+  <li>Ubuntu 7.10 (Gutsy)  </li>
+  <li>Ubuntu 8.04 LTS (Hardy)  </li>
+  <li>Ubuntu “Intrepid Ibex” (development): libssl &lt;= 0.9.8g-8  </li>
+  <li>Debian 4.0 (etch) (see corresponding Debian security advisory)</li>
+</ul>
+
+<p>Debian có cung cấp một script kiểm tra key, nếu status trả về weak tức là hệ thống của bạn có lỗi. Bạn nên update hệ thống ngay lập tức.</p>
+
+<p><a href="http://security.debian.org/project/extra/dowkd/dowkd.pl.gz">http://security.debian.org/project/extra/dowkd/dowkd.pl.gz</a><br />
+<a href="http://security.debian.org/project/extra/dowkd/dowkd.pl.gz.asc">http://security.debian.org/project/extra/dowkd/dowkd.pl.gz.asc</a></p>
+
+<p>Việc kiểm tra này cần phải tính toán lại nên có thể khá lâu, bạn có thể bỏ qua bước này và chỉ cần apt-get update/upgrade mà thôi, hiện các repo đã có đầy đủ các gói cập nhật.</p>
+
+<p>Có người đã gọi sự cố này là ngày “Thảm họa Debian” sau sự kiện năm 2003.</p>
+
+<p><strong>Links:</strong><br />
+<a href="http://www.linuxsecurity.com/content/view/136870?rdf">Linux security</a><br />
+<a href="http://planet.debian.org">Planet Debian</a></p>
+
+
+  ]]></description>
+</item>
+
+</channel>
+</rss>

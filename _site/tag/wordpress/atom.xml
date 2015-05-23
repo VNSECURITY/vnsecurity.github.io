@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+   
+   	<title>RealJenius.com - Tag: wordpress</title>
+   
+   <link>http://realjenius.com</link>
+   <description>I'm a software developer in the game industry, and have been (for better or worse) coding on the Java platform for the last decade. I also do all my own stunts.</description>
+   <language>en-us</language>
+   <managingEditor>R.J. Lorimer</managingEditor>
+   <atom:link href="rss" rel="self" type="application/rss+xml" />
+   
+	<item>
+  <title>Powered by the buggy WordPress!</title>
+  <link>http://realjenius.com/headlines/2009/11/28/powered-by-the-buggy-wordpress.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2009-11-28T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/headlines/2009/11/28/powered-by-the-buggy-wordpress.html</guid>
+  <description><![CDATA[
+     <p>As you may notice that vnsecurity.net server has been taken offline since the beginning of last week for the server upgrade. Our new server has a much better HW specs compare to the old one.</p>
+
+<p>We’ve also replaced the great Plone/ZODB/Python with the buggy WordPress/Mysql/PHP for our website. I myself really like the Zope Workflow and Zope Object Database with the great fine-grained access control but many members doesn’t like Plone and it’s a bit slow especially on a few years old HW with only 1GB RAM (there were 03 Plone’s instances running for vnsec, vnsecon and vithon.org websites which used all of the 1GB memory).</p>
+
+<p>I don’t trust PHP &amp; PHP Apps. WordPress/PHP, with a massive number of security bugs in the past, makes me feel unsafe :). Secunia has a good list of <a title="WordPress 2.x Vulnerabilities" href="http://secunia.com/advisories/product/6745/" target="_blank">WordPress 2.x vulnerabilities</a> and 07 bugs are still unpatched.</p>
+
+<p>But on the other side, WP has some really nice plugins and themes which save my time. It’s like replacing the great &amp; responsible old lady babysitter to a new sexy but “dangerous” young college girl. I hope that some additional protection layers and access restriction to the backend would help to save my a$$ from WP’s bugs.</p>
+
+<p>Cheers!</p>
+
+<p><img class="aligncenter size-full wp-image-25" title="Babysitter___comic_by_TwinTwosGirl" src="http://www.vnsecurity.net/wp/storage/uploads/2009/11/Babysitter___comic_by_TwinTwosGirl.png" alt="Babysitter___comic_by_TwinTwosGirl" width="540" height="911" /></p>
+
+  ]]></description>
+</item>
+
+</channel>
+</rss>

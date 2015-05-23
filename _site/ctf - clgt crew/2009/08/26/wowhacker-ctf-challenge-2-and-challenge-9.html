@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>WOWHacker CTF &#8211; Challenge 2 and Challenge 9</title>
+  <meta name="description" content="|  Challenge 2 is simple yet interesting. Challenge 9 is a blind remote stack-based buffer overflow exploitation.">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/ctf%20-%20clgt%20crew/2009/08/26/wowhacker-ctf-challenge-2-and-challenge-9.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">WOWHacker CTF &#8211; Challenge 2 and Challenge 9</h4>
+    <p class="post-meta">Aug 26, 2009 • thaidn</p>
+  </header>
+
+  <article class="post-content">
+    <h2 id="challenge-2">Challenge 2</h2>
+
+<p>Challenge 2 is simple yet interesting. The initial target is a Python 2.2 byte-compiled file, so the first job is to decompile it to get the source code. Fortunately,* decompyle* just works:&lt;/p&gt; </p>
+
+<pre class="brush: plain; gutter: false; title: ; notranslate" title="">$ decompyle newbie.pyc
+
+Thu Aug 27 02:13:25 2009
+# emacs-mode: -*- python-*-
+import urllib
+def some_cryption(arg):
+    pass
+a = 'http://'
+dummy = 'http://korea'
+b = 'uxcpb.xe'
+b = b.encode('rot13')
+c = 'co.kr'
+cs = '.com'
+d = '/vfrp/uxuxux'
+dt = '/hackers'
+d = d.encode('rot13')
+dx = 'coolguys'
+ff = urllib.urlopen(((a + b) + d))
+f_data = ff.read()
+file = open('hkhkhk', 'w')
+file.write(f_data)
+some_cryption(f_data)
+file.close()</pre>
+
+<p>You can see that the purpose of this script is to download some data from a fixed URL, and save them to a file named <em>hkhkhk</em>. We ran the script, and it indeed downloaded <a href="http://hkpco.kr/isec/hkhkhk">this file</a>. As the script suggests, the content of <em>hkhkhk</em> is encrypted by some cipher. </p>
+
+<p>Opening <em>hkhkhk</em> in a hex editor, one could see that it contains quite a lot of <em>0×77</em> characters. A friend of us, <a href="http://twitter.com/julianor">Julianor</a> from <a href="http://netifera.com/">Netifera</a>, thought that <em>hkhkhk *is an executable file, and because excutable file contains a lot of null bytes so *0×77</em> may be the null byte in the original file. He suggested xoring the content of <em>hkhkhk</em> against <em>0×77</em>. We did as he suggested, and it worked :-D. <em>hkhkhk</em> turns out to be an ELF executable file:</p>
+
+<pre class="brush: plain; gutter: false; title: ; notranslate" title="">$ file hkhkhk
+hkhkhk: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV),
+for GNU/Linux 2.2.5, dynamically linked (uses shared libs), stripped
+
+$ ./hkhkhk
+./hkhkhk [server] [port]
+
+---------------------------
+server&gt; 221.143.48.88
+port&gt; 1111, 2222, ..., 9999
+---------------------------
+</pre>
+
+<p>Disassembling *hkhkhk *reveals that this binary is just a simple client that connects to a remote server to get two integers, and send the sum of them back to that server. If the result is correct (which is always), the server will return a congratulation message like below: </p>
+
+<pre class="brush: plain; gutter: false; title: ; notranslate" title="">$ ./hkhkhk 221.143.48.88 1111
+[(867925) + (9792)] = ?
+answer is 877717
+it's correct. great!, <img src="http://vnsec-new.cloudapp.net/wp/wp-includes/images/smilies/icon_smile.gif" alt=":-)" class="wp-smiley" /> </pre>
+
+<p>At first, we thought we should try to exploit the server to force it to return an error or something, but that didn’t work. Then we thought there’s something hidden inside *hkhkhk, so <strong>*superkhung</strong> and I spent 1 hour to inspect every single instruction of the binary, but we saw nothing weird.</p>
+
+<p>At this point, a friend suggested us running the binary inside a debugger. He thought that there may be something hidden in the communication between the server and <em>hkhkhk</em>.</p>
+
+<p>The communication? I fired up <em>wireshark</em>, and to my surprise, I saw the answer right away: <strong>Pandas likes hkpco XD</strong>. It turns out that the congratulation message is something like:</p>
+
+<pre class="brush: plain; gutter: false; title: ; notranslate" title="">it's correct. great!, :-)&lt;b&gt;x00&lt;/b&gt;Password is "Pandas likes hkpco XD"</pre>
+
+<p>This message is passed to a <em>printf</em> call, and since <em>printf</em> expects a null-terminated string, one could never see the characters after the null byte if he doesn’t run the binary inside a debugger, or sniff the communication like us.</p>
+
+<h2 id="challenge-9">Challenge 9</h2>
+
+<p>Challenge 9 (IP: 221.143.48.88; port :4600) is a remote stack-based buffer overflow exploitation. It’s interesting because WOWHacker doesn’t release the binary as other usual exploitation challenges.</p>
+
+<p>While I was banging my head against challenge 8, <strong>gamma95</strong> told me that he could crash challenge 9 with <em>293</em> bytes. He thought that this challenge is very obvious, and wondered why none was working on it.</p>
+
+<p>Actually we were very short on manpower in the first day of the premilinary round. So we chose to work only on those challenges that we were interested in or had a larger chance of solving them.</p>
+
+<p>When I first saw challenge 9, I thought this challenge should be hard. Blind remote exploitation is supposed to be hard you know. This wrong assumption plus the fact that I haven’t practiced software exploitation in the last several months made me decide to leave this challenge for other teamates who might join us in the second day.</p>
+
+<p>But it turns out this challenge is an easy one.</p>
+
+<p>In order to exploit a stack-based buffer overflow vulnerability, one must know which address to return to. Fortunately, WOWHacker gives us a very helpful hint:</p>
+
+<pre class="brush: plain; gutter: false; title: ; notranslate" title="">Mr.Her give you something "call me~ call me~" : bfbfeaf2</pre>
+
+<p>So <em>0xbfbfeaf2</em> is the return address. Normally this address should point to the beginning of our input buffer which in turn should have this structure:</p>
+
+<pre class="brush: plain; gutter: false; title: ; notranslate" title="">&lt;SHELLCODE&gt;&lt;NOP SLED&gt;&lt;xf2xeaxbfxbf&gt;</pre>
+
+<p>The next problem is to determine how many bytes we need to control the EIP. The trick is to use <em>xebxfe</em> as the shellcode, and increase the message one byte a time until we see the service hang after it processes our input. If our theory of the structure of the input buffer is correct, this process will succeed eventually because <em>xebxfe</em> means “loop forever”:</p>
+
+<pre class="brush: plain; gutter: false; title: ; notranslate" title="">$ echo -ne 'xebxfe' | ndisasm -
+00000000  EBFE              jmp short 0x0</pre>
+
+<p>Using this technique, we can see that we need totally 302 bytes to control the EIP:</p>
+
+<pre class="brush: plain; gutter: false; title: ; notranslate" title="">$ (python -c 'print "xebxfe" * 149 + "xf2xeaxbfxbf"'; cat) | nc 221.143.48.88 4600</pre>
+
+<p>We use Metasploit to generate a BSD reverse-shell shellcode, and we got the answer: <strong>WOWHACKER without beist.&lt;/p&gt; 
+&lt;/b&gt;Actually this wasn’t as easy as we write here. We made two stupid mistakes: first off, we assumed that this challenge ran on a Linux box; secondly, our connect back box was behind a firewall :-(. Thanks **Tora</strong> and <strong>biest</strong> for giving us a hand in resolving them.</p>
+
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/ctf%20-%20clgt%20crew/2009/08/26/wowhacker-ctf-challenge-2-and-challenge-9.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

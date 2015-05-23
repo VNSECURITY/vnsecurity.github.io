@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>Ksplice: &quot;vá&quot; nhân không cần khởi động lại</title>
+  <meta name="description" content="|  Mặc dù các lập trình viên hệ thống nhân linux phản ứng rất tốt trong việc hỗ trợ khắc phục lỗi bảo mật.  Tuy nhiên quá trình "vá" nhân vẫn cần phải khởi đ...">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/tutorials/2008/05/11/ksplice-va-nhan-khong-can-khoi-dong-lai.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">Ksplice: &quot;vá&quot; nhân không cần khởi động lại</h4>
+    <p class="post-meta">May 11, 2008 • chuoi</p>
+  </header>
+
+  <article class="post-content">
+    <p>The kernel developers are generally quite good about responding to security problems. Once a vulnerability in the kernel has been found, a patch comes out in short order; system administrators can then apply the patch (or get a patched kernel from their distributor), reboot the system, and get on with life knowing that the vulnerability has been fixed. It is a system which works pretty well. </p>
+
+<p>One little problem remains, though: rebooting the system is a pain. At a minimum, it requires a few minutes of down time. In many situations, that down time cannot be tolerated. Reboots also disrupt any ongoing work, break existing network connections, and can cause the loss of results from long-running processes. And, most importantly of all, reboots prove traumatic for a certain subset of Linux administrators who prize a long uptime above almost all other things. Administrators currently have to choose between multi-year uptimes and security fixes; anything which frees them from a dilemma of this magnitude can only be welcome. </p>
+
+<p>That “anything” might just be a recently-<a href="http://lwn.net/Articles/279378/">announced</a> project called <a href="http://web.mit.edu/ksplice/">ksplice</a>. With ksplice, system administrators can have the best of both worlds: security fixes without unsightly reboots. </p>
+
+<p>An in-depth explanation of how ksplice works can be found in <a href="http://web.mit.edu/ksplice/doc/ksplice.pdf">this document [PDF]</a>. In short, ksplice requires as input the source tree for the running kernel and the security patch. It will then build two kernels, one with the patch and one without; the kernels are built with a special set of options which makes it easy to figure out which functions change as a result of the patch. The two kernels will be compared, with the purpose of finding those functions. Changes can propagate further than one might expect, especially if, for example, an inline function is modified. </p>
+
+<p>Once a list of changed functions has been made, the updated code for those functions is packaged into a kernel module and loaded into the system. Then comes the tricky part: getting the running kernel to start using the new code. That requires patching the running code, which is a risky thing to do. Ksplice starts with a call to stop_machine_run(), which dumps a high-priority thread onto each processor, thus taking control of all processors in the system. It then examines all threads in the system to ensure that none of them are running in the functions to be replaced; if so, trampoline jumps are patched into the beginning of each replaced function (they “bounce” the call to the old code into the replacement code) and life continues. Otherwise ksplice will back off and try again later. </p>
+
+<p>This method imposes a number of limitations. One is that only code changes can be patched in with ksplice; patches which make changes to data structures cannot be accommodated. Another comes from the retry-based approach to ensuring that no threads are running in the patched functions; what happens if one of those functions is never free? Kernel functions like schedule(), sys_poll(), or sys_waitid() are likely to always have processes running within them. In cases like this, ksplice will eventually give up and inform the user that the patch cannot be done; it is simply not possible to make changes to those particular functions. </p>
+
+<p>These limitations mean that, out of 50 security patches examined by the ksplice developers, eight could not be applied with ksplice. So multi-year uptimes are probably still incompatible with the application of all security patches. Even so, ksplice certainly has the potential to reduce patch-related downtime considerably. Chances are good that there will be a fair amount of interest in ksplice in sites running high-uptime, mission-critical systems. </p>
+
+<p>There are few things in the way of an immediate merge of this code into the mainline. One is a matter of coding quality and can be fixed. Then, there is the matter of the lead developer <a href="http://lwn.net/Articles/280064/">being unconvinced</a> that merging this code makes sense since it is, essentially, a standalone feature. Andi Kleen’s <a href="http://lwn.net/Articles/280065/">response</a> made the (usual) reasons for merging the code clear: &lt;/p&gt; </p>
+
+<div class="BigQuote">
+  To be honest you weren&#8217;t the first to come up with something like this (although you&#8217;re the first to post to l-k as far as I know). But the usual problem of something that is kept out of tree is that it eventually bitrots and gets forgotten. The only sane way to make such extensions a generically usable linux feature is to merge them to mainline.
+</div>
+
+<p>So, presumably, the code will eventually be proposed for a mainline merge. But there is one other little difficulty <a href="http://lwn.net/Articles/280066/">pointed out</a> by Tomasz Chmielewski: Microsoft holds <a href="http://www.google.com/patents?id=cVyWAAAAEBAJ&amp;dq=hotpatching">a patent</a> described this way: &lt;/p&gt; </p>
+
+<div class="BigQuote">
+  A system and method for automatically updating software components on a running computer system without requiring any interruption of service. A software module is hotpatched by loading a patch into memory and modifying an instruction in the original module to jump to the patch.
+</div>
+
+<p>Microsoft came up with this novel new technique in the distant past: 2002. The posting immediately brought out a crowd of surprised graybeards who distinctly remember using such techniques on their PDP-11 systems some decades before Microsoft “invented” hot-patching. The basic claim of the patent would thus appear to be invalidated by some decades’ worth of prior art, but some of the dependent claims include features (such as capturing all other processors on the system) which were unlikely to be useful on PDP-11s. </p>
+
+<p>Given that the kernel developers are now well aware of this patent, they must take it into account when deciding whether to accept this code into the mainline. It would not be surprising if they chose to avoid baiting the Microsoft FUD machine in this way, even if they all agreed that the patent lacked validity. So a promising technology risks being left out of the kernel as the result of a software patent which was filed at least 30 years too late.</p>
+
+<p>(Source: <a href="http://lwn.net/Articles/280058/">http://lwn.net/Articles/280058/</a>)</p>
+
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/tutorials/2008/05/11/ksplice-va-nhan-khong-can-khoi-dong-lai.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

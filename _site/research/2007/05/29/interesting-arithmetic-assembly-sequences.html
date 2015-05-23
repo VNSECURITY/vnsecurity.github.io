@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+    <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width initial-scale=1">
+
+  <title>Interesting Arithmetic Assembly Sequences</title>
+  <meta name="description" content="|  Microsoft Visual C Compiler generates some interesting assembly instructions for common operations such as multiplication with, taking remainder and quoti...">
+  <link rel="stylesheet" href="/assets/bootstrap.css">
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:8000/research/2007/05/29/interesting-arithmetic-assembly-sequences.html">
+  <link rel="alternate" type="application/atom+xml" title="VNSecurity" href="http://localhost:8000/feed.xml" />
+  <script type="text/javascript" src='//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js?ver=3.9.2'></script>
+  <script type="text/javascript" src="/assets/jquery.js"></script>
+  <script type="text/javascript" src="/assets/jquery.caroufredsel-6.0.4-packed.js"></script>
+  <script type="text/javascript">
+    // WebFont.load({
+    //     google: {
+    //         families: ['Source+Sans+Pro','Open+Sans::latin,vietnamese']
+    //     }
+    // });
+  </script>
+</head>
+
+    <body>
+        <div class="wrapper kopa-shadow">
+            <div class="row-fluid">
+                <header id="page-header">
+    <div class="clearfix" id="header-top">
+
+        <div class="kp-headline-wrapper clearfix">
+            <h6 class="kp-headline-title">Breaking news<span></span></h6>
+            <div class="kp-headline clearfix">
+                <dl class="ticker-1 clearfix">
+                    
+                    <dd>
+                        <a href="/headlines/2014/05/06/btalk-part-1.html">Phân tích ứng dụng Btalk trên Android &#8211; Phần một: Cơ chế xác thực người dùng</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/20/hoc-vien-sans-den-viet-nam.html">Học viện SANS đến Việt Nam 03/2012</a>
+                    </dd>
+                    
+                    <dd>
+                        <a href="/headlines/2011/12/16/hoi-thao-tet-2012.html">Hội thảo Tết 2012</a>
+                    </dd>
+                    
+                </dl><!--ticker-1-->
+            </div><!--kp-headline-->
+        </div><!--kp-headline-wrapper-->
+
+        <div class="social-search-box">
+
+        </div>
+        <!--social-search-box-->
+
+    </div>
+    <!--header-top-->
+
+    <div class="clearfix" id="header-middle">
+        <div id="logo-image">
+            <a href="http://vnsec-new.cloudapp.net/wp">
+                <img width="217" height="70" alt="VNSecurity Logo" src="/assets/logo.png">
+            </a>
+        </div>
+        <div class="top-banner">
+
+
+        </div>
+        <!--top-banner-->
+
+    </div>
+
+    <!--header-middle-->
+
+    <div id="header-bottom">
+        <nav id="main-nav">
+            <ul class="menu clearfix sf-js-enabled sf-arrows" id="main-menu">
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/">Home</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/headlines/">headlines</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/tutorials/">tutorials</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/research/">research</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/ctf-clgt-crew/">ctf - clgt crew</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                        <a href="/category/misc/">misc</a>
+                    </li>
+                    <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    |
+                    </li>
+                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/papers.html">Papers</a>
+                </li>
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                |
+                </li>                
+                <li class="menu-item menu-item-type-taxonomy menu-item-object-category">
+                    <a href="/tools.html">Tools</a>
+                </li>
+            </ul>
+        </nav>
+        <!--main-nav-->
+    </div>
+    <div>
+        
+    </div>
+    <!--header-bottom-->
+</header>
+                <div id="main-content">
+                    <div class="post type-post status-publish format-standard hentry category-tin-tuc tag-android tag-btalk tag-mobile entry-box clearfix">
+
+  <header class="post-header">
+    <h4 class="entry-title">Interesting Arithmetic Assembly Sequences</h4>
+    <p class="post-meta">May 29, 2007 • lamer</p>
+  </header>
+
+  <article class="post-content">
+    <p>All examples below use signed integers.</p>
+
+<div class="section" id="multiplication-with-a-power-of-2">
+  <h3>
+    <a name="multiplication-with-a-power-of-2">Multiplication with a power of 2</a>
+  </h3>
+  
+  <p>
+    We all know <tt class="docutils literal"><span class="pre">shl</span></tt> is normally used to multiply a number with a power of 2. This sequence uses <tt class="docutils literal"><span class="pre">lea</span></tt> instruction instead.
+  </p>
+  
+  <div class="section" id="the-asm-code">
+    <h4>
+      <a name="the-asm-code">The ASM code</a>
+    </h4>
+    
+    <pre class="literal-block"> mov   eax, DWORD PTR _a$[esp+52]  ; eax takes value of a lea   ecx, DWORD PTR [eax*8]      ; ecx takes value of a * 8 </pre>
+  </div>
+  
+  <div class="section" id="the-c-code">
+    <h4>
+      <a name="the-c-code">The C code</a>
+    </h4>
+    
+    <pre class="literal-block"> a * 8; </pre>
+  </div>
+</div>
+
+<div class="section" id="multiplication-with-a-constant">
+  <h3>
+    <a name="multiplication-with-a-constant">Multiplication with a constant</a>
+  </h3>
+  
+  <p>
+    The compiler will try to fit the multiplication with <tt class="docutils literal"><span class="pre">lea</span></tt> and <tt class="docutils literal"><span class="pre">add</span></tt> instructions.
+  </p>
+  
+  <div class="section" id="id1">
+    <h4>
+      <a name="id1">The ASM code</a>
+    </h4>
+    
+    <pre class="literal-block"> mov   eax, DWORD PTR _a$[esp+28]  ; eax takes value of a lea   ecx, DWORD PTR [eax+eax*2]  ; ecx = eax * 3 add   ecx, ecx                    ; ecx = ecx * 2 (or, eax * 6) </pre>
+  </div>
+  
+  <div class="section" id="id2">
+    <h4>
+      <a name="id2">The C code</a>
+    </h4>
+    
+    <pre class="literal-block"> a * 6; </pre>
+  </div>
+</div>
+
+<div class="section" id="taking-quotient-of-a-division-by-a-power-of-2">
+  <h3>
+    <a name="taking-quotient-of-a-division-by-a-power-of-2">Taking quotient of a division by a power of 2</a>
+  </h3>
+  
+  <p>
+    This sequence is interesting because there is a conditional jump <tt class="docutils literal"><span class="pre">jns</span></tt> instruction.
+  </p>
+  
+  <div class="section" id="id3">
+    <h4>
+      <a name="id3">The ASM code</a>
+    </h4>
+    
+    <pre class="literal-block"> mov   edx, DWORD PTR _a$[esp+36] and   edx, -2147483641                        ; 80000007H jns   SHORT $LN3&#064;main dec   edx or    edx, -8                                 ; fffffff8H inc   edx $LN3&#064;main: ; here edx takes the value of the quotient </pre>
+  </div>
+  
+  <div class="section" id="id4">
+    <h4>
+      <a name="id4">The C code</a>
+    </h4>
+    
+    <pre class="literal-block"> a % 8; </pre>
+  </div>
+</div>
+
+<div class="section" id="taking-remainder-of-a-division-by-a-power-of-2">
+  <h3>
+    <a name="taking-remainder-of-a-division-by-a-power-of-2">Taking remainder of a division by a power of 2</a>
+  </h3>
+  
+  <p>
+    There is only one shift instruction <tt class="docutils literal"><span class="pre">sar</span></tt> in this sequence.
+  </p>
+  
+  <div class="section" id="id5">
+    <h4>
+      <a name="id5">The ASM code</a>
+    </h4>
+    
+    <pre class="literal-block"> mov   eax, DWORD PTR _a$[esp+44] cdq and   edx, 7 add   eax, edx sar   eax, 3 ; here eax takes the value of the remainder </pre>
+  </div>
+  
+  <div class="section" id="id6">
+    <h4>
+      <a name="id6">The C code</a>
+    </h4>
+    
+    <pre class="literal-block"> a / 8; </pre>
+  </div>
+</div>
+
+<div class="section" id="taking-remainder-of-a-division-by-a-constant">
+  <h3>
+    <a name="taking-remainder-of-a-division-by-a-constant">Taking remainder of a division by a constant</a>
+  </h3>
+  
+  <p>
+    Notice that <tt class="docutils literal"><span class="pre">2aaaaaabH</span></tt> is 2^32 / 6.
+  </p>
+  
+  <div class="section" id="id7">
+    <h4>
+      <a name="id7">The ASM code</a>
+    </h4>
+    
+    <pre class="literal-block"> mov   ecx, DWORD PTR _c$[esp+20] 
+    mov   eax, 715827883                          ; 2aaaaaabH imul  ecx mov   eax, edx shr   eax, 31                                 ; 0000001fH add   eax, edx </pre>
+  </div>
+  
+  <div class="section" id="id8">
+    <h4>
+      <a name="id8">The C code</a>
+    </h4>
+    
+    <pre class="literal-block"> c / 6 </pre>
+  </div>
+</div>
+
+<div class="section" id="taking-quotient-of-a-division-by-a-constant">
+  <h3>
+    <a name="taking-quotient-of-a-division-by-a-constant">Taking quotient of a division by a constant</a>
+  </h3>
+  
+  <p>
+    First, take the remainder. Then substract the original value with the multiplication of remainder and constant.
+  </p>
+  
+  <div class="section" id="id9">
+    <h4>
+      <a name="id9">The ASM code</a>
+    </h4>
+    
+    <pre class="literal-block"> mov   ecx, DWORD PTR _c$[esp+12] mov   eax, 715827883                          ; 2aaaaaabH imul  ecx mov   eax, edx shr   eax, 31                                 ; 0000001fH add   eax, edx lea   edx, DWORD PTR [eax+eax*2] add   edx, edx sub   ecx, edx </pre>
+  </div>
+  
+  <div class="section" id="id10">
+    <h4>
+      <a name="id10">The C code</a>
+    </h4>
+    
+    <pre class="literal-block"> c % 6 </pre>
+  </div>
+</div>
+
+  </article>
+
+</div>
+
+<hr/>
+<h2>Comments</h2>
+<div class="fb-comments" data-href="http://localhost:8000/research/2007/05/29/interesting-arithmetic-assembly-sequences.html" data-num-posts="4" data-width="706"></div>
+
+                </div>
+                <script type="text/javascript">
+jQuery(function() {
+    var _scroll = {
+        delay: 1000,
+        easing: 'linear',
+        items: 1,
+        duration: 0.07,
+        timeoutDuration: 0,
+        pauseOnHover: 'immediate'
+    };
+    jQuery('.ticker-1').carouFredSel({
+        width: 1000,
+        align: false,
+        items: {
+            width: 'variable',
+            height: 40,
+            visible: 1
+        },
+        scroll: _scroll
+    });
+
+    //  set carousels to be 100% wide
+    jQuery('.caroufredsel_wrapper').css('width', '100%');
+});
+</script>
+<script>
+  (function() {
+    var cx = '003844801333820630405:hlapfwpe2eq';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+    </div>
+
+  </div>
+
+</footer>
+
+            </div>
+        </div>
+        <script>(function(d, s, id) {
+          var js, fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) return;
+          js = d.createElement(s); js.id = id;
+          js.src = "//connect.facebook.net/en_GB/all.js#xfbml=1&appId=671572696275219";
+          fjs.parentNode.insertBefore(js, fjs);
+        }(document, "script", "facebook-jssdk"));</script>
+    </body>
+</html>

