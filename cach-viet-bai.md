@@ -6,7 +6,7 @@ layout: default_sidebar
 
 ### Viết bài cho VNSecurity.net
 ***
-Phiên bản hiện tại của VNSecurity.net được xây dựng trên nền Jekyll, nội dung gốc được lưu trữ trên một *private repository* của github. Để viết bài, bạn cần một tài khoản github có quyền *commit* lên [https://github.com/loianhtuan/vnsec-blog](https://github.com/loianhtuan/vnsec-blog)
+Phiên bản hiện tại của VNSecurity.net được xây dựng trên nền Jekyll, nội dung gốc được lưu trữ ở [https://github.com/VNSECURITY/vnsecurity.github.io]. Để viết bài, bạn cần một tài khoản github có quyền commit đến repository này.
 
 Để gửi bài mới lên VNSecurity.net, bạn cần tạo một *file* trong thư mục `_posts` với định dạng tên  `<năm-tháng-ngày>-tiêu-đề-bài-viết-không-dấu.md`. Ví dụ:
 
@@ -23,8 +23,8 @@ Ngôn ngữ định dạng chính cho các bài viết là [Markdown](http://en.
     title: 'Tor &#8211; Xác định các exit relay độc hại'
     author: tienpp
     layout: post
-    categories:
-      - tutorials
+    category: tutorials
+    excerpt: tóm tắt nội dung bài viết trong một hoặc hai dòng.
     thumbnail: assets/2014/08/Tor_logo1.png
     tags:
       - exit relay
