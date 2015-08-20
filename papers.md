@@ -15,6 +15,7 @@ Papers & presentations published by VNSECURITY members. Copyright and all rights
 
 ### 2015
 
+* Nguyen Anh Quynh, Dang Hoang Vu, *Unicorn: Next Generation CPU Emulator Framework*, Presentation, <a href="https://www.blackhat.com/us-15/briefings.html#unicorn-next-generation-cpu-emulator-framework" target="_blank">BlackHat USA 2015</a>, Aug 2015
 * Nguyen Anh Quynh, *Building a “perfect” X86 diassembly framework*, Presentation, <a href="https://tetcon.org/saigon-2015/talks/building-a-perfect-x86-diassembly-framework.html" target="_blank">Tetcon 2015</a>, Jan 2015.
 * Hoang Quoc Thinh, *The #bugbounty comic*, Presentation, <a href="https://tetcon.org/saigon-2015/talks/the-bugbounty-comic.html" target="_blank">Tetcon 2015</a>, Jan 2015.
 
