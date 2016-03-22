@@ -13,6 +13,11 @@ kopa_newsmixlight_total_view:
 ---
 Papers & presentations published by VNSECURITY members. Copyright and all rights therein are maintained by the authors or by other copyright holders.
 
+### 2016
+
+* Nguyen Anh Quynh, *Building next generation security tools with Unicorn engine*, Presentation, <a href="https://tetcon.org/saigon-2016/talks/building-next-generation-security-tools-with-unicorn-engine.html" target="_blank">Tetcon 2016</a>, Jan 2016
+* Pham Van Toan, *Làm thế nào để tìm 0-day trong Microsoft Edge*, Presentation, <a href="https://tetcon.org/saigon-2016/talks/lam-the-nao-de-tim-0day-trong-microsoft-edge.html" target="_blank">Tetcon 2016</a>, Jan 2016
+
 ### 2015
 
 * Nguyen Anh Quynh, Dang Hoang Vu, *Unicorn: Next Generation CPU Emulator Framework*, Presentation, <a href="https://www.blackhat.com/us-15/briefings.html#unicorn-next-generation-cpu-emulator-framework" target="_blank">BlackHat USA 2015</a>, Aug 2015
