@@ -13,10 +13,10 @@ tags:
 
 When opening the x.pdf file (at the end of this post) in Foxit Reader, it will show a popup indicating PDF file is corrupted.
 
-<img alt="IDA" src="http://vnsecurity.net/assets/foxit-popup.png"  width="500px" />
+<img alt="IDA" src="http://vnsecurity.net/assets/foxit-popup.png"  width="800px" />
 
 Clicking on the OK button will lead to the following crash
-<img alt="IDA" src="http://vnsecurity.net/assets/foxit-crash.png"  width="500px" />
+<img alt="IDA" src="http://vnsecurity.net/assets/foxit-crash.png"  width="800px" />
 
 The problem occurs because after the button is clicked, some structure allocated on the heap has been Freed, but the pointer is not cleared and reused later then led to crash.
 
