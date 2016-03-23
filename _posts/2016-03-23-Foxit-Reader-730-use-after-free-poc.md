@@ -5,7 +5,6 @@ layout: post
 thumbnail: 
 excerpt: The poc for Foxit Reader 7.3.0 UAF vulnerability.
 category: research
-published: false
 tags:
   - poc
   - bug
