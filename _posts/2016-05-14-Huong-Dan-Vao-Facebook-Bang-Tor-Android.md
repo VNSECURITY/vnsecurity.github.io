@@ -5,7 +5,7 @@ layout: post
 thumbnail: http://vnsecurity.net/assets/2016/05/orbot0.png
 excerpt: Hưóng dẫn bằng hỉnh ảnh
 category: tutorials
-published: false
+published: true
 tags:
   - facebook
   - android
