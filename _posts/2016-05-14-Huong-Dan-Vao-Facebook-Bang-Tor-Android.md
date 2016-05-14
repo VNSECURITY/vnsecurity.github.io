@@ -18,19 +18,19 @@ Thời gian gần đây các nhà mạng liên tục chặn kết nối đến F
 
 Để kích hoạt, các bạn chỉ cần tìm cài Orbot trên Google Play rồi tìm bật trong setting của app Facebbook.
 
-Bước 1: Cài Orbot
+- Bước 1: Cài Orbot
 
 <img alt="" src="http://vnsecurity.net/assets/2016/05/orbot1.png"  />
 
-Bước 2: Vào Facebook mục "App Settings"
+- Bước 2: Vào Facebook mục "App Settings"
 
 <img alt="" src="http://vnsecurity.net/assets/2016/05/orbot2.png"  />
 
-Bước 3: Lúc này các bạn sẽ thấy có thêm mục "Tor settings"
+- Bước 3: Lúc này các bạn sẽ thấy có thêm mục "Tor settings"
 
 <img alt="" src="http://vnsecurity.net/assets/2016/05/orbot3.png"  />
 
-Bước 4: Kích hoạt "Use Tor via Orbot, chờ một hồi sẽ thấy xuất hiện biểu lượng ngón cái Like của Facebook ở thanh công cụ trên cùng bên trái.
+- Bước 4: Kích hoạt "Use Tor via Orbot, chờ một hồi sẽ thấy xuất hiện biểu lượng ngón cái Like của Facebook ở thanh công cụ trên cùng bên trái.
 
 <img alt="" src="http://vnsecurity.net/assets/2016/05/orbot4.png"  />
 
