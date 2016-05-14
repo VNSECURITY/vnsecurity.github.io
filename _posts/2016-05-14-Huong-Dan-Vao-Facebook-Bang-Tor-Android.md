@@ -14,7 +14,7 @@ tags:
   - vietnam
 ---
 
-Thời gian gần đây các nhà mạng liên tục chặn kết nối đến Facebook. Sẵn tiện có không ít bạn bè hỏi mình cách để vượt rào, mình xin chia sẻ cách kích hoạt tính năng "Facebook over Tor" được tích hợp sẵn trên app Android ít người biết đến.
+Nhân tiện có một số bạn bè hỏi mình cách kết nối đến Facebook trong trường hợp nhà cung cấp dịch vụ chặn, mình xin chia sẻ cách kích hoạt tính năng "Facebook over Tor" được tích hợp sẵn trên app Android mà ít người biết đến.
 
 Để kích hoạt, các bạn chỉ cần tìm cài Orbot trên Google Play rồi tìm bật trong setting của app Facebbook.
 
@@ -34,4 +34,6 @@ Thời gian gần đây các nhà mạng liên tục chặn kết nối đến F
 
 <img alt="" src="http://vnsecurity.net/assets/2016/05/orbot4.png"  />
 
-Ngoài Orbot các bạn còn có thể sử dụng các ứng dụng VPN tương tự như Betternet (Android+iOS), Psiphon, etc.
+Ngoài Orbot, các bạn cũng có thể sử dụng các ứng dụng VPN tương tự như Betternet (Android+iOS), Psiphon, ... 
+
+(thêm hình appstore + hướng dẫn vô đây)
