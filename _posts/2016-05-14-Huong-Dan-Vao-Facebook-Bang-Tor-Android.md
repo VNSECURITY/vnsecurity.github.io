@@ -41,3 +41,12 @@ Ngoài Orbot, các bạn cũng có thể sử dụng các ứng dụng VPN tươ
 - [HotSpotShield - Android/iOS/Mac/Windows (Tiếng Việt)](https://www.hotspotshield.com/vi/)
 - [Betternet - Android/iOS](https://www.betternet.co/download)
 - [Psiphon - Android/Windows](http://psiphon3.com/en/download)
+
+Nếu có điều kiện thì bạn còn có thể sử dụng các dịch vụ trả phí để tốc độ ổn định hơn, hoặc thậm chí tự dựng lên một hệ thống VPN của riêng mình. Vài nguồn để tham khảo:
+
+- [PureVPN](https://www.purevpn.com)
+- [PickVPS iFree Network](http://pickvps.com/manual/ifree-network/)
+- [How To Set Up an OpenVPN Server on Ubuntu 14.04](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-openvpn-server-on-ubuntu-14-04)
+- [SSH tunneling](http://www.linuxjournal.com/content/ssh-tunneling-poor-techies-vpn)
+
+Lưu ý bài viết không nhằm khuyến khích độc giả sử dụng các phương pháp nêu trên để qua mặt chính sách của các công ty, đoàn thể, tổ chức.
