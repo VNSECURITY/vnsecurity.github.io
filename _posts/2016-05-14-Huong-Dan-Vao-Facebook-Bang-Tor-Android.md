@@ -36,4 +36,8 @@ Dự án "Facebook over Tor" được phát triển vào tháng 10 năm 2014 v�
 
 <img alt="" src="http://vnsecurity.net/assets/2016/05/orbot4.png"  />
 
-Ngoài Orbot, các bạn cũng có thể sử dụng các ứng dụng VPN tương tự như [Betternet (Android+iOS)](https://www.betternet.co/download), [Psiphon](https://play.google.com/store/apps/details?id=com.psiphon3), ... 
+Ngoài Orbot, các bạn cũng có thể sử dụng các ứng dụng VPN tương tự như:
+
+- [Betternet (Android+iOS)](https://www.betternet.co/download)
+- [Psiphon](https://play.google.com/store/apps/details?id=com.psiphon3)
+- [HotSpotShield](https://www.hotspotshield.com/vi/) ... 
