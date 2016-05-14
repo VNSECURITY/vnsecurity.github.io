@@ -43,6 +43,11 @@ Ngoài Orbot, các bạn cũng có thể sử dụng các ứng dụng VPN tươ
 - [Psiphon - Android/Windows](https://psiphon3.com/en/download.html){:target="_blank"}
 - [VPN Gate](http://www.vpngate.net/en/){:target="_blank"}
 
+Một số trình duyệt web cũng có tích hợp sẵn tính năng VPN hoặc tunnel để sử dụng như:
+- [Tor Web Browser - Windows/Mac/Linux](https://www.torproject.org/projects/torbrowser.html){:target="_blank"}
+- [Opera - Windows/Mac](http://www.opera.com/blogs/desktop/2016/04/free-vpn-integrated-opera-for-windows-mac/){:target="_blank"}
+- [Puffin Web Browser - Android/iOS](https://www.puffinbrowser.com/){:target="_blank"}
+
 Nếu có điều kiện thì bạn còn có thể sử dụng các dịch vụ trả phí để tốc độ ổn định hơn, hoặc thậm chí tự dựng lên một hệ thống VPN của riêng mình. Vài nguồn để tham khảo:
 
 - [PureVPN](https://www.purevpn.com){:target="_blank"}
