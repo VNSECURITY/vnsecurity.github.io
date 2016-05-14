@@ -3,7 +3,7 @@ title: 'Hướng dẫn sử dụng Tor để vào Facebook trên Android'
 author: k9
 layout: post
 thumbnail: http://vnsecurity.net/assets/2016/05/orbot0.png
-excerpt: Hưóng dẫn bằng hỉnh ảnh
+excerpt: Hưóng dẫn bằng hình ảnh
 category: tutorials
 published: true
 tags:
