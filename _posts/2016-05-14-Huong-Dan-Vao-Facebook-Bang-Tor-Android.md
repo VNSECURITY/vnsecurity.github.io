@@ -38,9 +38,10 @@ Dự án "Facebook over Tor" được phát triển vào tháng 10 năm 2014 v�
 
 Ngoài Orbot, các bạn cũng có thể sử dụng các ứng dụng VPN tương tự và hoàn toàn miễn phí cho các nền tảng khác nhau như:
 
-- [HotSpotShield - Android/iOS/Mac/Windows (Tiếng Việt)](https://www.hotspotshield.com/vi/)
+- [HotSpotShield - Android/iOS/Mac/Windows (có Tiếng Việt)](https://www.hotspotshield.com/vi/)
 - [Betternet - Android/iOS](https://www.betternet.co/download)
 - [Psiphon - Android/Windows](http://psiphon3.com/en/download)
+- [VPN Gate](http://www.vpngate.net/en/)
 
 Nếu có điều kiện thì bạn còn có thể sử dụng các dịch vụ trả phí để tốc độ ổn định hơn, hoặc thậm chí tự dựng lên một hệ thống VPN của riêng mình. Vài nguồn để tham khảo:
 
