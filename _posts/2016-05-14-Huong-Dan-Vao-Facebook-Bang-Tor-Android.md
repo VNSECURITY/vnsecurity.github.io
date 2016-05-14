@@ -16,7 +16,7 @@ tags:
 
 Nhân tiện có một số bạn bè hỏi mình cách kết nối đến Facebook trong trường hợp nhà cung cấp dịch vụ chặn, mình xin chia sẻ cách kích hoạt tính năng "Facebook over Tor" được tích hợp sẵn trên app Android mà ít người biết đến.
 
-Dự án "Facebook over Tor" được phát triển vào tháng 10 năm 2014 với sứ mệnh tạo ra một cộng đồng mạng mở. Sau gần 2 năm phát triển hiện đã có hơn 1 triệu người truy cập Facebook qua Tor (Nguồn [https://www.facebook.com/facebookcorewwwi/](https://www.facebook.com/facebookcorewwwi/))
+Dự án "Facebook over Tor" được phát triển vào tháng 10 năm 2014 với sứ mệnh tạo ra một cộng đồng mạng mở. Sau gần 2 năm phát triển hiện đã có hơn 1 triệu người truy cập Facebook qua Tor (Nguồn [https://www.facebook.com/facebookcorewwwi/](https://www.facebook.com/facebookcorewwwi/){:target="_blank"})
 
 Để kích hoạt, các bạn chỉ cần tìm cài Orbot trên Google Play rồi tìm bật trong setting của app Facebbook.
 
@@ -38,16 +38,16 @@ Dự án "Facebook over Tor" được phát triển vào tháng 10 năm 2014 v�
 
 Ngoài Orbot, các bạn cũng có thể sử dụng các ứng dụng VPN tương tự và hoàn toàn miễn phí cho các nền tảng khác nhau như:
 
-- [HotSpotShield - Android/iOS/Mac/Windows (có Tiếng Việt)](https://www.hotspotshield.com/vi/)
-- [Betternet - Android/iOS](https://www.betternet.co/download)
-- [Psiphon - Android/Windows](http://psiphon3.com/en/download)
-- [VPN Gate](http://www.vpngate.net/en/)
+- [HotSpotShield - Android/iOS/Mac/Windows (có Tiếng Việt)](https://www.hotspotshield.com/vi/){:target="_blank"}
+- [Betternet - Android/iOS](https://www.betternet.co/download){:target="_blank"}
+- [Psiphon - Android/Windows](http://psiphon3.com/en/download){:target="_blank"}
+- [VPN Gate](http://www.vpngate.net/en/){:target="_blank"}
 
 Nếu có điều kiện thì bạn còn có thể sử dụng các dịch vụ trả phí để tốc độ ổn định hơn, hoặc thậm chí tự dựng lên một hệ thống VPN của riêng mình. Vài nguồn để tham khảo:
 
-- [PureVPN](https://www.purevpn.com)
-- [PickVPS iFree Network](http://pickvps.com/manual/ifree-network/)
-- [How To Set Up an OpenVPN Server on Ubuntu 14.04](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-openvpn-server-on-ubuntu-14-04)
-- [SSH tunneling](http://www.linuxjournal.com/content/ssh-tunneling-poor-techies-vpn)
+- [PureVPN](https://www.purevpn.com){:target="_blank"}
+- [PickVPS iFree Network](http://pickvps.com/manual/ifree-network/){:target="_blank"}
+- [How To Set Up an OpenVPN Server on Ubuntu 14.04](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-openvpn-server-on-ubuntu-14-04){:target="_blank"}
+- [SSH tunneling](http://www.linuxjournal.com/content/ssh-tunneling-poor-techies-vpn){:target="_blank"}
 
-Lưu ý bài viết không nhằm khuyến khích độc giả sử dụng các phương pháp nêu trên để qua mặt chính sách của các công ty, đoàn thể, tổ chức.
+*Lưu ý bài viết không nhằm khuyến khích độc giả sử dụng các phương pháp nêu trên để qua mặt chính sách của các công ty, đoàn thể, tổ chức.*
