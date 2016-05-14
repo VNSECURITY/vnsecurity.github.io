@@ -40,7 +40,7 @@ Ngoài Orbot, các bạn cũng có thể sử dụng các ứng dụng VPN tươ
 
 - [HotSpotShield - Android/iOS/Mac/Windows (có Tiếng Việt)](https://www.hotspotshield.com/vi/){:target="_blank"}
 - [Betternet - Android/iOS](https://www.betternet.co/download){:target="_blank"}
-- [Psiphon - Android/Windows](http://psiphon3.com/en/download){:target="_blank"}
+- [Psiphon - Android/Windows](https://psiphon3.com/en/download.html){:target="_blank"}
 - [VPN Gate](http://www.vpngate.net/en/){:target="_blank"}
 
 Nếu có điều kiện thì bạn còn có thể sử dụng các dịch vụ trả phí để tốc độ ổn định hơn, hoặc thậm chí tự dựng lên một hệ thống VPN của riêng mình. Vài nguồn để tham khảo:
