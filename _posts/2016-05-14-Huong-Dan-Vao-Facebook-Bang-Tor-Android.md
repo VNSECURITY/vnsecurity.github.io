@@ -16,7 +16,7 @@ tags:
 
 Nhân tiện có một số bạn bè hỏi mình cách kết nối đến Facebook trong trường hợp nhà cung cấp dịch vụ chặn, mình xin chia sẻ cách kích hoạt tính năng "Facebook over Tor" được tích hợp sẵn trên app Android mà ít người biết đến.
 
-Dự án "Facebook over Tor" được phát triển vào tháng 10 năm 2014 với sứ mệnh tạo ra một cộng đồng mạng mở. Sau gần 2 năm phát triển hiện đã có hơn 1 triệu người truy cập Facebook qua Tor (Nguồn [https://www.facebook.com/facebookcorewwwi/](https://www.facebook.com/facebookcorewwwi/){:rel=noopener})
+Dự án "Facebook over Tor" được phát triển vào tháng 10 năm 2014 với sứ mệnh tạo ra một cộng đồng mạng mở. Sau gần 2 năm phát triển hiện đã có hơn 1 triệu người truy cập Facebook qua Tor (Nguồn [https://www.facebook.com/facebookcorewwwi/](https://www.facebook.com/facebookcorewwwi/){:target="_blank"})
 
 Để kích hoạt, các bạn chỉ cần tìm cài Orbot trên Google Play rồi tìm bật trong setting của app Facebbook.
 
