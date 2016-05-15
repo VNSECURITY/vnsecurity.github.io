@@ -3,7 +3,7 @@ title: 'Hướng dẫn sử dụng Tor để vào Facebook trên Android'
 author: k9
 layout: post
 thumbnail: http://vnsecurity.net/assets/2016/05/orbot0.png
-excerpt: Nhân tiện có một số bạn bè hỏi mình cách kết nối đến Facebook trong trường hợp nhà cung cấp dịch vụ chặn, mình xin chia sẻ cách kích hoạt tính năng "Facebook over Tor" được tích hợp sẵn trên app Android mà ít người biết đến.
+excerpt: Nhân tiện có một số bạn bè hỏi mình cách khắc phục lỗi kết nối đến Facebook trong thời gian gần đây, mình xin chia sẻ cách kích hoạt tính năng "Facebook over Tor" được tích hợp sẵn trên app Android mà ít người biết đến.
 category: tutorials
 published: true
 tags:
@@ -14,7 +14,7 @@ tags:
   - vietnam
 ---
 
-Nhân tiện có một số bạn bè hỏi mình cách kết nối đến Facebook trong trường hợp nhà cung cấp dịch vụ chặn, mình xin chia sẻ cách kích hoạt tính năng "Facebook over Tor" được tích hợp sẵn trên app Android mà ít người biết đến.
+Nhân tiện có một số bạn bè hỏi mình cách khắc phục lỗi kết nối đến Facebook trong thời gian gần đây, mình xin chia sẻ cách kích hoạt tính năng "Facebook over Tor" được tích hợp sẵn trên app Android mà ít người biết đến.
 
 Dự án "Facebook over Tor" được phát triển vào tháng 10 năm 2014 với sứ mệnh tạo ra một cộng đồng mạng mở. Sau gần 2 năm phát triển hiện đã có hơn 1 triệu người truy cập Facebook qua Tor (Nguồn [https://www.facebook.com/facebookcorewwwi/](https://www.facebook.com/facebookcorewwwi/){:target="_blank"})
 
