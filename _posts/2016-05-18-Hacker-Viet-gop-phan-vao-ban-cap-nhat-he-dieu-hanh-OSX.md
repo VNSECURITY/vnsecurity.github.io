@@ -28,7 +28,7 @@ Ngoài ra, Luật cũng công bố thêm 6 lỗi khác và đã được gán m�
 * [CVE-2016-4342](https://bugs.php.net/bug.php?id=71354)
 * [CVE-2016-4343](https://bugs.php.net/bug.php?id=71331)
 
-Cũng phải nói thêm rằng Mạnh Luật không phải là hacker mũ trắng đầu tiên tìm ra lỗi trong các phần mềm nổi tiếng trên thế giới, các công ty Microsoft, Adobe đã từng phải gấp rút cập nhật bản vá cho các lỗ hổng phát hiện bởi người Việt Nam như thaidn, suto, caonguyen ... Đây là một tín hiệu đáng mừng cho giới an toàn thông tin Việt Nam khi các bạn trẻ yêu thích bảo mật đang theo đuổi con đường hacker mũ trắng: tham gia tìm lỗ hổng và thông báo lỗi đến nhà phát triển thay vì tận dụng
+Cũng phải nói thêm rằng Mạnh Luật không phải là hacker mũ trắng đầu tiên tìm ra lỗi trong các phần mềm nổi tiếng trên thế giới, các công ty Google, Microsoft, Adobe, Yahoo đã từng phải nhanh chóng cập nhật bản vá cho các lỗ hổng phát hiện bởi người Việt Nam như gamma95, thaidn, suto, caonguyen ... Đây là một tín hiệu đáng mừng cho giới an toàn thông tin Việt Nam khi các bạn trẻ yêu thích bảo mật đang theo đuổi con đường hacker mũ trắng: tham gia tìm lỗ hổng và thông báo lỗi đến nhà phát triển thay vì tận dụng
 khai thác chúng với mục đích xấu. 
 
 
