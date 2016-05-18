@@ -1,10 +1,10 @@
 ---
 title: 'Hacker Việt góp phần vào bản 
-author: k9
+author: pdah
 layout: post
 thumbnail: http://vnsecurity.net/assets/2016/05/elcapitan.png
 excerpt: Nhân tiện có một số bạn bè hỏi mình cách khắc phục lỗi kết nối đến Facebook trong thời gian gần đây, mình xin chia sẻ cách kích hoạt tính năng "Facebook over Tor" được tích hợp sẵn trên app Android mà ít người biết đến.
-category: tutorials
+category: research
 published: true
 tags:
   - facebook
