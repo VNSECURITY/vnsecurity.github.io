@@ -1,9 +1,9 @@
 ---
-title: 'Hacker Việt góp phần vào bản 
+title: 'Hacker Việt Nam tìm ra lỗ hổng, Apple cập nhật bản vá bảo mật'
 author: pdah
 layout: post
 thumbnail: http://vnsecurity.net/assets/2016/05/elcapitan.png
-excerpt: Nhân tiện có một số bạn bè hỏi mình cách khắc phục lỗi kết nối đến Facebook trong thời gian gần đây, mình xin chia sẻ cách kích hoạt tính năng "Facebook over Tor" được tích hợp sẵn trên app Android mà ít người biết đến.
+excerpt: Ngày 18/5, Apple đã cập nhật bản vá bảo mật thứ ba trong năm 2016 cho hệ điều hành El Capitan. Có rất nhiều lỗi được vá trong các bản cập nhật như thế này được phát hiện và thông báo bởi các hacker mũ trắng hoạt động độc lập. Tuy nhiên điểm đáng chú ý trong lần cập nhật này là ngoài các tên tuổi quen thuộc như Ian Beer (Google), Stefan Esser, hay lokihardt, có hai lỗi bảo mật được phát hiện bởi Nguyễn Mạnh Luật, một chuyên gia bảo mật đến từ Việt Nam.
 category: research
 published: true
 tags:
