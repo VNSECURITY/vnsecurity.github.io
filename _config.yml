@@ -16,3 +16,6 @@ portal_categories: [news, tutorials, research, ctf - clgt crew, misc]
 # highlighter: rouge
 comments :
   facebook_app_id: '671572696275219'
+sass:
+  sass_dir: _sass
+  style: compressed
