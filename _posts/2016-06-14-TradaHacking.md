@@ -1,5 +1,5 @@
 ---
-title: 'Sự kiện Trà Đá Hacking'
+title: 'Trà Đá Hacking'
 author: pdah
 layout: post
 excerpt: Trà Đá Hacking, một sự kiện bảo mật với cái tên rất bình dân, sẽ được tổ chức lần đầu tiên vào ngày 18/6 tại thành phố Hồ Chí Minh. Trà Đá Hacking được ra đời với mong muốn thúc đẩy phong trào học tập và nghiên cứu An toàn - Bảo mật thông tin, cũng như tạo ra môi trường học tập, trao đổi và nâng cao kiến thức cho cộng đồng nói chung và các bạn trẻ yêu thích hacking/security ở Việt Nam nói riêng.
@@ -9,7 +9,8 @@ tags:
   - tradahacking
 ---
 
-![Trà đá hacking](/assets/2016/06/tradahacking.png)
+-> ![Trà đá hacking](/assets/2016/06/tradahacking.png) <-
+
 
 Trà Đá Hacking, một sự kiện bảo mật với cái tên rất bình dân, sẽ được tổ chức lần đầu tiên vào ngày 18/6 tại thành phố Hồ Chí Minh. Trà Đá Hacking được ra đời với mong muốn thúc đẩy phong trào học tập và nghiên cứu An toàn - Bảo mật thông tin, cũng như tạo ra môi trường học tập, trao đổi và nâng cao kiến thức cho cộng đồng nói chung và các bạn trẻ yêu thích hacking/security ở Việt Nam nói riêng. 
 
