@@ -14,7 +14,7 @@ kopa_newsmixlight_total_view:
 Papers & presentations published by VNSECURITY members. Copyright and all rights therein are maintained by the authors or by other copyright holders.
 
 ### 2016
-
+* Nguyen Anh Quynh, *Keystone Engine: Next Generation Assembler Framework*, Presentation, <a href="https://www.blackhat.com/us-16/briefings/schedule/#keystone-engine-next-generation-assembler-framework-3430" target="_blank">BlackHat USA 2016</a>, Aug 2016 (<a href="http://keystone-engine.org/docs/BHUSA2016-keystone.pdf" target="_blank">slides</a>)
 * Nguyen Anh Quynh, *Building next generation security tools with Unicorn engine*, Presentation, <a href="https://tetcon.org/saigon-2016/talks/building-next-generation-security-tools-with-unicorn-engine.html" target="_blank">Tetcon 2016</a>, Jan 2016
 * Pham Van Toan, *Làm thế nào để tìm 0-day trong Microsoft Edge*, Presentation, <a href="https://tetcon.org/saigon-2016/talks/lam-the-nao-de-tim-0day-trong-microsoft-edge.html" target="_blank">Tetcon 2016</a>, Jan 2016
 
@@ -30,9 +30,10 @@ Papers & presentations published by VNSECURITY members. Copyright and all rights
 * Bodo Möller, Thai Duong, Krzysztof Kotowicz, *This POODLE Bites: Exploiting The SSL 3.0 Fallback*, Advisory/Paper, Sept 2014. (<a href="https://www.openssl.org/~bodo/ssl-poodle.pdf" target="_blank">paper</a>)
 
 ### 2013
-
+* Nguyen Anh Quynh, *OptiROP: hunting for ROP gadgets in style*, Presentation, <a href="https://www.blackhat.com/us-13/briefings.html#Anh" target="_blank">BlackHat USA 2013</a>, Aug 2013. (<a href="https://media.blackhat.com/us-13/US-13-Quynh-OptiROP-Hunting-for-ROP-Gadgets-in-Style-Slides.pdf" target="_blank">slides</a>)
 *   Le Dinh Long, *Exploiting nginx chunked overflow bug, the undisclosed attack vector*, Presentation, <a href="http://www.secuinside.com" target="_blank">SECUINSIDE</a>, Jul 2013.
 *   Nguyen Anh Quynh, *OptiCode: Machine Code Deobfuscation for Malware Analysis*, Presentation, <a href="http://syscan.org" target="_blank">SysCan SG</a>, Apr 2013.
+*   Nguyen Anh Quynh, *OptiSig: Semantic Signature for Metamorphic Malware*, Presentation, <a href="https://www.blackhat.com/eu-13/briefings.html#Quynh" target="_blank">BlackHat Europe 2013</a>, March 2013.
 *   Nguyen Anh Quynh, *Phát hiện virus đa hình với chữ ký ngữ nghĩa*, Presentation, <a href="http://tetcon.org" target="_blank">TetCon</a>, Jan 2013.
 
 ### 2012
