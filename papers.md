@@ -15,6 +15,7 @@ Papers & presentations published by VNSECURITY members. Copyright and all rights
 
 ### 2016
 * Nguyen Anh Quynh, *Keystone Engine: Next Generation Assembler Framework*, Presentation, <a href="https://www.blackhat.com/us-16/briefings/schedule/#keystone-engine-next-generation-assembler-framework-3430" target="_blank">BlackHat USA 2016</a>, Aug 2016 (<a href="http://keystone-engine.org/docs/BHUSA2016-keystone.pdf" target="_blank">slides</a>)
+* KaiJern Lau, *Mouse Jack implementation for poor people*, Presentation, <a href="http://2016.qconbeijing.com/speakers/202002" target="_blank">QCon 2016</a>, April 2016 (<a href="https://github.com/xwings/tuya/blob/master/mousejack/ppt/QCon2016_Beijing_Full.pdf" target="_blank">slides</a>)
 * Nguyen Anh Quynh, *Building next generation security tools with Unicorn engine*, Presentation, <a href="https://tetcon.org/saigon-2016/talks/building-next-generation-security-tools-with-unicorn-engine.html" target="_blank">Tetcon 2016</a>, Jan 2016
 * Pham Van Toan, *Làm thế nào để tìm 0-day trong Microsoft Edge*, Presentation, <a href="https://tetcon.org/saigon-2016/talks/lam-the-nao-de-tim-0day-trong-microsoft-edge.html" target="_blank">Tetcon 2016</a>, Jan 2016
 
