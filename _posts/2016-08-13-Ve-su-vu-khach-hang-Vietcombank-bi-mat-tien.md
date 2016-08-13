@@ -5,7 +5,7 @@ layout: post
 thumbnail: http://vnsecurity.net/assets/2016/08/vcb.jpg
 excerpt: Để góp phần làm rõ hơn về sự vụ này, dưới góc nhìn của người thuần túy làm về an ninh máy tính, chúng tôi có một vài phân tích về quy trình giao dịch bằng ngân hàng điện tử của Vietcombank, cũng như làm thế nào mà tin tặc lại có thể chuyển tiền thành công mà không cần SMS OTP như nạn nhân đề cập.
 category: research
-published: false
+published: true
 tags:
   - vietcombank
   - Smart OTP
