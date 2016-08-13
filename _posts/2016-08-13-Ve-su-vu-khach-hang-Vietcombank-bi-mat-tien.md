@@ -40,7 +40,8 @@ Nhìn vào các bước trên, chúng ta có thể hình dung được cách mà
 
 Chúng tôi gọi kịch bàn này là **kịch bản số 1**, kịch bản này rất sát với những gì đã diễn ra thực tế với sự vụ này. Hình minh họa dưới đây càng minh chứng rằng thực tế thì nạn nhân đã bị tấn công với kịch bản này:
 
-<center><img alt="" src="http://vnsecurity.net/assets/2016/08/sitegiamao.png"  /></center>
+<center><img alt="" src="http://vnsecurity.net/assets/2016/08/sitegiamao.png"  /></center>  
+
 
 Nhưng, sau khi chúng tôi thực hiện việc kiểm tra ứng dụng Smart OTP, cũng như quy trình kích hoạt, chúng tôi phát hiện thêm một lỗ hỗng nghiêm trọng trong quy trình đó. Lợi dụng lỗ hổng này, tin tặc có thể kích hoạt bất kì Smart OTP nào mà KHÔNG CẦN PHẢI LỪA NGƯỜI DÙNG như kịch bản số 1 ở trên.
 
