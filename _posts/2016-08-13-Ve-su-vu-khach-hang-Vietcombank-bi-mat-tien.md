@@ -38,19 +38,19 @@ Nhìn vào các bước trên, chúng ta có thể hình dung được cách mà
 3. Tin tặc kích hoạt Smart OTP, tiếp tục lừa nạn nhân trên giao diện trang web giả mạo để điền mã SMS OTP vừa nhận được vào trang web đó.
 4. Tin tặc kích hoạt thành công Smart OTP, nạn nhân không hề biết.
 
-Chúng tôi gọi kịch bàn này là **kịch bản số 1**, kịch bản này rất sát với những gì đã diễn ra thực tế với sự vụ này. Hình minh họa dưới đây càng minh chứng rằng thực tế thì nạn nhân đã bị tấn công với kịch bản này:
+Chúng tôi gọi kịch bàn này là **kịch bản số 1**, kịch bản này rất sát với những gì đã diễn ra thực tế với sự vụ này. Hình minh họa dưới đây nếu đúng thì quả thực là nạn nhân đã bị tấn công với kịch bản này:
 
 <center><img alt="" src="http://vnsecurity.net/assets/2016/08/sitegiamao.png"  /></center>  
 
 
-Nhưng, sau khi chúng tôi thực hiện việc kiểm tra ứng dụng Smart OTP, cũng như quy trình kích hoạt, chúng tôi phát hiện thêm một lỗ hỗng nghiêm trọng trong quy trình đó. Nếu có thể khai thác lỗ hổng này thành công, tin tặc có thể kích hoạt bất kì Smart OTP nào mà KHÔNG CẦN PHẢI LỪA NGƯỜI DÙNG như kịch bản số 1 ở trên.
+Ngoài ra, sau khi chúng tôi thực hiện việc kiểm tra ứng dụng Smart OTP, cũng như quy trình kích hoạt, chúng tôi phát hiện thêm một lỗ hỗng nghiêm trọng trong quy trình đó. Nếu có thể khai thác lỗ hổng này thành công, tin tặc có thể kích hoạt bất kì Smart OTP nào mà KHÔNG CẦN PHẢI LỪA NGƯỜI DÙNG như kịch bản số 1 ở trên.
 
 ***Kịch bản tấn công thứ 2 này sẽ được cập nhật sau.***
 ***Cập nhật: Lỗ hổng này chúng tôi phát hiện trong quá trình tìm hiểu giải thuật kiểm tra mã OTP của Smart OTP nhưng chưa có điều kiện để thử khai thác xem có thành công hay không do hệ thống Smart OTP hiện đang tạm ngưng. Hiện chúng tôi đang trao đổi cùng đại diện Vietcombank để tìm hiểu rõ hơn.***
 
 Tấn công như thế này là một tấn công quen thuộc. Chúng tôi đã từng đề cập trong bài phân tích ứng dụng btalk của BKAV [4]. Tuy nhiên, không nhiều các lập trình viên và kiểm thử viên bảo mật để ý. 
 
-Ngoài ra, các kịch bản tấn công khác do một số "chuyên gia" nhận định trên báo chí liên quan đến khả năng kẻ tấn công lấy tin nhắn OTP của nạn nhân qua việc khai thác điểm yếu của giao thức SS7 hay GSM là rất khó xảy ra do yêu cầu kỹ thuật phức tạp và hạn chế của dạng tấn công này cũng như qua thông tin từ ngân hàng và nạn nhân đã cung cấp.
+Ngoài ra, các kịch bản tấn công khác do một số chuyên gia nhận định trên báo chí liên quan đến khả năng kẻ tấn công lấy tin nhắn OTP của nạn nhân qua việc khai thác điểm yếu của giao thức SS7 hay GSM là rất khó xảy ra do yêu cầu kỹ thuật phức tạp và hạn chế của dạng tấn công này cũng như qua thông tin từ ngân hàng và nạn nhân đã cung cấp.
 
 
 ### Khuyến nghị
