@@ -18,7 +18,7 @@ Common styles
 
 body {
     color: #666;
-    font-family: Georgia,Palatino,"Palatino Linotype",Times,"Times New Roman",serif;
+    font-family: "Ubuntu", Helvetica, Arial, sans-serif;
     font-size: 15px;
     background-color:#fff;  
 }
