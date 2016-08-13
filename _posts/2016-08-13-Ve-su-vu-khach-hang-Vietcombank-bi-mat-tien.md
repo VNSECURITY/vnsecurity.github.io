@@ -46,6 +46,7 @@ Chúng tôi gọi kịch bàn này là **kịch bản số 1**, kịch bản nà
 Ngoài ra, sau khi chúng tôi thực hiện việc kiểm tra ứng dụng Smart OTP, cũng như quy trình kích hoạt, chúng tôi phát hiện thêm một lỗ hỗng nghiêm trọng trong quy trình đó. Nếu có thể khai thác lỗ hổng này thành công, tin tặc có thể kích hoạt bất kì Smart OTP nào mà KHÔNG CẦN PHẢI LỪA NGƯỜI DÙNG như kịch bản số 1 ở trên.
 
 ***Kịch bản tấn công thứ 2 này sẽ được cập nhật sau.***
+
 ***Cập nhật: Lỗ hổng này chúng tôi phát hiện trong quá trình tìm hiểu giải thuật kiểm tra mã OTP của Smart OTP nhưng chưa có điều kiện để thử khai thác xem có thành công hay không do hệ thống Smart OTP hiện đang tạm ngưng. Hiện chúng tôi đang trao đổi cùng đại diện Vietcombank để tìm hiểu rõ hơn.***
 
 Tấn công như thế này là một tấn công quen thuộc. Chúng tôi đã từng đề cập trong bài phân tích ứng dụng btalk của BKAV [4]. Tuy nhiên, không nhiều các lập trình viên và kiểm thử viên bảo mật để ý. 
@@ -54,7 +55,7 @@ Ngoài ra, các kịch bản tấn công khác do một số chuyên gia nhận 
 
 
 ### Khuyến nghị
-Chúng tôi đã liên lạc và gửi thông tin về lỗ hổng này đến Vietcombank. Trong khi đợi khắc phục từ họ, chúng tôi khuyến cáo người dùng tắt chức năng Smart OTP, hoặc thông tin với ngân hàng ***ngay lập tức*** khi có dấu hiệu nghi ngờ - như là nhận tin nhắn OTP một cách bất thường.
+Chúng tôi đã liên lạc và gửi thông tin về lỗ hổng này đến Vietcombank. Trong khi đợi phản hồi từ họ, chúng tôi khuyến cáo người dùng tắt chức năng Smart OTP, hoặc thông tin với ngân hàng ***ngay lập tức*** khi có dấu hiệu nghi ngờ - như là nhận tin nhắn OTP một cách bất thường.
 
 Thaidn, Kha Nguyen - VNSecurity  
 Tienpp biên soạn
