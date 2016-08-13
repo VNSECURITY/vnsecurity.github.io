@@ -47,7 +47,7 @@ Ngoài ra, sau khi chúng tôi thực hiện việc kiểm tra ứng dụng Smar
 
 ***Kịch bản tấn công thứ 2 này sẽ được cập nhật sau.***
 
-***Cập nhật: Lỗ hổng này chúng tôi phát hiện trong quá trình tìm hiểu giải thuật kiểm tra mã OTP của Smart OTP nhưng chưa có điều kiện để thử khai thác xem có thành công hay không do hệ thống Smart OTP hiện đang tạm ngưng. Hiện chúng tôi đang trao đổi cùng đại diện Vietcombank để tìm hiểu rõ hơn.***
+***Cập nhật: Lỗ hổng này chúng tôi phát hiện trong quá trình tìm hiểu giải thuật kiểm tra mã OTP của Smart OTP nhưng chưa có điều kiện để thử khai thác xem có thành công hay không do hệ thống Smart OTP hiện đang tạm ngưng. Hiện chúng tôi đang trao đổi cùng đại diện Vietcombank để tìm hiểu rõ hơn khả năng có thể khai thác lỗi này thành công hay không.***
 
 Tấn công như thế này là một tấn công quen thuộc. Chúng tôi đã từng đề cập trong bài phân tích ứng dụng btalk của BKAV [4]. Tuy nhiên, không nhiều các lập trình viên và kiểm thử viên bảo mật để ý. 
 
