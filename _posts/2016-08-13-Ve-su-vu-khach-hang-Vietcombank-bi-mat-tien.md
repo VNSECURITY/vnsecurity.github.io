@@ -48,7 +48,7 @@ Ngoài ra, các kịch bản tấn công khác liên quan đến khả năng k�
 
 
 ### Khuyến nghị
-Chúng tôi đã cố gắng thông tin về lỗ hổng này đến Vietcombank. Trong khi đợi khắc phục từ họ, chúng tôi khuyến cáo người dùng tắt chức năng Smart OTP, hoặc thông tin với ngân hàng ***ngay lập tức*** khi có dấu hiệu nghi ngờ - như là nhận tin nhắn OTP một cách bất thường.
+Chúng tôi đã cố gắng liên lạc và gửi thông tin về lỗ hổng này đến Vietcombank. Trong khi đợi khắc phục từ họ, chúng tôi khuyến cáo người dùng tắt chức năng Smart OTP, hoặc thông tin với ngân hàng ***ngay lập tức*** khi có dấu hiệu nghi ngờ - như là nhận tin nhắn OTP một cách bất thường.
 
 Thaidn, Kha Nguyen - VNSecurity  
 tienpp biên soạn
