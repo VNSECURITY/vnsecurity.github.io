@@ -17,6 +17,7 @@ Mấy ngày qua, trên các phương tiện thông tin truyền thông đăng t�
 Để góp phần làm rỏ hơn về sự vụ này, dưới góc nhìn của người thuần túy làm về an ninh máy tính, chúng tôi có một vài phân tích về quy trình giao dịch bằng ngân hàng điện tử của Vietcombank, cũng như làm thế nào mà tin tặc lại có thể chuyển tiền thành công mà không cần SMS OTP như nạn nhân đề cập.[Tài khoản tại Vietcombank bỗng mất 500 triệu trong đêm](http://motthegioi.vn/kinh-te-c-67/thi-truong-kinh-doanh-c-97/tai-khoan-tai-vietcombank-bong-mat-500-trieu-trong-dem-40267.html)
 
 Trước hết, chúng tôi xin giới thiệu về các bước cơ bản mà một giao dịch chuyển tiền điện tử phải tuân thủ:
+
 1. Người dùng đăng nhập bằng tên đăng nhập và mật khẩu
 2. Tạo giao dịch
 3. Nhận và xác thực OTP (trong trường hợp này của VCB là SMS OTP - mã xác thực được nhắn qua tin nhắn SMS)
@@ -29,6 +30,7 @@ Bên cạnh SMS OTP, Vietcombank còn cung cấp thêm cho người dùng một 
 3. Người dùng điền mã nhận được trong SMS OTP trên smartOTP để kích hoạt.
 
 Nhìn vào các bước trên, chúng ta có thể hình dung được cách mà tin tặc có thể đã sử dụng, gần giống như thông tin mà Vietcombank cung cấp:
+
 1. Lừa nạn nhân vào trang web giả mạo
 2. Giả mạo để lấy thông tin đăng nhập
 3. Tin tặc kích hoạt smartOTP, tiếp tục lừa nạn nhân trên giao diện trang web giả mạo để điền mã SMS OTP vừa nhận được vào trang web đó.
