@@ -25,7 +25,7 @@ Trước hết, chúng tôi xin giới thiệu về các bước cơ bản mà m
 4. Hoàn tất giao dịch
 
 ### Phân tích Smart OTP của Vietcombank
-Bên cạnh SMS OTP, Vietcombank còn cung cấp thêm cho người dùng một phương thức xác thực dùng OTP khác là Smart OTP [2] - một ứng dụng sinh mã OTP trên điện thoại thông minh. Theo như đề cập ở trên, đêm ngày 03 rạng sáng ngày 04/8/2016 [3], nạn nhân bị tin tặc đánh cắp hơn nửa tỉ đồng, mà không hề nhận được SMS OTP. Nghĩa là, tin tặc bằng cách nào đó đã kích hoạt thành công dịch vụ Smart OTP của nạn nhân. Trong quá trình phân tích ứng dụng Smart OTP này, chúng tôi nhận thấy có 2 cách mà tin tặc có thể kích hoạt Smart OTP của một tài khoản bất  kì. Tuy nhiên, trước khi đề cập, ta hãy nhìn qua cách mà người dùng Vietcombank kích hoạt Smart OTP cho người dùng đang có SMS OTP:
+Bên cạnh SMS OTP, Vietcombank còn cung cấp thêm cho người dùng một phương thức xác thực dùng OTP khác là Smart OTP [2] - một ứng dụng sinh mã OTP trên điện thoại thông minh. Theo như đề cập ở trên, đêm ngày 03 rạng sáng ngày 04/8/2016 [3], nạn nhân bị tin tặc đánh cắp hơn nửa tỉ đồng, mà không hề nhận được SMS OTP. Nghĩa là, tin tặc bằng cách nào đó đã kích hoạt thành công dịch vụ Smart OTP của nạn nhân. Trong quá trình phân tích ứng dụng Smart OTP này, chúng tôi nhận thấy có cách tấn công cho phép tin tặc có thể kích hoạt Smart OTP của một tài khoản bất  kì. Tuy nhiên, trước khi đề cập, ta hãy nhìn qua cách mà người dùng Vietcombank kích hoạt Smart OTP cho người dùng đang có SMS OTP:
 
 1. Người dùng cài đặt ứng dụng Smart OTP
 2. Người dùng nhận mã kích hoạt Smart OTP qua SMS OTP
@@ -44,7 +44,7 @@ Chúng tôi gọi kịch bàn này là **kịch bản số 1**, kịch bản nà
 
 Tấn công như thế này là một tấn công quen thuộc. Chúng tôi đã từng đề cập trong bài phân tích ứng dụng btalk của BKAV [4]. Tuy nhiên, không nhiều các lập trình viên và kiểm thử viên bảo mật để ý. 
 
-Ngoài ra, các kịch bản tấn công khác liên quan đến khả năng kẻ tấn công lấy tin nhắn OTP của nạn nhân qua việc khai thác điểm yếu của giao thức SS7 hay GSM rất khó xảy ra do yêu cầu kỹ thuật phức tạp và hạn chế của dạng tấn công này cũng như qua thông tin từ ngân hàng và nạn nhân cung cấp.
+Ngoài ra, các kịch bản tấn công khác liên quan đến khả năng kẻ tấn công lấy tin nhắn OTP của nạn nhân qua việc khai thác điểm yếu của giao thức SS7 hay GSM rất khó xảy ra do yêu cầu kỹ thuật phức tạp và hạn chế của dạng tấn công này cũng như qua thông tin từ ngân hàng và nạn nhân đã cung cấp.
 
 
 ### Khuyến nghị
