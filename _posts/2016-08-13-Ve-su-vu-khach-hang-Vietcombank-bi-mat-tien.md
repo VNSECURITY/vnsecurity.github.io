@@ -42,7 +42,9 @@ Chúng tôi gọi kịch bàn này là **kịch bản số 1**, kịch bản nà
 
 ***Kịch bản tấn công thứ 2 này sẽ được cập nhật sau.***
 
-Tấn công như thế này là một tấn công quen thuộc. Chúng tôi đã từng đề cập trong bài phân tích ứng dụng btalk của BKAV[3]. Tuy nhiên, không nhiều các lập trình viên và kiểm thử viên bảo mật để ý.
+Tấn công như thế này là một tấn công quen thuộc. Chúng tôi đã từng đề cập trong bài phân tích ứng dụng btalk của BKAV[3]. Tuy nhiên, không nhiều các lập trình viên và kiểm thử viên bảo mật để ý. 
+
+Ngoài ra, các kịch bản tấn công khác liên quan đến khả năng kẻ tấn công lấy tin nhắn OTP của nạn nhân qua việc khai thác điểm yếu của giao thức SS7 hay GSM rất khó xảy ra do yêu cầu kỹ thuật phức tạp và hạn chế của dạng tấn công này cũng như qua thông tin từ ngân hàng và nạn nhân cung cấp.
 
 
 ### Khuyến nghị
