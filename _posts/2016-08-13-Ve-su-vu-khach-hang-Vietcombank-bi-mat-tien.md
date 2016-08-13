@@ -1,6 +1,6 @@
 ---
 title: 'Về sự vụ khách hàng bị tin tặc lấy cắp hơn nửa tỉ đồng và các kĩ thuật liên quan'
-author: mrro, superkhung
+author: tienpp, thaidn, superkhung
 layout: post
 thumbnail: http://vnsecurity.net/assets/2016/08/vcb.jpg
 excerpt: Để góp phần làm rõ hơn về sự vụ này, dưới góc nhìn của người thuần túy làm về an ninh máy tính, chúng tôi có một vài phân tích về quy trình giao dịch bằng ngân hàng điện tử của Vietcombank, cũng như làm thế nào mà tin tặc lại có thể chuyển tiền thành công mà không cần SMS OTP như nạn nhân đề cập.
@@ -51,14 +51,11 @@ Ngoài ra, các kịch bản tấn công khác liên quan đến khả năng k�
 Chúng tôi đã liên lạc và gửi thông tin về lỗ hổng này đến Vietcombank. Trong khi đợi khắc phục từ họ, chúng tôi khuyến cáo người dùng tắt chức năng Smart OTP, hoặc thông tin với ngân hàng ***ngay lập tức*** khi có dấu hiệu nghi ngờ - như là nhận tin nhắn OTP một cách bất thường.
 
 Thaidn, Kha Nguyen - VNSecurity  
-tienpp biên soạn
+Tienpp biên soạn
 
 *Tham khảo:*
 
 [1][Tài khoản tại Vietcombank bỗng mất 500 triệu trong đêm](http://motthegioi.vn/kinh-te-c-67/thi-truong-kinh-doanh-c-97/tai-khoan-tai-vietcombank-bong-mat-500-trieu-trong-dem-40267.html)
-
 [2][Từ ngày 30/01/2015, Vietcombank chính thức triển khai ứng dụng Vietcombank Smart OTP - giải pháp mới trong xác thực giao dịch điện tử](https://www.vietcombank.com.vn/News/Vcb_News.aspx?ID=5630)
-
 [3] [VIETCOMBANK THÔNG TIN VỀ SỰ VIỆC KHÁCH HÀNG THÔNG BÁO BỊ MẤT TIỀN TỪ TÀI KHOẢN](https://www.vietcombank.com.vn/News/Vcb_News.aspx?ID=6481) 
-
 [4][Phân tích ứng dụng Btalk trên Android – Phần một: Cơ chế xác thực người dùng](http://www.vnsecurity.net/news/2014/05/06/btalk-part-1.html)
