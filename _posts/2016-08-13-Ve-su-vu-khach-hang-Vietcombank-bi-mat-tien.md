@@ -11,6 +11,9 @@ tags:
   - Smart OTP
   - vietcombank bi hack
 ---
+
+***Cập nhật: Lỗ hổng đề cập trong bài viết này chúng tôi phát hiện trong quá trình tìm hiểu giải thuật kiểm tra mã OTP của Smart OTP nhưng không có điều kiện để thử khai thác xem có thành công hay không do hệ thống Smart OTP đang trong quá trình thay đổi chính sách và hệ thống. Sau khi trao đổi với bộ phận có trách nhiệm bên Vietcombank và nhận được sự cộng tác tích cực từ họ, với xác nhận từ phía Vietcombank, việc khai thác lỗ hổng với hệ thống hiện tại là rất khó có thể thành công. Chúng tôi sẽ trình bày chi tiết hơn lỗ hổng chúng tôi phát hiện để độc giả được rõ sau khi trao đổi thống nhất với Vietcombank.***
+
 ### Dẫn nhập
 Mấy ngày qua, trên các phương tiện thông tin truyền thông đăng tải hàng loạt các thông tin về sự vụ một khách hàng của Ngân hàng thương mại cổ phần Ngoại thương Việt Nam (Vietcombank) bị tin tặc đánh cắp hơn nửa tỉ đồng trong tài khoản trong một đêm. Tin tức này thực sự gây hoang mang cho cộng đồng, nhất là các cá nhân và đơn vị sử dụng ngân hàng điện tử để giao dịch hàng ngày. Để xoa dịu người dùng, Vietcombank cũng đã có thông tin về các vấn đề liên quan đến sự vụ này, cụ thể là xác nhận nạn nhân đã bị lừa và cung cấp thông tin quản lý tài khoản của mình cho tin tặc, đồng thời cũng bị lừa để chuyển từ xác thực giao dịch bằng SMS sang Smart OTP - *một phương thức xác thực thứ 2 dễ bị phá vỡ của Vietcombank*.
 
@@ -46,8 +49,6 @@ Chúng tôi gọi kịch bàn này là **kịch bản số 1**, kịch bản nà
 Ngoài ra, sau khi chúng tôi thực hiện việc kiểm tra ứng dụng Smart OTP, cũng như quy trình kích hoạt, chúng tôi phát hiện thêm một lỗ hỗng nghiêm trọng trong quy trình đó. Nếu có thể khai thác lỗ hổng này thành công, tin tặc có thể kích hoạt bất kì Smart OTP nào mà KHÔNG CẦN PHẢI LỪA NGƯỜI DÙNG như kịch bản số 1 ở trên.
 
 ***Kịch bản tấn công thứ 2 này sẽ được cập nhật sau.***
-
-***Cập nhật: Lỗ hổng này chúng tôi phát hiện trong quá trình tìm hiểu giải thuật kiểm tra mã OTP của Smart OTP nhưng chưa có điều kiện để thử khai thác xem có thành công hay không do hệ thống Smart OTP hiện đang tạm ngưng. Hiện chúng tôi đang trao đổi cùng đại diện Vietcombank để tìm hiểu rõ hơn khả năng có thể khai thác lỗi này thành công hay không.***
 
 Tấn công như thế này là một tấn công quen thuộc. Chúng tôi đã từng đề cập trong bài phân tích ứng dụng btalk của BKAV [4]. Tuy nhiên, không nhiều các lập trình viên và kiểm thử viên bảo mật để ý. 
 
