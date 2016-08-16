@@ -51,6 +51,10 @@ ol li {
     margin-bottom:10px;
 }
 
+ul, ol {
+    margin-right: 50px;
+}
+
 a {
     color: #b80000;
     cursor: pointer;
