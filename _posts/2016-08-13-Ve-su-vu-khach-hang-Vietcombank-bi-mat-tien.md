@@ -58,19 +58,19 @@ Tóm tắt quy trình đăng ký dịch vụ Smart OTP:
 
 1. Phần mềm Smart OTP gửi số điện thoại và địa chỉ WiFi MAC address của điện thoại đến máy chủ của VCB.
 2. Nếu số điện thoại chưa đăng ký, máy chủ VCB sẽ thực hiện hai thao tác:
-  * Gửi mã xác thực, gọi là N, đến số điện thoại.
-  * Gửi Encrypt(key=MD5(MD5(N), Y)) về cho ứng dụng, trong đó Y là một chuỗi mà chúng tôi chưa có điều kiện được xác định chính xác. Sau khi trao đổi với Vietcombank, họ cho biết Y là một chuỗi ngẫu nhiên 16 bytes.
-3. Phần mềm Smart OTP nhận mã xác thực từ người dùng và sử dụng nó để giải mã lấy giá trị Y. Sau đó ứng dụng dùng khóa Y để mã hóa N và gửi lại cho máy chủ VCB.
-  * Lúc này máy chủ sẽ kiểm tra, nếu thông tin chính xác, máy chủ sẽ trả về một số thông tin, trong đó quan trọng nhất là thông số được đặt tên XFACTOR.
-4. Tất cả OTP được tạo ra từ XFACTOR. Ai có XFACTOR có thể tự tạo OTP mà không cần thông qua máy chủ VCB nữa.
+  * Gửi mã xác thực, gọi là **N**, đến số điện thoại.
+  * Gửi `Encrypt(key=MD5(MD5(N), Y))` về cho ứng dụng, trong đó **Y** là một chuỗi mà chúng tôi chưa có điều kiện được xác định chính xác. Sau khi trao đổi với Vietcombank, họ cho biết **Y** là một chuỗi ngẫu nhiên 16 bytes.
+3. Phần mềm Smart OTP nhận mã xác thực từ người dùng và sử dụng nó để giải mã lấy giá trị **Y**. Sau đó ứng dụng dùng khóa **Y** để mã hóa **N** và gửi lại cho máy chủ VCB.
+  * Lúc này máy chủ sẽ kiểm tra, nếu thông tin chính xác, máy chủ sẽ trả về một số thông tin, trong đó quan trọng nhất là thông số được đặt tên `XFACTOR`.
+4. Tất cả OTP được tạo ra từ `XFACTOR`. Ai có `XFACTOR` có thể tự tạo OTP mà không cần thông qua máy chủ VCB nữa.
 
 Lỗ hổng nằm ở ***bước thứ 2***. Để khai thác, kẻ tấn công có thể làm như sau:
 
 1. Gửi số điện thoại của nạn nhân và một địa chỉ MAC bất kỳ đến máy chủ của VCB.
-2. Lúc này máy chủ sẽ trả về R = Encrypt(key = MD5(MD5(N)), Y). Vì N là một chuỗi rất ngắn, chỉ có 4 chữ số, do đó kẻ tấn công có thể dò N.
-  * Với mỗi giá trị dự đoán N' kẻ tấn công sẽ tính Y' = Decrypt(key=MD5(N’), data=R). Tùy thuộc vào biên giá trị của Y mà quá trình dò này có thể thực hiện offline. Nếu Y là một chuỗi hoàn toàn ngẫu nhiên, kẻ tấn công có thể sử dụng Y' và N' để thực hiện bước 3 và dựa vào phản hồi của máy chủ VCB để tìm N' = N. 
-  * Máy chủ VCB có thể ngăn chặn sử dụng Y' và N' để dò N, nhưng chúng tôi không có điều kiện để xác minh.
-3. Sau khi đã có N, kẻ tấn công có thể thực hiện tiếp các bước 3, 4 và 5.
+2. Lúc này máy chủ sẽ trả về `R = Encrypt(key = MD5(MD5(N)), Y)`. Vì **N** là một chuỗi rất ngắn, chỉ có 4 chữ số, do đó kẻ tấn công có thể dò **N**.
+  * Với mỗi giá trị dự đoán **N'** kẻ tấn công sẽ tính `Y' = Decrypt(key=MD5(N’), data=R)`. Tùy thuộc vào biên giá trị của **Y** mà quá trình dò này có thể thực hiện offline. Nếu **Y** là một chuỗi hoàn toàn ngẫu nhiên, kẻ tấn công có thể sử dụng **Y'** và **N'** để thực hiện bước 3 và dựa vào phản hồi của máy chủ VCB để tìm **N'** = **N**. 
+  * Máy chủ VCB có thể ngăn chặn sử dụng **Y'** và **N'** để dò **N**, nhưng chúng tôi không có điều kiện để xác minh.
+3. Sau khi đã có **N**, kẻ tấn công có thể thực hiện tiếp các bước 3, 4 và 5.
 
 Tấn công như thế này là một tấn công quen thuộc. Chúng tôi đã từng đề cập trong bài [phân tích phần mềm BTalk của BKAV](http://www.vnsecurity.net/news/2014/05/06/btalk-part-1.html).
 
