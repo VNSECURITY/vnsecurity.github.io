@@ -3,7 +3,7 @@ title: 'Sự cố Vietcombank, một góc nhìn kỹ thuật'
 author: tienpp, thaidn, superkhung
 layout: post
 thumbnail: http://vnsecurity.net/assets/2016/08/vcb.jpg
-excerpt: Nhiều ngày qua các phương tiện thông tin truyền thông tại Việt Nam đăng tải hàng loạt thông tin về việc một khách hàng của Vietcombank bị đánh cắp hơn nửa tỉ đồng [1]. Tin tức này gây hoang mang cho cộng đồng, nhất là các cá nhân và đơn vị sử dụng ngân hàng điện tử (Internet Banking, Mobile Banking, v.v) để giao dịch. Nhằm góp một tiếng nói độc lập về sự việc này, nhóm nghiên cứu VNSECURITY đã thẩm định quy trình giao dịch trên ngân hàng điện tử của Vietcombank. 
+excerpt: Nhiều ngày qua các phương tiện thông tin truyền thông tại Việt Nam đăng tải hàng loạt thông tin về việc một khách hàng của Vietcombank bị đánh cắp hơn nửa tỉ đồng. Tin tức này gây hoang mang cho cộng đồng, nhất là các cá nhân và đơn vị sử dụng ngân hàng điện tử (Internet Banking, Mobile Banking, v.v) để giao dịch. Nhằm góp một tiếng nói độc lập về sự việc này, nhóm nghiên cứu VNSECURITY đã thẩm định quy trình giao dịch trên ngân hàng điện tử của Vietcombank. 
 category: research
 published: true
 tags:
@@ -28,7 +28,8 @@ Hoàn tất giao dịch.
 
 Vietcombank cung cấp hai sản phẩm OTP: SMS và Smart OTP. Smart OTP là một phần mềm sinh mã OTP, khách hàng tải về cài đặt trên điện thoại di động. Để kích hoạt dịch vụ Smart OTP, khách hàng phải xác thực một lần duy nhất bằng SMS OTP.
 
-Theo như đề cập ở trên, nửa đêm ngày 4 rạng sáng ngày 5, nạn nhân bị đánh cắp hơn nửa tỉ đồng, mà không hề nhận được SMS OTP. Vietcombank và C50 cho rằng kẻ xấu bằng cách nào đó đã kích hoạt thành công dịch vụ Smart OTP của nạn nhân [4].
+Theo như đề cập ở trên, nửa đêm ngày 4 rạng sáng ngày 5, nạn nhân bị đánh cắp hơn nửa tỉ đồng, mà không hề nhận được SMS OTP. Vietcombank và C50 cho rằng kẻ xấu bằng cách nào đó đã [kích hoạt thành công dịch vụ Smart OTP của nạn nhân](http://infonet.vn/da-tim-ra-nguyen-nhan-chu-the-vietcombank-mat-500-trieu-dong-post206166.info
+).
 
 ### Hướng tấn công số 1: phishing
 Đây là hướng tấn công đơn giản và dễ thực hiện nhất. Tại một thời điểm nào đó trước khi nạn nhân bị rút nửa tỉ đồng, kẻ xấu đã:
@@ -71,7 +72,7 @@ Lỗ hổng nằm ở ***bước thứ 2***. Để khai thác, kẻ tấn công 
   * Máy chủ VCB có thể ngăn chặn sử dụng Y' và N' để dò N, nhưng chúng tôi không có điều kiện để xác minh.
 3. Sau khi đã có N, kẻ tấn công có thể thực hiện tiếp các bước 3, 4 và 5.
 
-Tấn công như thế này là một tấn công quen thuộc. Chúng tôi đã từng đề cập trong bài phân tích phần mềm BTalk của BKAV [3].
+Tấn công như thế này là một tấn công quen thuộc. Chúng tôi đã từng đề cập trong bài [phân tích phần mềm BTalk của BKAV](http://www.vnsecurity.net/news/2014/05/06/btalk-part-1.html).
 
 Đại diện Vietcombank xác nhận giao thức mà chúng tôi mô tả ở trên là chính xác (tại thời điểm 14:30 ngày 15/8/2016, chúng tôi nhận thấy Vietcombank đã đổi giao thức, cho nên thông tin ở trên có thể không còn chính xác). Lưu ý chúng tôi xác định được giao thức này bằng cách dịch ngược mã phần mềm Smart OTP, hoàn toàn không tác động đến máy chủ của Vietcombank. Trong quá trình thẩm định Smart OTP vì không có tài khoản VCB và vì hệ thống Smart OTP liên tục thay đổi, chúng tôi không có điều kiện thử nghiệm để biết lỗ hổng mà chúng tôi phát hiện nguy hiểm đến mức nào. Vì lo ngại đây là lỗ hổng mà kẻ tấn công sử dụng để đánh cắp tiền của khách hàng Vietcombank, chúng tôi gửi thông tin cho Vietcombank trước khi có kết luận chính thức.
 
@@ -90,11 +91,11 @@ Tại sao chúng tôi nghĩ rằng lỗ hổng khó khai thác là nằm ngoài 
 
 Thuật toán TripleDES/ECB/ZeroBytePadding được sử dụng để mã hóa chuỗi Y mà chúng tôi mô tả ở trên (xem sơ đồ). Để có thể dò được N, chúng tôi phải biết giá trị nào của chuỗi Y là giá trị đúng. Trường hợp khó nhất là Y là một chuỗi hoàn toàn ngẫu nhiên có chiều dài là bội của 8. Sau khi chúng tôi gửi báo cáo, Vietcombank cho biết Y đúng là một chuỗi ngẫu nhiên có chiều dài là bội của 8. Nếu Y không có đúng cả hai điều kiện này, chỉ cần vài giây là có thể tìm được N.
 
-Thư viện phần mềm mã hóa mà Smart OTP sử dụng không bồi thêm một khối các số 0 vào cuối Y, khi Y có chiều dài là bội của 8. Nếu như Smart OTP sử dụng Bouncy Castle [6], một thư viện mã hóa rất phổ biến trên Android, phía cuối của Y sẽ có một khối toàn các số 0 và khi đó chỉ cần vài giây là có thể tìm được N.
+Thư viện phần mềm mã hóa mà Smart OTP sử dụng không bồi thêm một khối các số 0 vào cuối Y, khi Y có chiều dài là bội của 8. Nếu như Smart OTP sử dụng [Bouncy Castle](https://www.bouncycastle.org), một thư viện mã hóa rất phổ biến trên Android, phía cuối của Y sẽ có một khối toàn các số 0 và khi đó chỉ cần vài giây là có thể tìm được N.
 
 Chúng tôi tin rằng hai đặc điểm kỹ thuật trên đây không phải được thiết kế một cách có chủ đích để phòng ngừa tấn công mà chúng tôi phát hiện, bởi nếu quả thật như thế thì người thiết kế quá chủ quan. Ngoài ra bất kể Y được tạo ra sao, tùy thuộc vào cách mà máy chủ Smart OTP thực hiện bước số 4 mà kẻ tấn công có thể sử dụng nó để dò ra N. Vietcombank cho rằng việc dò này là không thể thực hiện được, vì xác suất đoán trúng chỉ là 3/10.000. Chúng tôi thấy nhận xét này hợp lý, nhưng vì không có tài khoản để thử nghiệm trực tiếp nên chúng tôi không xác nhận được. 
 
-Thiết kế của Smart OTP rất mong manh, có nhiều quyết định khó hiểu, đi ngược lại với những nguyên tắc cơ bản của an toàn thông tin và mật mã học hiện đại. Thiết kế này vừa thừa vừa thiếu. Thừa vì có những bước vừa không cần thiết vừa tạo lỗ hổng, ví dụ như bước sử dụng N để mã hóa Y. Thiếu vì không đảm bảo được những yêu cầu cơ bản của một giao thức bảo mật. Thứ nhất, để bảo vệ kênh truyền dữ liệu giữa máy chủ và phần mềm, Smart OTP sử dụng giao thức TLS, nhưng phần mềm lại hoàn toàn không kiểm tra chứng chỉ của máy chủ. Thứ hai, thuật toán TripleDES/ECB/ZeroBytePadding không đảm bảo được sự toàn vẹn của dữ liệu. Thứ ba, một thiết kế hiện đại phải đảm bảo tính forward-secrecy [5] của dữ liệu, nhưng thiết kế của Smart OTP không làm được như vậy.
+Thiết kế của Smart OTP rất mong manh, có nhiều quyết định khó hiểu, đi ngược lại với những nguyên tắc cơ bản của an toàn thông tin và mật mã học hiện đại. Thiết kế này vừa thừa vừa thiếu. Thừa vì có những bước vừa không cần thiết vừa tạo lỗ hổng, ví dụ như bước sử dụng N để mã hóa Y. Thiếu vì không đảm bảo được những yêu cầu cơ bản của một giao thức bảo mật. Thứ nhất, để bảo vệ kênh truyền dữ liệu giữa máy chủ và phần mềm, Smart OTP sử dụng giao thức TLS, nhưng phần mềm lại hoàn toàn không kiểm tra chứng chỉ của máy chủ. Thứ hai, thuật toán TripleDES/ECB/ZeroBytePadding không đảm bảo được sự toàn vẹn của dữ liệu. Thứ ba, một thiết kế hiện đại phải đảm bảo tính [forward-secrecy](https://en.wikipedia.org/wiki/Forward_secrecy) của dữ liệu, nhưng thiết kế của Smart OTP không làm được như vậy.
 
 Thiết kế giao thức bảo mật là công việc nên dành cho các chuyên gia. Sau khi đã được thiết kế, giao thức chỉ được chấp nhận và đưa vào sử dụng khi có sự thẩm định độc lập của các chuyên gia khác. Ngay cả các giao thức do chuyên gia thiết kế và thẩm định như SSL/TLS còn có nhiều vấn đề, thành ra có rất ít hi vọng cho những giao thức nghiệp dư. Thật tế vấn đề mà Smart OTP muốn giải quyết đã được thế giới giải quyết từ lâu, chúng tôi không hiểu tại sao Vietcombank không sử dụng lại những kết quả này mà phải "phát minh lại cái bánh xe".
 
