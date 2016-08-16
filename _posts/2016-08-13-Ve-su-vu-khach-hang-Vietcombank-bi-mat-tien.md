@@ -107,31 +107,31 @@ Trong phần tiếp theo của loạt bài này, chúng tôi sẽ bàn về các
 
 Theo thông lệ quốc tế, chúng tôi công bố toàn bộ nhật ký phát hiện và thông báo lỗ hổng (ngày giờ ước lượng theo giờ VN)
 
-* 22:30, 12/8/2016: tải app Smart APK về.
-* 02:30, 13/8/2016: tìm thấy lỗ hổng thông qua việc dịch ngược app.
-* 11:39, 13/8/2016: gửi email thông báo lỗ hổng đến địa chỉ webmaster@vietcombank.com.vn. Đây là địa chỉ email duy nhất mà VNSECURITY tìm thấy trên website http://www.vietcombank.com.vn. Trang “Bảo mật" trên website này “đang được xây dựng".
-* 11:40, 13/8/2016: nhận được thông báo địa chỉ webmaster@vietcombank.com.vn không tồn tại.
-* 11:55, 13/8/2016: hỏi thông tin liên lạc của Vietcombank trên diễn đàn Viet-InfoSec.
-* 12:40, 13/8/2016: một thành viên Viet-InfoSec cung cấp địa chỉ email của một cán bộ trung tâm CNTT Vietcombank.
-* 12:48, 13/8/2016: gửi báo cáo lỗ hổng đến Vietcombank.
-* 14:30, 13/8/2016: Vietcombank trả lời đã nhận được thông tin, sẽ trao đổi nội bộ rồi báo lại sớm. Vietcombank hỏi có phải VNSECURITY đã reverse engineer phần mềm Smart OTP.
-* 14:39, 13/8/2016: xác nhận với Vietcombank lỗ hổng được phát hiện bằng phương thức reverse engineering.
-* 17:04, 13/08/2016: công bố phiên bản đầu tiên của bài viết này, thông tin chi tiết của lỗ hổng được giữ kín.
-* 19:15, 13/08/2016: nhận được yêu cầu gián tiếp từ phía Vietcombank đề nghị gỡ bỏ bài viết này xuống. Đề nghị Vietcombank trực tiếp liên lạc qua email.
-* 19:40, 13/08/2016: Vietcombank trả lời qua email, cảm ơn VNSECURITY, xác nhận giao thức được mô tả là chính xác, cung cấp thêm một số thông tin, đề nghị VNSECURITY kiểm tra lại.
-* 20:03, 13/08/2016: trả lời Vietcombank, chỉ ra sự mong manh dễ vỡ của Smart OTP, bất kể lỗ hổng có khai thác được hay không. Đề nghị Vietcombank cung cấp tài khoản để kiểm tra.
-* 20:18, 13/08/2016: nói thêm cho Vietcombank biết cách thiết kế một giao thức OTP an toàn.
-* 21:30, 13/08/2016: Vietcombank hứa đến sáng thứ hai ngày 15/08/2016 sẽ cung cấp tài khoản thử nghiệm. Cho đến thời điểm bài viết này được công bố, VNSECURITY vẫn chưa nhận được tài khoản thử nghiệm.
-* 23:52, 13/08/2016: Vietcombank xác nhận giao thức Smart OTP không đúng chuẩn và sẽ xem xét phương án thay thế. Vietcombank cho rằng đưa ra giả thuyết về lỗ hổng là hơi sớm.
-* 00:22, 14/08/2016: Vietcombank cung cấp thêm thông tin về Y và số lần người dùng có thể thực hiện bước số 3 trong giao thức Smart OTP.
-* 00:28, 14/08/2016: một đại diện khác của Vietcombank xác nhận thông tin về Y và số lần người dùng có thể thực hiện bước số 3 trong giao thức Smart OTP. Đề nghị VNSECURITY hỗ trợ “trong thời điểm nhạy cảm này" (nguyên văn).
-* 00:45, 14/08/2016: nhận thấy máy chủ Smart OTP đã có một số thay đổi, đề nghị Vietcombank cho biết thêm thông tin về tình trạng hiện tại.
-* 00:55, 14/08/2016: Vietcombank cho biết đã thay đổi quy trình đăng ký Smart OTP theo yêu cầu của ngân hàng nhà nước. Vietcombank tái xác nhận sẽ cung cấp tài khoản thử nghiệm vào thứ hai 15/08/2016.
-* 00:57, 14/08/2016: cập nhật bài viết này, ghi chú “việc khai thác lỗ hổng với hệ thống hiện tại là rất khó có thể thành công”.
-* 15:36, 14/08/2016: Vietcombank xác nhận thêm lần nữa Smart OTP vẫn đang hoạt động, chỉ có một chút thay đổi về quy trình đăng ký, kích hoạt dịch vụ. Đề nghị VNSECURITY hỗ trợ chống phishing.
-* 14:30, 15/08/2016: phát hiện Vietcombank đã thay đổi giao thức Smart OTP trên máy chủ, nâng cấp từ phiên bản "22" lên phiên bản "24". VNSECURITY không được thông báo trước về những thay đổi này.
-* 01:30, 16/08/2016: thông báo cho Vietcombank biết VNSECURITY đã dừng việc thẩm định Smart OTP vì không có đủ thời gian để chạy theo những thay đổi không báo trước của Vietcombank. Cảm ơn Vietcombank vì những trao đổi rất cởi mở và cho biết dự định VNSECURITY sẽ công bố thông tin về lỗ hổng trong vài ngày tới.
-* XX:XX, 16/08/2016: cập nhật bài viết này với thông tin chi tiết về lỗ hổng.
+* **22:30, 12/8/2016**: tải app Smart APK về.
+* **02:30, 13/8/2016**: tìm thấy lỗ hổng thông qua việc dịch ngược app.
+* **11:39, 13/8/2016**: gửi email thông báo lỗ hổng đến địa chỉ webmaster@vietcombank.com.vn. Đây là địa chỉ email duy nhất mà VNSECURITY tìm thấy trên website http://www.vietcombank.com.vn. Trang “Bảo mật" trên website này “đang được xây dựng".
+* **11:40, 13/8/2016**: nhận được thông báo địa chỉ webmaster@vietcombank.com.vn không tồn tại.
+* **11:55, 13/8/2016**: hỏi thông tin liên lạc của Vietcombank trên diễn đàn Viet-InfoSec.
+* **12:40, 13/8/2016**: một thành viên Viet-InfoSec cung cấp địa chỉ email của một cán bộ trung tâm CNTT Vietcombank.
+* **12:48, 13/8/2016**: gửi báo cáo lỗ hổng đến Vietcombank.
+* **14:30, 13/8/2016**: Vietcombank trả lời đã nhận được thông tin, sẽ trao đổi nội bộ rồi báo lại sớm. Vietcombank hỏi có phải VNSECURITY đã reverse engineer phần mềm Smart OTP.
+* **14:39, 13/8/2016**: xác nhận với Vietcombank lỗ hổng được phát hiện bằng phương thức reverse engineering.
+* **17:04, 13/08/2016**: công bố phiên bản đầu tiên của bài viết này, thông tin chi tiết của lỗ hổng được giữ kín.
+* **19:15, 13/08/2016**: nhận được yêu cầu gián tiếp từ phía Vietcombank đề nghị gỡ bỏ bài viết này xuống. Đề nghị Vietcombank trực tiếp liên lạc qua email.
+* **19:40, 13/08/2016**: Vietcombank trả lời qua email, cảm ơn VNSECURITY, xác nhận giao thức được mô tả là chính xác, cung cấp thêm một số thông tin, đề nghị VNSECURITY kiểm tra lại.
+* **20:03, 13/08/2016**: trả lời Vietcombank, chỉ ra sự mong manh dễ vỡ của Smart OTP, bất kể lỗ hổng có khai thác được hay không. Đề nghị Vietcombank cung cấp tài khoản để kiểm tra.
+* **20:18, 13/08/2016**: nói thêm cho Vietcombank biết cách thiết kế một giao thức OTP an toàn.
+* **21:30, 13/08/2016**: Vietcombank hứa đến sáng thứ hai ngày 15/08/2016 sẽ cung cấp tài khoản thử nghiệm. Cho đến thời điểm bài viết này được công bố, VNSECURITY vẫn chưa nhận được tài khoản thử nghiệm.
+* **23:52, 13/08/2016**: Vietcombank xác nhận giao thức Smart OTP không đúng chuẩn và sẽ xem xét phương án thay thế. Vietcombank cho rằng đưa ra giả thuyết về lỗ hổng là hơi sớm.
+* **00:22, 14/08/2016**: Vietcombank cung cấp thêm thông tin về Y và số lần người dùng có thể thực hiện bước số 3 trong giao thức Smart OTP.
+* **00:28, 14/08/2016**: một đại diện khác của Vietcombank xác nhận thông tin về Y và số lần người dùng có thể thực hiện bước số 3 trong giao thức Smart OTP. Đề nghị VNSECURITY hỗ trợ “trong thời điểm nhạy cảm này" (nguyên văn).
+* **00:45, 14/08/2016**: nhận thấy máy chủ Smart OTP đã có một số thay đổi, đề nghị Vietcombank cho biết thêm thông tin về tình trạng hiện tại.
+* **00:55, 14/08/2016**: Vietcombank cho biết đã thay đổi quy trình đăng ký Smart OTP theo yêu cầu của ngân hàng nhà nước. Vietcombank tái xác nhận sẽ cung cấp tài khoản thử nghiệm vào thứ hai 15/08/2016.
+* **00:57, 14/08/2016**: cập nhật bài viết này, ghi chú “việc khai thác lỗ hổng với hệ thống hiện tại là rất khó có thể thành công”.
+* **15:36, 14/08/2016**: Vietcombank xác nhận thêm lần nữa Smart OTP vẫn đang hoạt động, chỉ có một chút thay đổi về quy trình đăng ký, kích hoạt dịch vụ. Đề nghị VNSECURITY hỗ trợ chống phishing.
+* **14:30, 15/08/2016**: phát hiện Vietcombank đã thay đổi giao thức Smart OTP trên máy chủ, nâng cấp từ phiên bản "22" lên phiên bản "24". VNSECURITY không được thông báo trước về những thay đổi này.
+* **01:30, 16/08/2016**: thông báo cho Vietcombank biết VNSECURITY đã dừng việc thẩm định Smart OTP vì không có đủ thời gian để chạy theo những thay đổi không báo trước của Vietcombank. Cảm ơn Vietcombank vì những trao đổi rất cởi mở và cho biết dự định VNSECURITY sẽ công bố thông tin về lỗ hổng trong vài ngày tới.
+* **XX:XX, 16/08/2016**: cập nhật bài viết này với thông tin chi tiết về lỗ hổng.
 
 tienpp, thaidn, Kha Nguyen - VNSecurity
 
