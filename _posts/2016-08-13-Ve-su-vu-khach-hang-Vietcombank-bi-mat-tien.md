@@ -131,7 +131,7 @@ Theo thông lệ quốc tế, chúng tôi công bố toàn bộ nhật ký phát
 * **15:36, 14/08/2016**: Vietcombank xác nhận thêm lần nữa Smart OTP vẫn đang hoạt động, chỉ có một chút thay đổi về quy trình đăng ký, kích hoạt dịch vụ. Đề nghị VNSECURITY hỗ trợ chống phishing.
 * **14:30, 15/08/2016**: phát hiện Vietcombank đã thay đổi giao thức Smart OTP trên máy chủ, nâng cấp từ phiên bản "22" lên phiên bản "24". VNSECURITY không được thông báo trước về những thay đổi này.
 * **01:30, 16/08/2016**: thông báo cho Vietcombank biết VNSECURITY đã dừng việc thẩm định Smart OTP vì không có đủ thời gian để chạy theo những thay đổi không báo trước của Vietcombank. Cảm ơn Vietcombank vì những trao đổi rất cởi mở và cho biết dự định VNSECURITY sẽ công bố thông tin về lỗ hổng trong vài ngày tới.
-* **XX:XX, 16/08/2016**: cập nhật bài viết này với thông tin chi tiết về lỗ hổng.
+* **07:30, 16/08/2016**: cập nhật bài viết này với thông tin chi tiết về lỗ hổng.
 
 tienpp, thaidn, Kha Nguyen - VNSecurity
 
