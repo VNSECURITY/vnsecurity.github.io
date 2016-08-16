@@ -32,10 +32,10 @@ Theo như đề cập ở trên, nửa đêm ngày 4 rạng sáng ngày 5, nạn
 
 ### Hướng tấn công số 1: phishing
 Đây là hướng tấn công đơn giản và dễ thực hiện nhất. Tại một thời điểm nào đó trước khi nạn nhân bị rút nửa tỉ đồng, kẻ xấu đã:
-Lừa nạn nhân vào trang web giả mạo để lấy thông tin tên người dùng và mật khẩu.
-Tiếp tục lừa nạn nhân trên giao diện trang web giả mạo để lấy SMS OTP.
-Sử dụng SMS OTP để âm thầm kích hoạt Smart OTP.
-Vì Smart OTP có thể sử dụng song song với SMS OTP, nạn nhân không hề biết tài khoản đã hoàn toàn bị kiểm soát.
+
+ 1. Lừa nạn nhân vào trang web giả mạo để lấy thông tin tên người dùng và mật khẩu.
+ 2. Tiếp tục lừa nạn nhân trên giao diện trang web giả mạo để lấy SMS OTP.
+ 3. Sử dụng SMS OTP để âm thầm kích hoạt Smart OTP. Vì Smart OTP có thể sử dụng song song với SMS OTP, nạn nhân không hề biết tài khoản đã hoàn toàn bị kiểm soát.
 
 Chúng tôi đánh giá khả năng cao đây là cách mà kẻ xấu đã thực hiện để trộm tiền của nạn nhân. Có những phương án khác để tấn công, nhưng kẻ tấn công thường chọn phương án đơn giản và dễ thực hiện nhất. Chúng tôi không thấy có căn cứ kẻ tấn công bằng cách khai thác lỗ hổng mà chúng tôi phát hiện cũng như các điểm yếu đã được biết đến từ lâu của SMS OTP.
 
@@ -45,14 +45,16 @@ Chúng tôi đánh giá khả năng cao đây là cách mà kẻ xấu đã th�
 ### Hướng tấn công số 2: khai thác lỗ hổng của Smart OTP
 
 Vì tò mò, chúng tôi đã tiến hành kiểm tra ứng dụng Smart OTP và phát hiện một lỗ hổng. Lợi dụng lỗ hổng này, chỉ cần biết số điện thoại của nạn nhân, kẻ xấu có thể kích hoạt Smart OTP của các khách hàng chưa đăng ký dịch vụ Smart OTP. Phương án tấn công như sau:
-Lừa nạn nhân vào trang web giả mạo để lấy thông tin tên người dùng và mật khẩu.
-Sử dụng tên người dùng và mật khẩu để truy vấn số điện thoại của nạn nhân trên trang Internet Banking của Vietcombank.
-Khai thác lỗ hổng để kích hoạt Smart OTP.
+
+ 1. Lừa nạn nhân vào trang web giả mạo để lấy thông tin tên người dùng và mật khẩu.
+ 2. Sử dụng tên người dùng và mật khẩu để truy vấn số điện thoại của nạn nhân trên trang Internet Banking của Vietcombank.
+ 3. Khai thác lỗ hổng để kích hoạt Smart OTP.
 
 Để hiểu hơn về quy trình kích hoạt Smart OTP và phương thức tấn công, xin mời tham khảo sơ đồ bên dưới.
 <center><img alt="" src="http://vnsecurity.net/assets/2016/08/vcb-smartotp.png"  /></center>  
 
 Tóm tắt quy trình đăng ký dịch vụ Smart OTP:
+
 1. Phần mềm Smart OTP gửi số điện thoại và địa chỉ WiFi MAC address của điện thoại đến máy chủ của VCB.
 2. Nếu số điện thoại chưa đăng ký, máy chủ VCB sẽ thực hiện hai thao tác:
   * Gửi mã xác thực, gọi là N, đến số điện thoại.
@@ -62,6 +64,7 @@ Tóm tắt quy trình đăng ký dịch vụ Smart OTP:
 4. Tất cả OTP được tạo ra từ XFACTOR. Ai có XFACTOR có thể tự tạo OTP mà không cần thông qua máy chủ VCB nữa.
 
 Lỗ hổng nằm ở ***bước thứ 2***. Để khai thác, kẻ tấn công có thể làm như sau:
+
 1. Gửi số điện thoại của nạn nhân và một địa chỉ MAC bất kỳ đến máy chủ của VCB.
 2. Lúc này máy chủ sẽ trả về R = Encrypt(key = MD5(MD5(N)), Y). Vì N là một chuỗi rất ngắn, chỉ có 4 chữ số, do đó kẻ tấn công có thể dò N.
   * Với mỗi giá trị dự đoán N' kẻ tấn công sẽ tính Y' = Decrypt(key=MD5(N’), data=R). Tùy thuộc vào biên giá trị của Y mà quá trình dò này có thể thực hiện offline. Nếu Y là một chuỗi hoàn toàn ngẫu nhiên, kẻ tấn công có thể sử dụng Y' và N' để thực hiện bước 3 và dựa vào phản hồi của máy chủ VCB để tìm N' = N. 
@@ -102,6 +105,7 @@ Trong phần tiếp theo của loạt bài này, chúng tôi sẽ bàn về các
 ### Nhật ký phát hiện và thông báo lỗ hổng
 
 Theo thông lệ quốc tế, chúng tôi công bố toàn bộ nhật ký phát hiện và thông báo lỗ hổng (ngày giờ ước lượng theo giờ VN)
+
 * 22:30, 12/8/2016: tải app Smart APK về.
 * 02:30, 13/8/2016: tìm thấy lỗ hổng thông qua việc dịch ngược app.
 * 11:39, 13/8/2016: gửi email thông báo lỗ hổng đến địa chỉ webmaster@vietcombank.com.vn. Đây là địa chỉ email duy nhất mà VNSECURITY tìm thấy trên website http://www.vietcombank.com.vn. Trang “Bảo mật" trên website này “đang được xây dựng".
@@ -129,3 +133,4 @@ Theo thông lệ quốc tế, chúng tôi công bố toàn bộ nhật ký phát
 * XX:XX, 16/08/2016: cập nhật bài viết này với thông tin chi tiết về lỗ hổng.
 
 tienpp, thaidn, Kha Nguyen - VNSecurity
+
