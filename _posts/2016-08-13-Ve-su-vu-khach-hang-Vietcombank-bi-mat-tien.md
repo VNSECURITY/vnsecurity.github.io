@@ -125,7 +125,7 @@ Theo thông lệ quốc tế, chúng tôi công bố toàn bộ nhật ký phát
 * **21:30, 13/08/2016**: Vietcombank hứa đến sáng thứ hai ngày 15/08/2016 sẽ cung cấp tài khoản thử nghiệm. Cho đến thời điểm bài viết này được công bố, VNSECURITY vẫn chưa nhận được tài khoản thử nghiệm.
 * **23:52, 13/08/2016**: Vietcombank xác nhận giao thức Smart OTP không đúng chuẩn và sẽ xem xét phương án thay thế. Vietcombank cho rằng đưa ra giả thuyết về lỗ hổng là hơi sớm.
 * **00:22, 14/08/2016**: Vietcombank cung cấp thêm thông tin về Y và số lần người dùng có thể thực hiện bước số 3 trong giao thức Smart OTP.
-* **00:28, 14/08/2016**: một đại diện khác của Vietcombank xác nhận thông tin về Y và số lần người dùng có thể thực hiện bước số 3 trong giao thức Smart OTP. Đề nghị VNSECURITY hỗ trợ “trong thời điểm nhạy cảm này" (nguyên văn).
+* **00:28, 14/08/2016**: một đại diện khác của Vietcombank xác nhận thông tin về Y và số lần người dùng có thể thực hiện bước số 3 trong giao thức Smart OTP.
 * **00:45, 14/08/2016**: nhận thấy máy chủ Smart OTP đã có một số thay đổi, đề nghị Vietcombank cho biết thêm thông tin về tình trạng hiện tại.
 * **00:55, 14/08/2016**: Vietcombank cho biết đã thay đổi quy trình đăng ký Smart OTP theo yêu cầu của ngân hàng nhà nước. Vietcombank tái xác nhận sẽ cung cấp tài khoản thử nghiệm vào thứ hai 15/08/2016.
 * **00:57, 14/08/2016**: cập nhật bài viết này, ghi chú “việc khai thác lỗ hổng với hệ thống hiện tại là rất khó có thể thành công”.
