@@ -265,9 +265,14 @@ h1 a:hover, h2 a:hover, h3 a:hover, h4 a:hover, h5 a:hover, h6 a:hover, a:hover,
     color: #e03d3d;
     text-decoration:none;
 }
-p { 
+.post-content p { 
     margin-bottom:10px;
-    line-height:25px;
+    line-height:30px;
+}
+
+.post-content li {
+    line-height:30px;   
+}
 }
 /* =========================================================
 Clear Floated Elements
