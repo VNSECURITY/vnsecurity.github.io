@@ -20,17 +20,17 @@ U2F là chữ viết tắt của Universal 2nd Factor, hiểu nôm na đây là 
 So sánh với các giải pháp phổ biến trên thị trường như SMS OTP, Smart OTP, Google Authenticator, hay RSA SecurID, FIDO U2F có nhiều lợi thế.
 
 * An toàn
-
-    * FIDO U2F chống được tấn công phishing. Bất kỳ giải pháp nào yêu cầu người sử dụng chép mã OTP đều không thể chống lại tấn công phishing.
-    * FIDO U2F là một chuẩn mở, các doanh nghiệp cần độ bảo mật cao có thể tự đánh giá và triển khai giải pháp này mà không cần nhờ vào bên thứ ba. Các giải pháp như RSA SecurID hoàn toàn đóng, không ai biết bên trong chúng hoạt động như thế nào.
+  * FIDO U2F chống được tấn công phishing. Bất kỳ giải pháp nào yêu cầu người sử dụng chép mã OTP đều không thể chống lại tấn công phishing.
+  * FIDO U2F là một chuẩn mở, các doanh nghiệp cần độ bảo mật cao có thể tự đánh giá và triển khai giải pháp này mà không cần nhờ vào bên thứ ba. Các giải pháp như RSA SecurID hoàn toàn đóng, không ai biết bên trong chúng hoạt động như thế nào.
+  
 * Dễ sử dụng.
-	* Để xác minh, người sử dụng chỉ cần sờ hoặc nhấn vào một nút duy nhất trên thiết bị FIDO U2F ([xem thêm demo đăng nhập vào Google sử dụng thiết bị U2F của hãng Yubico](https://www.youtube.com/watch?annotation_id=annotation_1845157061&feature=iv&src_vid=BXN7-Wn1Hy4&v=LeTkw6kmlzg)). Các giải pháp khác đều yêu cầu người dùng phải chép một mã số (thường được gọi là OTP) từ thiết bị sinh mã.
+  * Để xác minh, người sử dụng chỉ cần sờ hoặc nhấn vào một nút duy nhất trên thiết bị FIDO U2F ([xem thêm demo đăng nhập vào Google sử dụng thiết bị U2F của hãng Yubico](https://www.youtube.com/watch?annotation_id=annotation_1845157061&feature=iv&src_vid=BXN7-Wn1Hy4&v=LeTkw6kmlzg)). Các giải pháp khác đều yêu cầu người dùng phải chép một mã số (thường được gọi là OTP) từ thiết bị sinh mã.
 * Tiêu chuẩn mở.
-	* Người dùng mua một thiết bị FIDO U2F có thể sử dụng cho nhiều dịch vụ khác nhau, từ Internet Banking cho đến Gmail, YouTube, Dropbox, v.v. Người dùng chuyên nghiệp còn có thể sử dụng FIDO U2F để đăng nhập vào các máy chủ thông qua SSH hay VPN. Thiết bị RSA SecurID vừa đắt tiền vừa lại chỉ sử dụng được ở một nơi duy nhất.
-	* Các doanh nghiệp triển khai công nghệ FIDO U2F có thể tận dụng số lượng khách hàng đã có sẵn thiết bị FIDO U2F, mà không cần phải đầu tư hay yêu cầu khách hàng mua thêm thiết bị mới. Việc phải mua thiết bị đắt tiền như RSA SecurID thường khiến người sử dụng không muốn đăng ký xác minh hai bước, khiến cho tài khoản của họ kém an toàn.
-	* Vì các sản phẩm FIDO U2F có cách thức hoạt động như nhau, các doanh nghiệp triển khai công nghệ FIDO U2F tránh được tình trạng bị “locked in" vào một nhà sản xuất độc quyền. Đây là vấn đề thường gặp khi triển khai các giải pháp xác thực hai lớp như RSA SecurID, vì một khi đã triển khai rồi thì khó chuyển sang nhà cung cấp giải pháp khác được nữa.
+  * Người dùng mua một thiết bị FIDO U2F có thể sử dụng cho nhiều dịch vụ khác nhau, từ Internet Banking cho đến Gmail, YouTube, Dropbox, v.v. Người dùng chuyên nghiệp còn có thể sử dụng FIDO U2F để đăng nhập vào các máy chủ thông qua SSH hay VPN. Thiết bị RSA SecurID vừa đắt tiền vừa lại chỉ sử dụng được ở một nơi duy nhất.
+  * Các doanh nghiệp triển khai công nghệ FIDO U2F có thể tận dụng số lượng khách hàng đã có sẵn thiết bị FIDO U2F, mà không cần phải đầu tư hay yêu cầu khách hàng mua thêm thiết bị mới. Việc phải mua thiết bị đắt tiền như RSA SecurID thường khiến người sử dụng không muốn đăng ký xác minh hai bước, khiến cho tài khoản của họ kém an toàn.
+  * Vì các sản phẩm FIDO U2F có cách thức hoạt động như nhau, các doanh nghiệp triển khai công nghệ FIDO U2F tránh được tình trạng bị “locked in" vào một nhà sản xuất độc quyền. Đây là vấn đề thường gặp khi triển khai các giải pháp xác thực hai lớp như RSA SecurID, vì một khi đã triển khai rồi thì khó chuyển sang nhà cung cấp giải pháp khác được nữa.
 * Giá cả hợp lý.
-	* Tùy thuộc vào yêu cầu của người dùng mà thiết bị FIDO U2F có giá dao động từ 10 USD đến 40 USD. Trong tương lai giá cả của các thiết bị này sẽ đi xuống vì càng lúc sẽ có càng nhiều nhà sản xuất.
+  * Tùy thuộc vào yêu cầu của người dùng mà thiết bị FIDO U2F có giá dao động từ 10 USD đến 40 USD. Trong tương lai giá cả của các thiết bị này sẽ đi xuống vì càng lúc sẽ có càng nhiều nhà sản xuất.
 
 ### Góc kỹ thuật: U2F chống phishing như thế nào?
 
