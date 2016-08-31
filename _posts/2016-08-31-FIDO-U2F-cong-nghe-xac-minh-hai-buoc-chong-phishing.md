@@ -1,7 +1,20 @@
+---
+title: 'FIDO U2F: Công nghệ xác minh hai bước chống phishing'
+author: thaidn
+layout: post
+thumbnail: http://vnsecurity.net/assets/2016/08/u2f.png
+excerpt: U2F là chữ viết tắt của Universal 2nd Factor, hiểu nôm na đây là công nghệ xác minh hai bước có thể sử dụng ở mọi nơi. Công nghệ U2F do Google Security Team cùng với Yubico và NXP sáng chế và sau đó bàn giao lại cho FIDO Alliance. Tôi không tham gia sáng chế ra công nghệ này, nhưng tôi có hỗ trợ đánh giá bộ giao thức U2F. So với các công nghệ tương đương như SMS OTP hay RSA SecurID, U2F có những sáng tạo độc đáo làm cho nó an toàn và dễ sử dụng hơn.
+category: tutorial
+published: true
+tags:
+  - u2f
+---
+
 ## FIDO U2F: công nghệ xác minh hai bước chống phishing
 
 U2F là chữ viết tắt của Universal 2nd Factor, hiểu nôm na đây là công nghệ xác minh hai bước có thể sử dụng ở mọi nơi. Công nghệ U2F do Google Security Team cùng với Yubico và NXP sáng chế và sau đó bàn giao lại cho [FIDO Alliance.](https://fidoalliance.org/) Tôi không tham gia sáng chế ra công nghệ này, nhưng tôi có hỗ trợ đánh giá bộ giao thức U2F. **So với các công nghệ tương đương như SMS OTP hay RSA SecurID, U2F có những sáng tạo độc đáo làm cho nó an toàn và dễ sử dụng hơn.**
 
+![fido u2f](http://vnsecurity.net/assets/2016/08/fido-u2f.png)
 
 ### Lợi thế
 
