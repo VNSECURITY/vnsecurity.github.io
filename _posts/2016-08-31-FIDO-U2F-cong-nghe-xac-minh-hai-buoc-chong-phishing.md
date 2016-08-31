@@ -8,6 +8,7 @@ category: tutorial
 published: true
 tags:
   - u2f
+  - phishing
 ---
 
 ## FIDO U2F: công nghệ xác minh hai bước chống phishing
