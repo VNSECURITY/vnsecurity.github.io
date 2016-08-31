@@ -11,8 +11,6 @@ tags:
   - phishing
 ---
 
-## FIDO U2F: công nghệ xác minh hai bước chống phishing
-
 U2F là chữ viết tắt của Universal 2nd Factor, hiểu nôm na đây là công nghệ xác minh hai bước có thể sử dụng ở mọi nơi. Công nghệ U2F do Google Security Team cùng với Yubico và NXP sáng chế và sau đó bàn giao lại cho [FIDO Alliance.](https://fidoalliance.org/) Tôi không tham gia sáng chế ra công nghệ này, nhưng tôi có hỗ trợ đánh giá bộ giao thức U2F. **So với các công nghệ tương đương như SMS OTP hay RSA SecurID, U2F có những sáng tạo độc đáo làm cho nó an toàn và dễ sử dụng hơn.**
 
 ![fido u2f](http://vnsecurity.net/assets/2016/08/fido-u2f.png)
@@ -21,9 +19,10 @@ U2F là chữ viết tắt của Universal 2nd Factor, hiểu nôm na đây là 
 
 So sánh với các giải pháp phổ biến trên thị trường như SMS OTP, Smart OTP, Google Authenticator, hay RSA SecurID, FIDO U2F có nhiều lợi thế.
 
-* An toàn.
-	* FIDO U2F chống được tấn công phishing. Bất kỳ giải pháp nào yêu cầu người sử dụng chép mã OTP đều không thể chống lại tấn công phishing.
-	* FIDO U2F là một chuẩn mở, các doanh nghiệp cần độ bảo mật cao có thể tự đánh giá và triển khai giải pháp này mà không cần nhờ vào bên thứ ba. Các giải pháp như RSA SecurID hoàn toàn đóng, không ai biết bên trong chúng hoạt động như thế nào.
+* An toàn
+
+    * FIDO U2F chống được tấn công phishing. Bất kỳ giải pháp nào yêu cầu người sử dụng chép mã OTP đều không thể chống lại tấn công phishing.
+    * FIDO U2F là một chuẩn mở, các doanh nghiệp cần độ bảo mật cao có thể tự đánh giá và triển khai giải pháp này mà không cần nhờ vào bên thứ ba. Các giải pháp như RSA SecurID hoàn toàn đóng, không ai biết bên trong chúng hoạt động như thế nào.
 * Dễ sử dụng.
 	* Để xác minh, người sử dụng chỉ cần sờ hoặc nhấn vào một nút duy nhất trên thiết bị FIDO U2F ([xem thêm demo đăng nhập vào Google sử dụng thiết bị U2F của hãng Yubico](https://www.youtube.com/watch?annotation_id=annotation_1845157061&feature=iv&src_vid=BXN7-Wn1Hy4&v=LeTkw6kmlzg)). Các giải pháp khác đều yêu cầu người dùng phải chép một mã số (thường được gọi là OTP) từ thiết bị sinh mã.
 * Tiêu chuẩn mở.
