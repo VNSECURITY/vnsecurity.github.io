@@ -1,6 +1,5 @@
 ---
 title: Papers
-author: suto
 layout: page
 tweetbackscheck:
   - 1408358840
@@ -14,7 +13,7 @@ kopa_newsmixlight_total_view:
 Papers & presentations published by VNSECURITY members. Copyright and all rights therein are maintained by the authors or by other copyright holders.
 
 ### 2016
-* Nguyen Anh Quynh, *Keystone: A Next Generation Assembler Framework*, Presentation, <a href="Keystone: A Next Generation Assembler Framework" target="_blank">HITB GSEC 2016</a>, Aug 2016 (<a href="http://gsec.hitb.org/materials/sg2016/D1%20-%20Nguyen%20Anh%20Quynh%20-%20Keystone%20-%20A%20Next%20Generation%20Assembler%20Framework.pdf" target="_blank">slides</a>
+* Nguyen Anh Quynh, *Keystone: A Next Generation Assembler Framework*, Presentation, <a href="Keystone: A Next Generation Assembler Framework" target="_blank">HITB GSEC 2016</a>, Aug 2016 (<a href="http://gsec.hitb.org/materials/sg2016/D1%20-%20Nguyen%20Anh%20Quynh%20-%20Keystone%20-%20A%20Next%20Generation%20Assembler%20Framework.pdf" target="_blank">slides</a>)
 * Nguyen Anh Quynh, *Keystone Engine: Next Generation Assembler Framework*, Presentation, <a href="https://www.blackhat.com/us-16/briefings/schedule/#keystone-engine-next-generation-assembler-framework-3430" target="_blank">BlackHat USA 2016</a>, Aug 2016 (<a href="http://keystone-engine.org/docs/BHUSA2016-keystone.pdf" target="_blank">slides</a>)
 * KaiJern Lau, *Mouse Jack implementation for poor people*, Presentation, <a href="http://2016.qconbeijing.com/speakers/202002" target="_blank">QCon 2016</a>, April 2016 (<a href="https://github.com/xwings/tuya/blob/master/mousejack/ppt/QCon2016_Beijing_Full.pdf" target="_blank">slides</a>)
 * Nguyen Anh Quynh, *Building next generation security tools with Unicorn engine*, Presentation, <a href="https://tetcon.org/saigon-2016/talks/building-next-generation-security-tools-with-unicorn-engine.html" target="_blank">Tetcon 2016</a>, Jan 2016
