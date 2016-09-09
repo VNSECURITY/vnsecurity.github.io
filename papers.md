@@ -13,14 +13,18 @@ kopa_newsmixlight_total_view:
 Papers & presentations published by VNSECURITY members. Copyright and all rights therein are maintained by the authors or by other copyright holders.
 
 ### 2016
-* Nguyen Anh Quynh, *Keystone: A Next Generation Assembler Framework*, Presentation, <a href="Keystone: A Next Generation Assembler Framework" target="_blank">HITB GSEC 2016</a>, Aug 2016 (<a href="http://gsec.hitb.org/materials/sg2016/D1%20-%20Nguyen%20Anh%20Quynh%20-%20Keystone%20-%20A%20Next%20Generation%20Assembler%20Framework.pdf" target="_blank">slides</a>)
+* Nguyen Anh Quynh, *Keystone: A Next Generation Assembler Framework*, Presentation, <a href="http://gsec.hitb.org/sg2016/sessions/keystone-a-next-generation-assembler-framework/" target="_blank">HITB GSEC 2016</a>, Aug 2016 (<a href="http://gsec.hitb.org/materials/sg2016/D1%20-%20Nguyen%20Anh%20Quynh%20-%20Keystone%20-%20A%20Next%20Generation%20Assembler%20Framework.pdf" target="_blank">slides</a>)
+* KaiJern Lau, *Reverse Engineering Trilogy*, Presentation, <a href="http://kcon.knownsec.com/2016/#speakers_and_topics" target="_blank">KCON Beijing 2016</a>, Aug 2016
 * Nguyen Anh Quynh, *Keystone Engine: Next Generation Assembler Framework*, Presentation, <a href="https://www.blackhat.com/us-16/briefings/schedule/#keystone-engine-next-generation-assembler-framework-3430" target="_blank">BlackHat USA 2016</a>, Aug 2016 (<a href="http://keystone-engine.org/docs/BHUSA2016-keystone.pdf" target="_blank">slides</a>)
+* Hoang Quoc Thinh, *XXX Injection - Beyond classical injection methods*, Presentation, <a href="" target="_blank">Tra Da Hacking #01</a>, Jun 2016 (<a href="http://trada.vnsecurity.net/archives/slides/TraDaHacking01-Beyond.Classical.Injection.Methods-Part1_G4mm4.pdf" target="_blank">slides</a>)
+* Loi Anh Tuan, *IPS và một số kỹ thuật vượt rào*, Presentation, <a href="http://trada.vnsecurity.net/archives/01/schedule/#session-1010" target="_blank">Tra Da Hacking #01</a>, Jun 2016 (<a href="http://trada.vnsecurity.net/archives/slides/TraDaHacking01-IPS.Bypass.Techniques_Tony.Loi.pdf" target="_blank">slides</a>)
 * KaiJern Lau, *Mouse Jack implementation for poor people*, Presentation, <a href="http://2016.qconbeijing.com/speakers/202002" target="_blank">QCon 2016</a>, April 2016 (<a href="https://github.com/xwings/tuya/blob/master/mousejack/ppt/QCon2016_Beijing_Full.pdf" target="_blank">slides</a>)
 * Nguyen Anh Quynh, *Building next generation security tools with Unicorn engine*, Presentation, <a href="https://tetcon.org/saigon-2016/talks/building-next-generation-security-tools-with-unicorn-engine.html" target="_blank">Tetcon 2016</a>, Jan 2016
 * Pham Van Toan, *Làm thế nào để tìm 0-day trong Microsoft Edge*, Presentation, <a href="https://tetcon.org/saigon-2016/talks/lam-the-nao-de-tim-0day-trong-microsoft-edge.html" target="_blank">Tetcon 2016</a>, Jan 2016
 
 ### 2015
 
+* Thanh Nguyen, Nguyen Phi Kha, *Targeted Attack Operations Against Internet Industry in Vietnam*, Keynote Presentation, <a href="http://avar2015.org/vs/agenda/" target="_blank">Anti-virus Asia Researchers International Conference 2015</a>, Dec 2015
 * Nguyen Anh Quynh, Dang Hoang Vu, *Unicorn: Next Generation CPU Emulator Framework*, Presentation, <a href="https://www.blackhat.com/us-15/briefings.html#unicorn-next-generation-cpu-emulator-framework" target="_blank">BlackHat USA 2015</a>, Aug 2015
 * Nguyen Anh Quynh, *Building a “perfect” X86 diassembly framework*, Presentation, <a href="https://tetcon.org/saigon-2015/talks/building-a-perfect-x86-diassembly-framework.html" target="_blank">Tetcon 2015</a>, Jan 2015.
 * Hoang Quoc Thinh, *The #bugbounty comic*, Presentation, <a href="https://tetcon.org/saigon-2015/talks/the-bugbounty-comic.html" target="_blank">Tetcon 2015</a>, Jan 2015.
@@ -48,14 +52,16 @@ Papers & presentations published by VNSECURITY members. Copyright and all rights
 
 ### 2011
 
+*   Le Dinh Long & Thanh Nguyen, *ARM Exploitation ROPmap*, Presentation, <a href="http://pacsec.jp/speakers.html" target="_blank">PacSec Japan</a>, November 2011.
 *   KaiJern Lau, *Malware Sandboxing the Xandora Way*, Presentation, <a href="http://conference.hitb.org/hitbsecconf2011kul/?page_id=2048" target="_blank">Hack in The Box Malaysia</a>, October 2011
 *   Thai Duong & Juliano Rizzo, *BEAST: Surprising crypto attack against HTTPS*, Presentation, <a href="http://www.ekoparty.org/2011/thai-duong.php" target="_blank">Ekoparty</a>, Sept 2011. (<a href="http://www.insecure.cl/Beast-SSL.rar" target="_blank">paper</a>)
-*   Le Dinh Long & Thanh Nguyen, *ARM Exploitation ROPmap*, Presentation, <a href="http://www.blackhat.com/html/bh-us-11/bh-us-11-briefings.html#Le" target="_blank">Black Hat USA</a>, August 2011 and <a href="http://pacsec.jp/speakers.html" target="_blank">PacSec Japan</a>, November 2011. (<a href="https://media.blackhat.com/bh-us-11/Le/BH_US_11_Le_ARM_Exploitation_ROPmap_Slides.pdf">slides</a>)
+*   Le Dinh Long & Thanh Nguyen, *ARM Exploitation ROPmap*, Presentation, <a href="http://www.blackhat.com/html/bh-us-11/bh-us-11-briefings.html#Le" target="_blank">Black Hat USA</a>, August 2011. (<a href="https://media.blackhat.com/bh-us-11/Le/BH_US_11_Le_ARM_Exploitation_ROPmap_Slides.pdf">slides</a>)
 *   Thai Duong & Juliano Rizzo, *Cryptography in the Web: The Case of Cryptographic Design Flaws in ASP.NET*, Technical Paper, <a href="http://www.ieee-security.org/TC/SP2011/program.html" target="_blank">IEEE Symposium on Security & Privacy</a>, May 2011. (<a href="http://www.ieee-security.org/TC/SP2011/PAPERS/2011/paper030.pdf" target="_blank">paper</a>)
 
 ### 2010
 
-*   Le Dinh Long & Thanh Nguyen, *Payload already inside: data re-use for ROP exploits*, Presentation, <a href="http://conference.hitb.org/hitbsecconf2010kl/" target="_blank">Hack in The Box Malaysia</a>, October 2010 and <a href="https://deepsec.net/schedule" target="_blank">DeepSec Austria</a>, November 2010. 
+*   Thanh Nguyen, *Payload already inside: data re-use for ROP exploits*, Presentation, <a href="https://deepsec.net/schedule" target="_blank">DeepSec Austria</a>, November 2010. 
+*   Le Dinh Long & Thanh Nguyen, *Payload already inside: data re-use for ROP exploits*, Presentation, <a href="http://conference.hitb.org/hitbsecconf2010kl/" target="_blank">Hack in The Box Malaysia</a>, October 2010. 
 *   Nguyen Anh Quynh, *Detecting Malicious Documentations*, Presentation, <a href="http://www.syscan.org/index.php/archive/view/year/2010/city/hcm/pg/speakers" target="_blank">SyScan HCM</a>, September 2010.
 *   Thai Duong & Juliano Rizzo, *Padding Oracles Everywhere*, Presentation, <a href="http://www.ekoparty.org/thai-duong-2010.php" target="_blank">Ekoparty</a>, September 2010.
 *   Nguyen Anh Quynh, *Operating System Fingerprinting for Virtual Machines*, Presentation, <a href="https://www.defcon.org/html/defcon-18/dc-18-schedule.html" target="_blank">Defcon 18</a>, July 2010 and [SyScan Taipei][1], August 2010. (<a href="http://www.defcon.org/images/defcon-18/dc-18-presentations/Quynh/DEFCON-18-Quynh-OS-Fingerprinting-VM.pdf" target="_blank">slides</a>)
