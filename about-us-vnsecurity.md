@@ -16,7 +16,6 @@ VNSECURITY, founded since 1998 (formerly VISG), is a team made up of various mem
 
 ### Co-Founders
 
-* Dao Hai Lam (MrChuoi)
 * Thanh Nguyen (RD / Red Dragon)
 * Le Dinh Long (Xichzo / SeekZero)
 
@@ -27,7 +26,7 @@ VNSECURITY, founded since 1998 (formerly VISG), is a team made up of various mem
 * Computer_Angel / NeoZ
 * Dang Hoang Vu (w00d)
 * Duong Ngoc Thai (thaidn)
-* Eugene Teo
+* Duong Quoc Tin (tinduong)
 * Hoang Quoc Thinh (g4mm4)
 * Huy Phan (pdah)
 * KaiJern Lau (Xwings)
@@ -35,20 +34,24 @@ VNSECURITY, founded since 1998 (formerly VISG), is a team made up of various mem
 * Loi Anh Tuan (k9)
 * Nguyen Manh Luat (ML)
 * Nguyen Thanh Nam (Lamer)
+* Nguyen Thanh Luan (jot)
 * Nguyen Anh Quynh
-* Olalalili
 * Phan Phung Tien (cr4zyb0y)
 * sovietw0rm
 * superKhung
 * suto
+* zx
 
 ### Inactive Members
 * Convit
 * Chairuou
 * Conmale
+* Dao Hai Lam (MrChuoi)
+* Eugene Teo
 * Lukas
 * Mikado
 * Mybb
+* Olalalili
 * Getfly
 * Nm
 
