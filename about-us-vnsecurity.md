@@ -21,25 +21,29 @@ VNSECURITY, founded since 1998 (formerly VISG), is a team made up of various mem
 
 ### Active Members
 
-* Bluemood / pmquan
-* Cao Nguyen  
-* Computer_Angel / NeoZ
+* Bluemood (pmquan)
+* Cao Nguyen
+* Computer_Angel (NeoZ)
 * Dang Hoang Vu (w00d)
+* Dang Minh Tri (trichimtrich)
+* Duc Le (ducle)
 * Duong Ngoc Thai (thaidn)
 * Duong Quoc Tin (tinduong)
 * Hoang Quoc Thinh (g4mm4)
+* Huy Ngo (huyna)
 * Huy Phan (pdah)
 * KaiJern Lau (Xwings)
-* Linh Mai (leenmie)
 * Loi Anh Tuan (k9)
-* Nguyen Manh Luat (ML)
-* Nguyen Thanh Nam (Lamer)
-* Nguyen Thanh Luan (jot)
 * Nguyen Anh Quynh
+* Nguyen Manh Luat (ML)
+* Nguyen Phi Kha (superKhung)
+* Nguyen Hong Quang (quangnh)
+* Nguyen Thanh Luan (jot)
+* Nguyen Thanh Nam (Lamer)
+* Nguyen Vu Hoang (peternguyen)
+* Nguyen Xuan Quang (sovietw0rm)
+* Pham Van Toan (suto)
 * Phan Phung Tien (cr4zyb0y)
-* sovietw0rm
-* superKhung
-* suto
 * zx
 
 ### Inactive Members
@@ -48,6 +52,7 @@ VNSECURITY, founded since 1998 (formerly VISG), is a team made up of various mem
 * Conmale
 * Dao Hai Lam (MrChuoi)
 * Eugene Teo
+* Linh Mai (leenmie)
 * Lukas
 * Mikado
 * Mybb
