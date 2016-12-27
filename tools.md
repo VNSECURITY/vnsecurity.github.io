@@ -22,6 +22,7 @@ URL: <http://www.capstone-engine.org/>
 Capstone is a lightweight multi-platform, multi-architecture disassembly framework.
 
 Highlight features
+
 * Multi-architectures: Arm, Arm64 (Armv8), M68K, Mips, PowerPC, Sparc, SystemZ, XCore & X86 (include X86_64) (details).
 * Clean/simple/lightweight/intuitive architecture-neutral API.
 * Provide details on disassembled instruction (called "decomposer" by some others).
@@ -41,7 +42,9 @@ Author: Nguyen Anh Quynh
 URL: <http://www.keystone-engine.org/>
 
 Keystone is a lightweight multi-platform, multi-architecture assembler framework.
+
 Highlight features:
+
 * Multi-architecture, with support for Arm, Arm64 (AArch64/Armv8), Hexagon, Mips, PowerPC, Sparc, SystemZ, & X86 (include 16/32/64bit).
 * Clean/simple/lightweight/intuitive architecture-neutral API.
 * Implemented in C/C++ languages, with bindings for PowerShell, Perl, Python, NodeJS, Ruby, Go, Rust, Haskell & OCaml available.
@@ -57,11 +60,13 @@ Author: Nguyen Anh Quynh, Thanh Nguyen
 URL: <http://www.keystone-engine.org/keypatch/>
 
 Sometimes we want to patch the binary while analyzing it in IDA, but unfortunately the built-in asssembler of IDA Pro is not adequate.
+
 * Only X86 assembler is available. Support for all other architectures is totally missing.
 * The X86 assembler is not in a good shape, either: it cannot understand many modern Intel instructions.
 * This tool is not friendly and without many options that would make reverser’s life easier.
 
 Keypatch is the award winning plugin of IDA Pro for Keystone Assembler Engine. Thanks to the power of Keystone, our plugin offers some superior features.
+
 * More friendly & easier to use.
 * Cross-architecture: support Arm, Arm64 (AArch64/Armv8), Hexagon, Mips, PowerPC, Sparc, SystemZ & X86 (include 16/32/64bit).
 * Cross-platform: work everywhere that IDA works, which is on Windows, MacOS, Linux.
@@ -78,7 +83,9 @@ Author: Nguyen Anh Quynh, Dang Hoang Vu
 URL: <http://www.unicorn-engine.org/>
 
 Unicorn is a lightweight multi-platform, multi-architecture CPU emulator framework.
+
 Highlight features:
+
 * Multi-architectures: Arm, Arm64 (Armv8), M68K, Mips, Sparc, & X86 (include X86_64).
 * Clean/simple/lightweight/intuitive architecture-neutral API.
 * Implemented in pure C language, with bindings for Perl, Rust, Haskell, Ruby, Python, Java, Go, .NET, Delphi/Pascal & MSVC available.
@@ -96,7 +103,9 @@ Author: longld aka xichzo
 URL: <https://github.com/longld/peda>
 
 PEDA is a Python Exploit Development Assistance for GDB
+
 Key Features:
+
 * Enhance the display of gdb: colorize and display disassembly codes, registers, memory information during debugging.
 * Add commands to support debugging and exploit development (for a full list of commands use `peda help`):
   * `aslr` -- Show/set ASLR setting of GDB
