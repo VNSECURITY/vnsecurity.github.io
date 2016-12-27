@@ -11,7 +11,7 @@ aktt_notify_twitter:
 kopa_newsmixlight_total_view:
   - 16
 ---
-List of tools published by VNSECURIddTY members. Copyright and all rights therein are maintained by the authors or by other copyright holders.
+List of tools published by VNSECURITY members. Copyright and all rights therein are maintained by the authors or by other copyright holders.
 
 ### Capstone - The Ultimate Disassembler
 
