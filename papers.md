@@ -12,6 +12,27 @@ kopa_newsmixlight_total_view:
 ---
 Papers & presentations published by VNSECURITY members. Copyright and all rights therein are maintained by the authors or by other copyright holders.
 
+### 2019 
+* Nguyen Anh Quynh, *Monocerus: Dynamic Analysis for Smart Contract*, Presentation, BlackHat Asia 2019, Mar 2019 (<a href="https://www.blackhat.com/asia-19/briefings/schedule/#monocerus-dynamic-analysis-for-smart-contract-13910" target="_blank">Link</a>)
+* KJ and Dlive - JiuWei, *Cross Platform/Architecture Shellcode Executor*, Presentation, VXCON 2019, Apr 2019 (<a href="https://www.vxcon.hk/#agenda" target="_blank">Link</a>)
+
+### 2018 
+
+* Nguyen Anh Quynh, *Dynamic analysis for Ethereum smart contracts*, Presentation, Tra Da Hacking 2018, Aug 2018 (<a href="https://event.tradahacking.vn/schedule/#session-718" target="_blank">Link</a>)
+* Hoang Quoc Thinh, *Practical [Sub]domain Takeover*, Presentation, Tra Da Hacking 2018, Aug 2018 (<a href="https://event.tradahacking.vn/schedule/#session-714" target="_blank">Link</a>)
+* Huy Nguyen, *Finding VirtualBox vulnerabilites with code review*, Presentation, Tra Da Hacking 2018, Aug 2018 (<a href="https://event.tradahacking.vn/schedule/#session-724" target="_blank">Link</a>)
+* KJ Lau and Nguyen Anh Quynh, *Virtualizing IoT With Code Coverage Guided Fuzzing*, Presentation, HITB Dubai 2018, Dec 2018 (<a href="https://www.youtube.com/watch?v=BGqkfKV1KFk" target="_blank">Video</a>)
+* Nguyen Anh Quynh, *Skorpio Advanced Binary Instrumentation Framework*, Presentation, OPCDE2018 2018, May 2018 (<a href="https://github.com/comaeio/OPCDE/blob/master/2018/Emirates/Skorpio%20Advanced%20Binary%20Instrumentation%20Framework%20-%20Nguyen%20Anh%20Quynh/Opcde2018-skorpio.pdf" target="_blank">Slides</a>) - <a href="https://www.syscan360.org/en/speakers/#issue-18na" target=_blank>Syscan360</a> 
+* Nguyen Anh Quynh, *DIGGING DEEP: FINDING 0DAYS IN EMBEDDED SYSTEMS WITH CODE COVERAGE GUIDED FUZZING*, Presentation, HITB PEK 2018, Oct 2018 (<a href="https://conference.hitb.org/hitbsecconf2018pek/speakers/nguyen-anh-quynh/" target="_blank">Link</a>) - <a href="https://brucon0x0a.sched.com/speaker/quynh_nguyen_anh.1ybjs5h9" target="_blank">BruCON 0x0A</a>
+* Quang Nguyen, *A malware analysis case-study: hide and seek game in Windows Compatibility Shims*, Presentation, Tra Da Hacking 2018, Jan 2018 (<a href="https://event.tradahacking.vn/archives/06/schedule/#session-605" target="_blank">Link</a>)
+
+### 2017
+* Nguyen Anh Quynh, *Building Advanced Coverage-guided Fuzzer for Program Binaries*, Presentation, <a href="https://2017.zeronights.org/speaker/nguyen-anh-quynh/" target="_blank">ZERONIGHTS 2017</a>, Nov 2017 (<a href="https://www.youtube.com/watch?v=8pPo5ubKxW8" target="_blank">Video</a>)
+* Tin Duong, *Convolutional Neural Networks - Practical Examples for Business & Security*, Presentation, Tra Da Hacking 2017, Sept 2017 (<a href="https://event.tradahacking.vn/archives/05/schedule/#session-502" target="_blank">Link</a>)
+* Hoang Quoc Thinh, *Second Order Attacks & Defense:::[case study]*, Presentation, Tra Da Hacking 2017, Sept 2018 (<a href="https://event.tradahacking.vn/archives/05/schedule/#session-505" target="_blank">Link</a>)
+* Bao Pham, *Android application security*, Presentation, Tra Da Hacking 2017, Sept 2018 (<a href="https://event.tradahacking.vn/archives/05/schedule/#session-506" target="_blank">Link</a>)
+* Tien Phan, *Những mánh khoé gian lận tài chính trực tuyến - góc nhìn từ người trong cuộc*, Presentation, Tra Da Hacking 2017, Sept 2018 (<a href="https://event.tradahacking.vn/archives/05/schedule/#session-507" target="_blank">Link</a>)
+
 ### 2016
 * Nguyen Anh Quynh, *Keystone: A Next Generation Assembler Framework*, Presentation, <a href="http://gsec.hitb.org/sg2016/sessions/keystone-a-next-generation-assembler-framework/" target="_blank">HITB GSEC 2016</a>, Aug 2016 (<a href="http://gsec.hitb.org/materials/sg2016/D1%20-%20Nguyen%20Anh%20Quynh%20-%20Keystone%20-%20A%20Next%20Generation%20Assembler%20Framework.pdf" target="_blank">slides</a>)
 * KaiJern Lau, *Reverse Engineering Trilogy*, Presentation, <a href="http://kcon.knownsec.com/2016/#speakers_and_topics" target="_blank">KCON Beijing 2016</a>, Aug 2016
