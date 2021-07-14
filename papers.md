@@ -12,12 +12,24 @@ kopa_newsmixlight_total_view:
 ---
 Papers & presentations published by VNSECURITY members. Copyright and all rights therein are maintained by the authors or by other copyright holders.
 
+
+### 2021 
+* Kai Jern Lau - Wu ChenXu & Kong ZiQia, *Qiling: Smart Analysis for Smart Contract*, Presentation, BlackHat Asia 2021, May 2021 (<a href="https://www.blackhat.com/asia-21/arsenal/schedule/#qiling-smart-analysis-for-smart-contract-22643" target="_blank">Link</a>)
+* Kai Jern Lau - Wu ChenXu & Kong ZiQia, *When Qiling Framework Meets Symbolic Execution*, Presentation, HitbSecConf2021 Ams, May 2021 (<a href="https://conference.hitb.org/sessions/when-qiling-framework-meets-symbolic-execution/" target="_blank">Link</a>)
+
+
+### 2020 
+* Nguyen Anh Quynh - Quang Nguyen Hong & Tuan Do Minh, *Demigod: The Art of Emulating Kernel Rootkits*, Presentation, Black Hat USA 2020, Aug 2020 (<a href="https://www.blackhat.com/us-20/briefings/schedule/#demigod-the-art-of-emulating-kernel-rootkits-20009" target="_blank">Link</a>)
+* Kaijern 'Xwings' Lau, *QiLing: Lightweight Advanced Binary Analyzer*, Presentation, BlackHat Asia 2020, Sept 2020 (<a href="https://www.blackhat.com/asia-20/arsenal/schedule/#qiling-lightweight-advanced-binary-analyzer-19245" target="_blank">Link</a>)
+
+
 ### 2019 
 * Nguyen Anh Quynh, *Monocerus: Dynamic Analysis for Smart Contract*, Presentation, BlackHat Asia 2019, Mar 2019 (<a href="https://www.blackhat.com/asia-19/briefings/schedule/#monocerus-dynamic-analysis-for-smart-contract-13910" target="_blank">Link</a>)
 * KJ and Dlive - JiuWei, *Cross Platform/Architecture Shellcode Executor*, Presentation, VXCON 2019, Apr 2019 (<a href="https://www.vxcon.hk/#agenda" target="_blank">Link</a>)
 
 ### 2018 
 
+* Thanh Nguyen - Van Hoa Nguyen, *Smart Contract Security Verification Tool*, Presentation, JD-HITB Beijing Security Conference 2018, Nov 2018 (<a href="https://conference.hitb.org/hitbsecconf2018pek/sessions/rk87-a-smart-contract-verification-tool/" target="_blank">Link</a>)
 * Nguyen Anh Quynh, *Dynamic analysis for Ethereum smart contracts*, Presentation, Tra Da Hacking 2018, Aug 2018 (<a href="https://event.tradahacking.vn/schedule/#session-718" target="_blank">Link</a>)
 * Hoang Quoc Thinh, *Practical [Sub]domain Takeover*, Presentation, Tra Da Hacking 2018, Aug 2018 (<a href="https://event.tradahacking.vn/schedule/#session-714" target="_blank">Link</a>)
 * Huy Nguyen, *Finding VirtualBox vulnerabilites with code review*, Presentation, Tra Da Hacking 2018, Aug 2018 (<a href="https://event.tradahacking.vn/schedule/#session-724" target="_blank">Link</a>)
